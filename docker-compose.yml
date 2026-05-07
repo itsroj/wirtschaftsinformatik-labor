@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: muntermacher_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: munuser
+      POSTGRES_PASSWORD: munpassword
+      POSTGRES_DB: mundb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    image: node:18
+    container_name: muntermacher_backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm run dev"
+    environment:
+      PORT: 3000
+      JWT_SECRET: dev_secret
+      DATABASE_URL: postgresql://munuser:munpassword@postgres:5432/mundb
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
