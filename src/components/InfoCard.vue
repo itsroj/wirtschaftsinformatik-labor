@@ -11,7 +11,11 @@
           Model-United-Nations-Konferenzen (MUNs)
           sind Planspiele, bei denen die Teilnehmer
           in die Rolle von Delegierten bei den
-          Vereinten Nationen schlüpfen.
+          Vereinten Nationen schlüpfen. In simulierten 
+          Gremien wie dem Sicherheitsrat oder der 
+          Generalversammlung debattieren die Delegierten
+          über weltpolitische Themen, handeln Kompromisse 
+          aus und verabschieden Resolutionen.
         </p>
 
         <button>
