@@ -19,7 +19,7 @@
 
       <!-- Event Pins -->
       <EventMarker
-        v-for="event in events"
+        v-for="event in props.events"
         :key="event.id"
         :event="event"
         :isMobile="isMobile"
@@ -55,8 +55,6 @@
 
         <p>{{ selectedEvent.date }}</p>
 
-        <p>{{ selectedEvent.university }}</p>
-
       </div>
 
       <!-- Mobile Bottom Sheet -->
@@ -75,7 +73,6 @@
         <h3>{{ selectedEvent.title }}</h3>
         <p>{{ selectedEvent.city }}</p>
         <p>{{ selectedEvent.date }}</p>
-        <p>{{ selectedEvent.university }}</p>
       </div>
 
     </div>
@@ -87,8 +84,14 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import events from '@/data/events'
 import EventMarker from './EventMarker.vue'
+
+const props = defineProps({
+  events: {
+    type: Array,
+    default: () => []
+  }
+})
 
 const selectedEvent = ref(null)
 
@@ -279,12 +282,19 @@ onUnmounted(() => {
   width: 100%;
   max-width: 1100px;
   margin: auto;
+
   z-index: 1;
+  overflow: hidden;
+  border-radius: 30px;
 }
 
 .map {
-  width: 100%;
+  width: 120%;
+  max-width: none;
+
   display: block;
+
+  transform: translateX(-10%);
 }
 
 /* 🔥 PIN STYLE */
@@ -328,24 +338,29 @@ onUnmounted(() => {
 
   background: rgba(255,255,255,0.96);
 
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(4px);
 
   padding: 28px;
 
   border-radius: 26px;
 
   box-shadow:
-    0 25px 60px rgba(0,0,0,0.18);
+    0 25px 60px rgba(0,0,0,0.12);
 
   z-index: 20;
 
+  will-change: transform;
+
   transform:
-    translateY(-50%);
+    translateY(-50%)
+    translateZ(0);
 
   animation:
     sidebarFade 0.35s ease;
 
   transition: opacity 0.2s ease, transform 0.2s ease;
+
+  backface-visibility: hidden;
 }
 
 .connection-line {
@@ -417,14 +432,16 @@ onUnmounted(() => {
     opacity: 0;
     transform:
       translateY(-50%)
-      translateX(30px);
+      translateX(30px)
+      translateZ(0);
   }
 
   to {
     opacity: 1;
     transform:
       translateY(-50%)
-      translateX(0);
+      translateX(0)
+      translateZ(0);
   }
 }
 

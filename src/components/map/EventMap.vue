@@ -1,3 +1,5 @@
+<!-- Die Datei ist überflüssig und kann später gelöscht werden -->
+
 <template>
   <section class="map-wrapper">
     

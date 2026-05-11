@@ -1,6 +1,10 @@
 <template>
-  <router-view />
+  <RouterView />
 </template>
+
+<script setup>
+import { RouterView } from 'vue-router'
+</script>
 
 <style>
 * {
@@ -12,12 +16,18 @@
 html,
 body,
 #app {
-  min-height: 100%;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  scroll-behavior: smooth;
 }
 
 /* Moderne System-Schriftarten */
 body {
   margin: 0;
+  padding: 0;
 
   font-family:
     Inter,

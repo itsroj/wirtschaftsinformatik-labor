@@ -47,14 +47,14 @@
         <h4>Konferenzen</h4>
         <a href="">Studierende</a>
         <a href="">Schüler:innen</a>
-        <a href="">Internationale MUN's</a>
+        <a href="">Mini MUNs</a>
       </div>
 
       <div class="footer-column">
         <h4>Teilnahme</h4>
-        <a href="">Studierende</a>
-        <a href="">Schüler:innen</a>
-        <a href="">Internationale MUN's</a>
+        <a href="">Infos zur Teilnahme</a>
+        <a href="">Internationale MUNs</a>
+        <a href="">Mini MUNs</a>
       </div>
 
       <div class="footer-column">

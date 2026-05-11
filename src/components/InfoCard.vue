@@ -119,6 +119,7 @@ button {
 
   .images {
     width: 100%;
+    max-width: 90px;
     flex-direction: row;
   }
 

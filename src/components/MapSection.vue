@@ -16,6 +16,7 @@
 
   display: flex;
   justify-content: center;
+  align-items: center;
 
   padding-top: 120px;
   padding-bottom: 120px;
@@ -23,7 +24,9 @@
 
 .map {
   width: min(700px, 100%);
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center top;
+
 }
 
 @media (max-width: 700px) {

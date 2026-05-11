@@ -7,7 +7,9 @@
     </section>
 
     <section class="map-wrapper">
-      <DeutschlandMap />
+      <DeutschlandMap
+        :events="events"
+/>
     </section>
 
     <Footer />
@@ -15,11 +17,13 @@
 </template>
 
 <script setup>
-import Navbar from '@/components/Navbar.vue'
+import Navbar from '@/components/layout/Navbar.vue'
 import HeroSection from '@/components/HeroSection.vue'
 //import EventMap from '@/components/map/EventMap.vue'
 import DeutschlandMap from '@/components/map/DeutschlandMap.vue'
-import Footer from '@/components/Footer.vue'
+import Footer from '@/components/layout/Footer.vue'
+
+import events from '@/data/events'
 </script>
 
 <style scoped>
