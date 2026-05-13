@@ -279,22 +279,19 @@ onUnmounted(() => {
 
 .map-container {
   position: relative;
-  width: 100%;
+  width: 60%;
   max-width: 1100px;
   margin: auto;
 
   z-index: 1;
-  overflow: hidden;
   border-radius: 30px;
 }
 
 .map {
-  width: 120%;
-  max-width: none;
-
+  width: 100%;
+  object-fit: contain;
   display: block;
 
-  transform: translateX(-10%);
 }
 
 /* 🔥 PIN STYLE */

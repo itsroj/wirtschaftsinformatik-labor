@@ -35,7 +35,7 @@
 }
 
 .cta-section img {
-  width: 120%;
+  width: 60%;
 
   filter: drop-shadow(0 25px 40px rgba(0,0,0,0.25));
 }

@@ -25,12 +25,18 @@
 
       <div class="sort-buttons">
 
-        <button @click="$emit('sort', { key: 'date', direction: 'asc' })">
-          ↑
+        <button
+            @click="$emit('sort', { key: 'date', direction: 'asc' })"
+            :class="{ active: isActiveSort('date', 'asc') }"
+        >
+            ↑
         </button>
 
-        <button @click="$emit('sort', { key: 'date', direction: 'desc' })">
-          ↓
+        <button
+            @click="$emit('sort', { key: 'date', direction: 'desc' })"
+            :class="{ active: isActiveSort('date', 'desc') }"
+        >
+            ↓
         </button>
 
       </div>
@@ -44,13 +50,19 @@
 
       <div class="sort-buttons">
 
-        <button @click="$emit('sort', { key: 'participants', direction: 'asc' })">
-          ↑
+        <button
+            @click="$emit('sort', { key: 'participants', direction: 'asc' })"
+            :class="{ active: isActiveSort('participants', 'asc') }"
+        >
+            ↑
         </button>
 
-        <button @click="$emit('sort', { key: 'participants', direction: 'desc' })">
-          ↓
-        </button>
+        <button
+            @click="$emit('sort', { key: 'participants', direction: 'desc' })"
+            :class="{ active: isActiveSort('participants', 'desc') }"
+        >
+            ↓
+</button>
 
       </div>
 
@@ -62,26 +74,29 @@
 
     <div class="section">
 
-      <h3>Filter</h3>
+      <h3>Zielgruppe</h3>
 
       <div class="filter-group">
 
         <button
-          @click="$emit('toggle-type', 'student')"
+        @click="$emit('toggle-type', 'student')"
+        :class="{ active: selectedTypes.includes('student') }"
         >
-          Studierende
+        Studierende
         </button>
 
         <button
-          @click="$emit('toggle-type', 'school')"
+        @click="$emit('toggle-type', 'pupil')"
+        :class="{ active: selectedTypes.includes('pupil') }"
         >
-          Schüler:innen
+        Schüler:innen
         </button>
 
         <button
-          @click="$emit('toggle-type', 'mini')"
+        @click="$emit('toggle-type', 'mini-mun')"
+        :class="{ active: selectedTypes.includes('mini-mun') }"
         >
-          Mini MUNs
+        Mini MUNs
         </button>
 
       </div>
@@ -95,15 +110,17 @@
       <div class="filter-group">
 
         <button
-          @click="$emit('toggle-language', 'english')"
+        @click="$emit('toggle-language', 'english')"
+        :class="{ active: selectedLanguages.includes('english') }"
         >
-          Englisch
+        Englisch
         </button>
 
         <button
-          @click="$emit('toggle-language', 'german')"
+        @click="$emit('toggle-language', 'german')"
+        :class="{ active: selectedLanguages.includes('german') }"
         >
-          Deutsch
+        Deutsch
         </button>
 
       </div>
@@ -115,10 +132,11 @@
 </template>
 
 <script setup>
-defineProps({
+const props = defineProps({
   search: String,
   selectedTypes: Array,
-  selectedLanguages: Array
+  selectedLanguages: Array,
+  sortConfig: Object
 })
 
 defineEmits([
@@ -127,6 +145,13 @@ defineEmits([
   'toggle-language',
   'sort'
 ])
+
+const isActiveSort = (key, direction) => {
+  return (
+    props.sortConfig?.key === key &&
+    props.sortConfig?.direction === direction
+  )
+}
 </script>
 
 <style scoped>
@@ -249,6 +274,14 @@ button {
     rgba(0,0,0,0.08);
 
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button.active {
+  background: #0f3b66;
+  color: white;
+  box-shadow: 0 6px 16px rgba(15, 59, 102, 0.25);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 1100px) {

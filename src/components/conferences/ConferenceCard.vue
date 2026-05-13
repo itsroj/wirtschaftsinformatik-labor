@@ -60,7 +60,7 @@
           </span>
 
           <span>
-             {{ event.date }} - {{ event.endDate }}
+             {{ formatDate(event.date) }} - {{ formatDate(event.endDate) }}
           </span>
 
         </div>
@@ -92,6 +92,10 @@
 defineProps({
   event: Object
 })
+
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('de-DE')
+}
 
 /* FORMAT LANGUAGE */
 const formatLanguage = (language) => {

@@ -14,10 +14,11 @@
           :search="search"
           :selectedTypes="selectedTypes"
           :selectedLanguages="selectedLanguages"
+          :sortConfig="sortConfig"
           @update-search="search = $event"
           @toggle-type="toggleType"
           @toggle-language="toggleLanguage"
-          @sort="handleSort"
+          @sort="setSort"
         />
 
         <!-- MAP -->
@@ -97,7 +98,7 @@ const toggleLanguage = (language) => {
 /* FILTERED EVENTS */
 const filteredEvents = computed(() => {
 
-  return events.filter(event => {
+  let result = events.filter(event => {
 
     const matchesSearch =
       event.title
@@ -119,26 +120,37 @@ const filteredEvents = computed(() => {
     )
   })
 
-    if (sortConfig.value) {
+  /* SORTIERUNG */
+  if (sortConfig.value) {
 
     const { key, direction } = sortConfig.value
 
-    result = result.sort((a, b) => {
+    result = [...result].sort((a, b) => {
 
       const valA = a[key]
       const valB = b[key]
 
-      if (direction === 'asc') return valA > valB ? 1 : -1
+      if (direction === 'asc') {
+        return valA > valB ? 1 : -1
+      }
+
       return valA < valB ? 1 : -1
     })
   }
 
   return result
-
 })
 
-const handleSort = ({ key, direction }) => {
-  sortConfig.value = { key, direction }
+const setSort = (config) => {
+  if (
+    sortConfig.value?.key === config.key &&
+    sortConfig.value?.direction === config.direction
+  ) {
+    sortConfig.value = null
+    return
+  }
+
+  sortConfig.value = config
 }
 </script>
 
@@ -159,7 +171,7 @@ const handleSort = ({ key, direction }) => {
 
 .page-content {
 
-  width: min(1400px, 92%);
+  width: min(1200px, 92%);
   margin: 60px auto 120px;
 
   display: flex;
@@ -171,7 +183,6 @@ const handleSort = ({ key, direction }) => {
 
   min-height: 650px;
   display: grid;
-
   grid-template-columns: 360px 1fr;
 
   gap: 48px;
