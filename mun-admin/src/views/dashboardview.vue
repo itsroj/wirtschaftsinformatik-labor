@@ -74,13 +74,26 @@
               <td>{{ k.sprache }}</td>
               <td><span :class="['badge', k.status]">{{ k.statusLabel }}</span></td>
               <td>
-                <button class="btn-edit">Bearbeiten</button>
-                <button class="btn-delete">Löschen</button>
+                <button class="btn-edit" @click="bearbeiten(k.id)">Bearbeiten</button>
+                <button class="btn-delete" @click="loeschen(k.id)">Löschen</button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <!-- Löschen Bestätigung Modal -->
+      <div v-if="deleteId" class="modal-overlay">
+        <div class="modal">
+          <h3>Konferenz löschen?</h3>
+          <p>Diese Aktion kann nicht rückgängig gemacht werden.</p>
+          <div class="modal-actions">
+            <button class="cancel" @click="deleteId = null">Abbrechen</button>
+            <button class="btn-delete-confirm" @click="loeschenBestaetigen">Ja, löschen</button>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 </template>
@@ -91,6 +104,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const search = ref('')
+const deleteId = ref(null)
 
 const konferenzen = ref([
   { id: 1, name: 'BERMUN 2025', ort: 'Berlin', datum: '12.–15. Nov 2025', sprache: 'EN', status: 'aktiv', statusLabel: 'Aktiv' },
@@ -106,6 +120,19 @@ const filtered = computed(() =>
     k.ort.toLowerCase().includes(search.value.toLowerCase())
   )
 )
+
+function bearbeiten(id) {
+  router.push(`/konferenzen/bearbeiten/${id}`)
+}
+
+function loeschen(id) {
+  deleteId.value = id
+}
+
+function loeschenBestaetigen() {
+  konferenzen.value = konferenzen.value.filter(k => k.id !== deleteId.value)
+  deleteId.value = null
+}
 
 function logout() {
   localStorage.removeItem('admin_token')
@@ -255,4 +282,47 @@ td {
   font-size: 0.85rem;
   cursor: pointer;
 }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 400px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+.modal h3 { margin: 0 0 0.5rem; color: #1a1a2e; }
+.modal p { margin: 0 0 1.5rem; color: #666; }
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+.cancel {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.btn-delete-confirm {
+  padding: 0.75rem 1.5rem;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.btn-delete-confirm:hover { background: #b91c1c; }
 </style>
