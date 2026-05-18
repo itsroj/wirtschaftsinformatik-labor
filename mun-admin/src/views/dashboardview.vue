@@ -78,6 +78,9 @@
                 <button class="btn-delete" @click="loeschen(k.id)">Löschen</button>
               </td>
             </tr>
+            <tr v-if="filtered.length === 0">
+              <td colspan="6" class="empty">Keine Konferenzen gefunden.</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -94,6 +97,11 @@
         </div>
       </div>
 
+      <!-- Erfolgsmeldung Toast -->
+      <div v-if="successMessage" class="success-toast">
+        {{ successMessage }}
+      </div>
+
     </main>
   </div>
 </template>
@@ -105,6 +113,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const search = ref('')
 const deleteId = ref(null)
+const successMessage = ref('')
 
 const konferenzen = ref([
   { id: 1, name: 'BERMUN 2025', ort: 'Berlin', datum: '12.–15. Nov 2025', sprache: 'EN', status: 'aktiv', statusLabel: 'Aktiv' },
@@ -132,6 +141,8 @@ function loeschen(id) {
 function loeschenBestaetigen() {
   konferenzen.value = konferenzen.value.filter(k => k.id !== deleteId.value)
   deleteId.value = null
+  successMessage.value = '🗑️ Konferenz wurde erfolgreich gelöscht!'
+  setTimeout(() => successMessage.value = '', 3000)
 }
 
 function logout() {
@@ -254,6 +265,13 @@ td {
   color: #374151;
 }
 
+.empty {
+  text-align: center;
+  color: #999;
+  padding: 2rem !important;
+  font-size: 0.95rem;
+}
+
 .badge {
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
@@ -325,4 +343,17 @@ td {
   cursor: pointer;
 }
 .btn-delete-confirm:hover { background: #b91c1c; }
+
+.success-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: #1a1a2e;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  font-size: 0.95rem;
+  z-index: 200;
+}
 </style>

@@ -14,7 +14,7 @@
       <h1>{{ istBearbeiten ? 'Konferenz bearbeiten' : 'Neue Konferenz eintragen' }}</h1>
       <p>{{ istBearbeiten ? 'Ändere die Daten und speichere.' : 'Fülle das Formular aus um eine neue MUN-Konferenz hinzuzufügen.' }}</p>
 
-      <div v-if="success" class="success">✅ Konferenz wurde gespeichert!</div>
+      <div v-if="success" class="success">{{ success }}</div>
 
       <form class="form" @submit.prevent="submit">
 
@@ -113,10 +113,9 @@ import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
-const success = ref(false)
+const success = ref('')
 const logoPreview = ref(null)
 
-// Prüfen ob wir im Bearbeiten-Modus sind
 const istBearbeiten = computed(() => !!route.params.id)
 
 const form = ref({
@@ -135,7 +134,6 @@ const form = ref({
   logo: null
 })
 
-// Placeholder-Daten — später durch API-Call ersetzen
 const alleKonferenzen = [
   { id: 1, title: 'BERMUN', longtitle: 'Berlin Model United Nations 2025', description: 'Eine der größten MUN-Konferenzen Deutschlands.', city: 'Berlin', date: '2025-11-12', enddate: '2025-11-15', applicationdate: '2025-09-01', participants: 300, firstconference: 1994, language: 'en', type: 'schueler', website: 'https://bermun.de', logo: null },
   { id: 2, title: 'MUNBW', longtitle: 'Model United Nations Baden-Württemberg 2025', description: 'MUN-Konferenz in Stuttgart.', city: 'Stuttgart', date: '2025-10-03', enddate: '2025-10-05', applicationdate: '2025-08-01', participants: 150, firstconference: 2010, language: 'de', type: 'studenten', website: 'https://munbw.de', logo: null },
@@ -161,9 +159,11 @@ function handleLogo(event) {
 
 function submit() {
   console.log(istBearbeiten.value ? 'Bearbeitet:' : 'Neu:', form.value)
-  success.value = true
+  success.value = istBearbeiten.value
+    ? '✅ Konferenz wurde erfolgreich bearbeitet!'
+    : '✅ Konferenz wurde erfolgreich erstellt!'
   setTimeout(() => {
-    success.value = false
+    success.value = ''
     router.push('/dashboard')
   }, 1500)
 }
