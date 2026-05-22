@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: dmun_postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-dmun_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dmun_password}
+      POSTGRES_DB: ${DB_NAME:-dmun_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dmun_network
+
+  backend:
+    build: .
+    container_name: dmun_backend
+    environment:
+      DATABASE_URL: "postgresql://${DB_USER:-dmun_user}:${DB_PASSWORD:-dmun_password}@postgres:5432/${DB_NAME:-dmun_db}"
+      PORT: 5000
+      NODE_ENV: ${NODE_ENV:-development}
+      JWT_SECRET: ${JWT_SECRET:-change_me_in_production}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    networks:
+      - dmun_network
+    command: npm run dev
+
+volumes:
+  postgres_data:
+
+networks:
+  dmun_network:
+    driver: bridge
