@@ -13,7 +13,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   backend:
-    image: node:18
+    image: node:22
     container_name: muntermacher_backend
     working_dir: /app
     volumes:
