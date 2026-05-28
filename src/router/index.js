@@ -25,7 +25,7 @@ const routes = [
 
   {
     path: '/teilnahme',
-    name: 'Teilnahme',
+    name: 'teilnahme',
     component: TeilnahmeView
   }
 
@@ -34,6 +34,15 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+// Scroll to top after every navigation
+router.afterEach(() => {
+  // Versuche auf #app zu scrollen (weil height: 100% in App.vue)
+  const appElement = document.getElementById('app')
+  if (appElement) {
+    appElement.scrollTop = 0
+  }
 })
 
 export default router

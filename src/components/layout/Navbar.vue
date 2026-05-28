@@ -80,21 +80,21 @@
         class="mobile-menu"
       >
 
-        <a href="#" @click="closeMenu">
+        <RouterLink to="/" @click="closeMenu">
           Startseite
-        </a>
+        </RouterLink>
 
-        <a href="#" @click="closeMenu">
+        <RouterLink to="/was-ist-mun" @click="closeMenu">
           Was ist MUN?
-        </a>
+        </RouterLink>
 
-        <a href="#" @click="closeMenu">
+        <RouterLink to="/konferenzen" @click="closeMenu">
           Konferenzen
-        </a>
+        </RouterLink>
 
-        <a href="#" @click="closeMenu">
+        <RouterLink to="/teilnahme" @click="closeMenu">
           Teilnahme
-        </a>
+        </RouterLink>
 
       </div>
 

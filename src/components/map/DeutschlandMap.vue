@@ -8,7 +8,7 @@
     </div>
 
     <!-- Map Container -->
-    <div class="map-container">
+    <div class="map-container" :class="{ small: props.size === 'small' }">
 
       <!-- SVG Map -->
       <img
@@ -85,11 +85,16 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import EventMarker from './EventMarker.vue'
+import { getEventPosition } from '@/utils/cityCoordinates'
 
 const props = defineProps({
   events: {
     type: Array,
     default: () => []
+  },
+  size: {
+    type: String,
+    default: 'large'
   }
 })
 
@@ -169,6 +174,21 @@ const getPosition = (event) => {
     left: event.left
   }
 }
+/**
+ * Automatische Position aus Stadt-Namen
+ */
+const getAutoPosition = (event) => {
+  const position = cityPositions[event.city]
+  
+  if (position) {
+    return position
+  }
+  
+  // Fallback wenn Stadt nicht im Mapping
+  console.warn(`Stadt nicht gefunden: ${event.city}`)
+  return { top: "50%", left: "50%" }
+}
+
 
 const sheetStyle = computed(() => ({
   transform: `translateY(${dragY.value}px)`,
@@ -179,24 +199,20 @@ const lineStyle = computed(() => {
 
   if (!selectedEvent.value) return {}
 
-  const leftValue = parseFloat(selectedEvent.value.left)
-
+  const position = getEventPosition(selectedEvent.value.city)
+  const leftValue = parseFloat(position.left)
   const showLeft = leftValue > 55
 
   return {
-    top: selectedEvent.value.top,
+    top: position.top,
 
     left: showLeft
-      ? `calc(${selectedEvent.value.left} - 240px)`
-      : selectedEvent.value.left,
+      ? `calc(${position.left} - 240px)`
+      : position.left,
 
-    width: showLeft
-      ? '240px'
-      : '240px',
+    width: '240px',
 
-    transform: showLeft
-      ? 'translateY(-50%)'
-      : 'translateY(-50%)'
+    transform: 'translateY(-50%)'
   }
 })
 
@@ -204,34 +220,25 @@ const sidebarStyle = computed(() => {
 
   if (!selectedEvent.value) return {}
 
-  const leftValue = parseFloat(selectedEvent.value.left)
-
+  const position = getEventPosition(selectedEvent.value.city)
+  const leftValue = parseFloat(position.left)
   const showLeft = leftValue > 55
 
-  /* 📱 MOBILE */
   if (isMobile.value) {
-
     return {
-      top: `calc(${selectedEvent.value.top} - 220px)`,
-      left: selectedEvent.value.left,
-
-      transform:
-        'translateX(-50%)'
+      top: `calc(${position.top} - 220px)`,
+      left: position.left,
+      transform: 'translateX(-50%)'
     }
   }
 
-  /* 💻 DESKTOP */
   return {
-    top: selectedEvent.value.top,
-
-    left: showLeft
-      ? `calc(${selectedEvent.value.left} - 360px)`
-      : `calc(${selectedEvent.value.left} + 80px)`,
-
-    transform:
-      'translateY(-50%)'
+    top: position.top,
+    left: showLeft ? `calc(${position.left} - 360px)` : `calc(${position.left} + 80px)`,
+    transform: 'translateY(-50%)'
   }
 })
+
 
 onMounted(() => {
 
@@ -279,12 +286,17 @@ onUnmounted(() => {
 
 .map-container {
   position: relative;
-  width: 60%;
+  width: 50%;
   max-width: 1100px;
   margin: auto;
 
   z-index: 1;
   border-radius: 30px;
+}
+
+.map-container.small {
+  width: 35%;
+  max-width: 800px;
 }
 
 .map {
@@ -333,9 +345,13 @@ onUnmounted(() => {
 
   width: 200px;
 
-  background: rgba(255,255,255,0.96);
+  background: linear-gradient(
+  to bottom,
+  rgba(255,255,255,0.96),
+  rgba(255,255,255,0.88)
+  );
 
-  backdrop-filter: blur(4px);
+/*  backdrop-filter: blur(4px); */
 
   padding: 28px;
 
@@ -383,8 +399,12 @@ onUnmounted(() => {
   right: 0;
   bottom: 0;
 
-  background: rgba(255,255,255,0.96);
-  backdrop-filter: blur(12px);
+  background: linear-gradient(
+  to bottom,
+  rgba(255,255,255,0.96),
+  rgba(255,255,255,0.88)
+  );
+  /* backdrop-filter: blur(12px); */
 
   border-top-left-radius: 24px;
   border-top-right-radius: 24px;
@@ -411,6 +431,15 @@ onUnmounted(() => {
 }
 
 @media (max-width: 900px) {
+
+  .map-container {
+    width: 90%;
+  }
+
+  .map-container.small {
+    width: 80%;
+    max-width: none;
+  }
 
   .sidebar {
 

@@ -31,14 +31,17 @@ defineProps({
 <style scoped>
 
 .conference-list {
-  background:
-    rgba(255,255,255,0.94);
+  background: linear-gradient(
+  to bottom,
+  rgba(255,255,255,0.96),
+  rgba(255,255,255,0.88)
+  );
 
   border-radius: 26px;
 
   padding: 34px;
 
-  backdrop-filter: blur(12px);
+/*  backdrop-filter: blur(12px); */
 
   box-shadow:
     0 10px 30px rgba(0,0,0,0.12);

@@ -12,7 +12,7 @@
 
 <style scoped>
 .map-section {
-  width: min(1200px, 92%);
+  width: min(1200px, 100%);
 
   display: flex;
   justify-content: center;

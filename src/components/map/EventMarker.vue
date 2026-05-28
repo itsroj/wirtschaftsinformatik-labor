@@ -20,6 +20,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { getEventPosition } from '@/utils/cityCoordinates'
 
 const props = defineProps({
   event: {
@@ -35,20 +36,15 @@ const props = defineProps({
 const emit = defineEmits(['select'])
 
 /**
- * Positionierung auf der Karte
- * (top / left in % aus event data)
+ * Position automatisch aus Stadt-Namen berechnen
  */
-const positionStyle = computed(() => ({
-  top: props.event.top,
-  left: props.event.left
-}))
+const positionStyle = computed(() => {
+  return getEventPosition(props.event.city)
+})
 
 const handleClick = () => {
   emit('select', props.event)
 }
-
-
-
 </script>
 
 <style scoped>
