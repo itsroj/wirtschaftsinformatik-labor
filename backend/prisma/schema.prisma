@@ -34,10 +34,8 @@ model Event {
   // Medien & Links
   logo    String? // URL zum Logo
   website String? // Website der Veranstalter
-
-  // Position auf der Deutschlandkarte
-  mapPositionTop  String? // z.B. "21%"
-  mapPositionLeft String? // z.B. "45%"
+  instagramLink String? // Instagram URL
+  facebookLink String? // Facebook URL
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

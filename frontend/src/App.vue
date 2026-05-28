@@ -1,42 +1,59 @@
 <template>
-  <div id="app">
-    <h1>Willkommen zu Wirtschaftsinformatik Labor</h1>
-    <p>Frontend mit Vue 3 und Backend mit Express</p>
-    <button @click="checkBackend">Backend Status prüfen</button>
-    <p v-if="backendStatus">{{ backendStatus }}</p>
-  </div>
+  <RouterView />
 </template>
 
-<script>
-import { ref } from 'vue'
-import axios from 'axios'
-
-export default {
-  name: 'App',
-  setup() {
-    const backendStatus = ref('')
-
-    const checkBackend = async () => {
-      try {
-        const response = await axios.get('/api/health')
-        backendStatus.value = response.data.status
-      } catch (error) {
-        backendStatus.value = 'Backend konnte nicht erreicht werden'
-      }
-    }
-
-    return {
-      backendStatus,
-      checkBackend
-    }
-  }
-}
+<script setup>
+import { RouterView } from 'vue-router'
 </script>
 
 <style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
 #app {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  margin-top: 50px;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  scroll-behavior: smooth;
+}
+
+/* Moderne System-Schriftarten */
+body {
+  margin: 0;
+  padding: 0;
+
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  background:
+    radial-gradient(circle at top left,
+      #6fc2ff 0%,
+      #4fa9e3 35%,
+      #3188c8 100%);
+
+  overflow-x: hidden;
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
 }
 </style>

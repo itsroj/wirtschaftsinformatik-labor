@@ -70,8 +70,8 @@ export const createEvent = async (req, res) => {
       type,
       logo,
       website,
-      mapPositionTop,
-      mapPositionLeft
+      instagramLink,
+      facebookLink
     } = req.body;
 
     // Validierung erforderlicher Felder
@@ -96,8 +96,8 @@ export const createEvent = async (req, res) => {
         type: type || null,
         logo: logo || null,
         website: website || null,
-        mapPositionTop: mapPositionTop || null,
-        mapPositionLeft: mapPositionLeft || null
+        instagramLink: instagramLink || null,
+        facebookLink: facebookLink || null
       }
     });
 

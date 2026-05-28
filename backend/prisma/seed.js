@@ -21,8 +21,8 @@ async function main() {
       type: 'pupil',
       logo: '@/assets/images/events/munoh.png',
       website: 'https://munoh.de/',
-      mapPositionTop: '21%',
-      mapPositionLeft: '45%'
+      instagramLink: 'https://www.instagram.com/',
+      facebookLink: 'https://www.facebook.com/'
     }
   });
   console.log('✅ Event erstellt:', event1.title);
@@ -43,8 +43,8 @@ async function main() {
       type: 'student',
       logo: '@/assets/images/events/dmun.png',
       website: 'https://www.dmun.de/',
-      mapPositionTop: '15%',
-      mapPositionLeft: '52%'
+      instagramLink: 'https://www.instagram.com/',
+      facebookLink: null
     }
   });
   console.log('✅ Event erstellt:', event2.title);
@@ -65,8 +65,8 @@ async function main() {
       type: 'student',
       logo: '@/assets/images/events/munm.png',
       website: 'https://munmunich.de/',
-      mapPositionTop: '25%',
-      mapPositionLeft: '49%'
+      instagramLink: null,
+      facebookLink: null
     }
   });
   console.log('✅ Event erstellt:', event3.title);
