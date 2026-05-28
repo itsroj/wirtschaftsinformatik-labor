@@ -10,13 +10,17 @@
         v-model="email"
         type="email"
         placeholder="E-Mail"
+        :disabled="loading"
       />
       <input
         v-model="password"
         type="password"
         placeholder="Passwort"
+        :disabled="loading"
       />
-      <button @click="login">Anmelden</button>
+      <button @click="login" :disabled="loading">
+        {{ loading ? 'Anmelden...' : 'Anmelden' }}
+      </button>
     </div>
   </div>
 </template>
@@ -29,13 +33,38 @@ const router = useRouter()
 const email = ref('')
 const password = ref('')
 const error = ref('')
+const loading = ref(false)
 
-function login() {
-  if (email.value === 'admin@mun.de' && password.value === 'admin123') {
-    localStorage.setItem('admin_token', 'fake-token')
+async function login() {
+  error.value = ''
+  loading.value = true
+
+  try {
+    const response = await fetch('http://localhost:3000/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email.value,
+        password: password.value
+      })
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      error.value = data.message || 'E-Mail oder Passwort falsch.'
+      return
+    }
+
+    localStorage.setItem('admin_token', data.token)
     router.push('/dashboard')
-  } else {
-    error.value = 'E-Mail oder Passwort falsch.'
+
+  } catch (err) {
+    error.value = 'Server nicht erreichbar. Bitte später erneut versuchen.'
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -77,6 +106,10 @@ input {
 input:focus {
   border-color: #4f46e5;
 }
+input:disabled {
+  background: #f9f9f9;
+  color: #aaa;
+}
 button {
   padding: 0.75rem;
   background: #4f46e5;
@@ -86,8 +119,12 @@ button {
   font-size: 1rem;
   cursor: pointer;
 }
-button:hover {
+button:hover:not(:disabled) {
   background: #4338ca;
+}
+button:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
 }
 .error {
   background: #fee2e2;

@@ -15,60 +15,61 @@
       <p>{{ istBearbeiten ? 'Ändere die Daten und speichere.' : 'Fülle das Formular aus um eine neue MUN-Konferenz hinzuzufügen.' }}</p>
 
       <div v-if="success" class="success">{{ success }}</div>
+      <div v-if="error" class="error">{{ error }}</div>
 
       <form class="form" @submit.prevent="submit">
 
         <div class="form-row">
           <div class="form-group">
             <label>Kurzname</label>
-            <input v-model="form.title" type="text" placeholder="z.B. BERMUN" required />
+            <input v-model="form.title" type="text" placeholder="z.B. BERMUN" required :disabled="loading" />
           </div>
           <div class="form-group">
             <label>Ausgeschriebener Name</label>
-            <input v-model="form.longtitle" type="text" placeholder="z.B. Berlin Model United Nations 2025" required />
+            <input v-model="form.longTitle" type="text" placeholder="z.B. Berlin Model United Nations 2025" required :disabled="loading" />
           </div>
         </div>
 
         <div class="form-group">
           <label>Beschreibung</label>
-          <textarea v-model="form.description" rows="4" placeholder="Kurze Beschreibung der Konferenz..."></textarea>
+          <textarea v-model="form.description" rows="4" placeholder="Kurze Beschreibung der Konferenz..." :disabled="loading"></textarea>
         </div>
 
         <div class="form-group">
           <label>Stadt</label>
-          <input v-model="form.city" type="text" placeholder="z.B. Berlin, Deutschland" required />
+          <input v-model="form.city" type="text" placeholder="z.B. Berlin, Deutschland" required :disabled="loading" />
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label>Startdatum</label>
-            <input v-model="form.date" type="date" required />
+            <input v-model="form.date" type="date" required :disabled="loading" />
           </div>
           <div class="form-group">
             <label>Enddatum</label>
-            <input v-model="form.enddate" type="date" required />
+            <input v-model="form.endDate" type="date" required :disabled="loading" />
           </div>
           <div class="form-group">
             <label>Anmeldefrist</label>
-            <input v-model="form.applicationdate" type="date" required />
+            <input v-model="form.applicationDate" type="date" required :disabled="loading" />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label>Teilnehmerzahl</label>
-            <input v-model="form.participants" type="number" min="1" placeholder="z.B. 200" required />
+            <input v-model="form.participants" type="number" min="1" placeholder="z.B. 200" required :disabled="loading" />
           </div>
           <div class="form-group">
             <label>Erste Konferenz (Jahr)</label>
-            <input v-model="form.firstconference" type="number" min="1900" max="2100" placeholder="z.B. 2015" required />
+            <input v-model="form.firstConference" type="number" min="1900" max="2100" placeholder="z.B. 2015" required :disabled="loading" />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label>Sprache</label>
-            <select v-model="form.language">
+            <select v-model="form.language" :disabled="loading">
               <option value="de">Deutsch</option>
               <option value="en">Englisch</option>
               <option value="both">Deutsch & Englisch</option>
@@ -76,7 +77,7 @@
           </div>
           <div class="form-group">
             <label>Typ</label>
-            <select v-model="form.type">
+            <select v-model="form.type" :disabled="loading">
               <option value="schueler">Schüler</option>
               <option value="studenten">Studenten</option>
               <option value="mini-mun">Mini-MUN</option>
@@ -86,20 +87,22 @@
 
         <div class="form-group">
           <label>Website</label>
-          <input v-model="form.website" type="url" placeholder="https://..." />
+          <input v-model="form.website" type="url" placeholder="https://..." :disabled="loading" />
         </div>
 
         <div class="form-group">
           <label>Logo</label>
-          <input type="file" accept=".png,.jpg,.jpeg" @change="handleLogo" />
+          <input type="file" accept=".png,.jpg,.jpeg" @change="handleLogo" :disabled="loading" />
           <div v-if="logoPreview" class="logo-preview">
             <img :src="logoPreview" alt="Logo Vorschau" />
           </div>
         </div>
 
         <div class="form-actions">
-          <button type="button" class="cancel" @click="reset">Zurücksetzen</button>
-          <button type="submit">{{ istBearbeiten ? 'Änderungen speichern' : 'Konferenz speichern' }}</button>
+          <button type="button" class="cancel" @click="reset" :disabled="loading">Zurücksetzen</button>
+          <button type="submit" :disabled="loading">
+            {{ loading ? 'Wird gespeichert...' : (istBearbeiten ? 'Änderungen speichern' : 'Konferenz speichern') }}
+          </button>
         </div>
 
       </form>
@@ -114,37 +117,59 @@ import { useRouter, useRoute } from 'vue-router'
 const router = useRouter()
 const route = useRoute()
 const success = ref('')
+const error = ref('')
+const loading = ref(false)
 const logoPreview = ref(null)
 
 const istBearbeiten = computed(() => !!route.params.id)
 
 const form = ref({
   title: '',
-  longtitle: '',
+  longTitle: '',
   description: '',
   city: '',
   date: '',
-  enddate: '',
-  applicationdate: '',
+  endDate: '',
+  applicationDate: '',
   participants: '',
-  firstconference: '',
+  firstConference: '',
   language: 'de',
   type: 'schueler',
   website: '',
   logo: null
 })
 
-const alleKonferenzen = [
-  { id: 1, title: 'BERMUN', longtitle: 'Berlin Model United Nations 2025', description: 'Eine der größten MUN-Konferenzen Deutschlands.', city: 'Berlin', date: '2025-11-12', enddate: '2025-11-15', applicationdate: '2025-09-01', participants: 300, firstconference: 1994, language: 'en', type: 'schueler', website: 'https://bermun.de', logo: null },
-  { id: 2, title: 'MUNBW', longtitle: 'Model United Nations Baden-Württemberg 2025', description: 'MUN-Konferenz in Stuttgart.', city: 'Stuttgart', date: '2025-10-03', enddate: '2025-10-05', applicationdate: '2025-08-01', participants: 150, firstconference: 2010, language: 'de', type: 'studenten', website: 'https://munbw.de', logo: null },
-  { id: 3, title: 'HAMUN', longtitle: 'Hamburg Model United Nations 2026', description: 'MUN-Konferenz in Hamburg.', city: 'Hamburg', date: '2026-01-20', enddate: '2026-01-22', applicationdate: '2025-11-01', participants: 200, firstconference: 2005, language: 'en', type: 'schueler', website: 'https://hamun.de', logo: null },
-]
+function getToken() {
+  return localStorage.getItem('admin_token')
+}
 
-onMounted(() => {
+onMounted(async () => {
   if (istBearbeiten.value) {
-    const konferenz = alleKonferenzen.find(k => k.id === Number(route.params.id))
-    if (konferenz) {
-      form.value = { ...konferenz }
+    try {
+      const response = await fetch(`http://localhost:3000/api/events/${route.params.id}`, {
+        headers: {
+          'Authorization': `Bearer ${getToken()}`
+        }
+      })
+      if (!response.ok) throw new Error()
+      const data = await response.json()
+      form.value = {
+        title: data.title || '',
+        longTitle: data.longTitle || '',
+        description: data.description || '',
+        city: data.city || '',
+        date: data.date ? data.date.substring(0, 10) : '',
+        endDate: data.endDate ? data.endDate.substring(0, 10) : '',
+        applicationDate: data.applicationDate ? data.applicationDate.substring(0, 10) : '',
+        participants: data.participants || '',
+        firstConference: data.firstConference || '',
+        language: data.language || 'de',
+        type: data.type || 'schueler',
+        website: data.website || '',
+        logo: null
+      }
+    } catch {
+      error.value = 'Konferenz konnte nicht geladen werden.'
     }
   }
 })
@@ -157,28 +182,76 @@ function handleLogo(event) {
   }
 }
 
-function submit() {
-  console.log(istBearbeiten.value ? 'Bearbeitet:' : 'Neu:', form.value)
-  success.value = istBearbeiten.value
-    ? '✅ Konferenz wurde erfolgreich bearbeitet!'
-    : '✅ Konferenz wurde erfolgreich erstellt!'
-  setTimeout(() => {
-    success.value = ''
-    router.push('/dashboard')
-  }, 1500)
+async function submit() {
+  error.value = ''
+  success.value = ''
+  loading.value = true
+
+  try {
+    const payload = {
+      title: form.value.title,
+      longTitle: form.value.longTitle,
+      description: form.value.description,
+      city: form.value.city,
+      date: form.value.date,
+      endDate: form.value.endDate,
+      applicationDate: form.value.applicationDate,
+      participants: form.value.participants,
+      firstConference: form.value.firstConference,
+      language: form.value.language,
+      type: form.value.type,
+      website: form.value.website
+    }
+
+    const url = istBearbeiten.value
+      ? `http://localhost:3000/api/events/${route.params.id}`
+      : 'http://localhost:3000/api/events'
+
+    const method = istBearbeiten.value ? 'PUT' : 'POST'
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify(payload)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      error.value = data.error || 'Ein Fehler ist aufgetreten.'
+      return
+    }
+
+    success.value = istBearbeiten.value
+      ? '✅ Konferenz wurde erfolgreich bearbeitet!'
+      : '✅ Konferenz wurde erfolgreich erstellt!'
+
+    setTimeout(() => {
+      success.value = ''
+      router.push('/dashboard')
+    }, 1500)
+
+  } catch {
+    error.value = 'Server nicht erreichbar. Bitte später erneut versuchen.'
+  } finally {
+    loading.value = false
+  }
 }
 
 function reset() {
   form.value = {
     title: '',
-    longtitle: '',
+    longTitle: '',
     description: '',
     city: '',
     date: '',
-    enddate: '',
-    applicationdate: '',
+    endDate: '',
+    applicationDate: '',
     participants: '',
-    firstconference: '',
+    firstConference: '',
     language: 'de',
     type: 'schueler',
     website: '',
@@ -291,6 +364,10 @@ input, select, textarea {
 input:focus, select:focus, textarea:focus {
   border-color: #4f46e5;
 }
+input:disabled, select:disabled, textarea:disabled {
+  background: #f9f9f9;
+  color: #aaa;
+}
 .form-actions {
   display: flex;
   gap: 1rem;
@@ -305,8 +382,12 @@ button[type="submit"] {
   font-size: 1rem;
   cursor: pointer;
 }
-button[type="submit"]:hover {
+button[type="submit"]:hover:not(:disabled) {
   background: #4338ca;
+}
+button[type="submit"]:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
 }
 .cancel {
   padding: 0.75rem 1.5rem;
@@ -320,6 +401,13 @@ button[type="submit"]:hover {
 .success {
   background: #dcfce7;
   color: #16a34a;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+.error {
+  background: #fee2e2;
+  color: #dc2626;
   padding: 0.75rem 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;

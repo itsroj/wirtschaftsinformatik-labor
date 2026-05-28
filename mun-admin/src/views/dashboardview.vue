@@ -23,39 +23,44 @@
         <div class="stat-card">
           <span class="icon">🌍</span>
           <div>
-            <span class="number">12</span>
+            <span class="number">{{ konferenzen.length }}</span>
             <span class="label">Konferenzen gesamt</span>
           </div>
         </div>
         <div class="stat-card">
           <span class="icon">✅</span>
           <div>
-            <span class="number">9</span>
+            <span class="number">{{ aktiveKonferenzen }}</span>
             <span class="label">Aktiv</span>
           </div>
         </div>
         <div class="stat-card">
           <span class="icon">⏳</span>
           <div>
-            <span class="number">3</span>
+            <span class="number">{{ ausstehendKonferenzen }}</span>
             <span class="label">Ausstehend</span>
           </div>
         </div>
         <div class="stat-card">
           <span class="icon">📅</span>
           <div>
-            <span class="number">2</span>
+            <span class="number">{{ dieseWoche }}</span>
             <span class="label">Diese Woche</span>
           </div>
         </div>
       </div>
+
+      <div v-if="ladeError" class="error-banner">{{ ladeError }}</div>
 
       <div class="table-card">
         <div class="table-header">
           <h2>Aktuelle Konferenzen</h2>
           <input v-model="search" placeholder="Suchen..." class="search" />
         </div>
-        <table>
+
+        <div v-if="loading" class="loading">Konferenzen werden geladen...</div>
+
+        <table v-else>
           <thead>
             <tr>
               <th>Name</th>
@@ -68,11 +73,11 @@
           </thead>
           <tbody>
             <tr v-for="k in filtered" :key="k.id">
-              <td><strong>{{ k.name }}</strong></td>
-              <td>{{ k.ort }}</td>
-              <td>{{ k.datum }}</td>
-              <td>{{ k.sprache }}</td>
-              <td><span :class="['badge', k.status]">{{ k.statusLabel }}</span></td>
+              <td><strong>{{ k.title }}</strong></td>
+              <td>{{ k.city }}</td>
+              <td>{{ formatDatum(k.date) }}</td>
+              <td>{{ k.language?.toUpperCase() }}</td>
+              <td><span :class="['badge', getStatus(k.date)]">{{ getStatusLabel(k.date) }}</span></td>
               <td>
                 <button class="btn-edit" @click="bearbeiten(k.id)">Bearbeiten</button>
                 <button class="btn-delete" @click="loeschen(k.id)">Löschen</button>
@@ -107,26 +112,81 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const search = ref('')
 const deleteId = ref(null)
 const successMessage = ref('')
+const konferenzen = ref([])
+const loading = ref(true)
+const ladeError = ref('')
 
-const konferenzen = ref([
-  { id: 1, name: 'BERMUN 2025', ort: 'Berlin', datum: '12.–15. Nov 2025', sprache: 'EN', status: 'aktiv', statusLabel: 'Aktiv' },
-  { id: 2, name: 'MUNBW 2025', ort: 'Stuttgart', datum: '03.–05. Okt 2025', sprache: 'DE', status: 'aktiv', statusLabel: 'Aktiv' },
-  { id: 3, name: 'HAMUN 2026', ort: 'Hamburg', datum: '20.–22. Jan 2026', sprache: 'EN', status: 'ausstehend', statusLabel: 'Ausstehend' },
-  { id: 4, name: 'MUNIH 2025', ort: 'München', datum: '08.–10. Dez 2025', sprache: 'DE/EN', status: 'aktiv', statusLabel: 'Aktiv' },
-  { id: 5, name: 'OLMUN 2026', ort: 'Oldenburg', datum: '15.–17. Feb 2026', sprache: 'DE', status: 'ausstehend', statusLabel: 'Ausstehend' },
-])
+function getToken() {
+  return localStorage.getItem('admin_token')
+}
+
+async function ladeKonferenzen() {
+  loading.value = true
+  ladeError.value = ''
+  try {
+    const response = await fetch('http://localhost:3000/api/events', {
+      headers: {
+        'Authorization': `Bearer ${getToken()}`
+      }
+    })
+    if (!response.ok) throw new Error()
+    konferenzen.value = await response.json()
+  } catch {
+    ladeError.value = 'Konferenzen konnten nicht geladen werden. Ist das Backend gestartet?'
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  ladeKonferenzen()
+})
+
+const heute = new Date()
+
+function getStatus(datum) {
+  return new Date(datum) >= heute ? 'ausstehend' : 'aktiv'
+}
+
+function getStatusLabel(datum) {
+  return new Date(datum) >= heute ? 'Ausstehend' : 'Aktiv'
+}
+
+function formatDatum(datum) {
+  if (!datum) return '—'
+  return new Date(datum).toLocaleDateString('de-DE', {
+    day: '2-digit', month: 'short', year: 'numeric'
+  })
+}
+
+const aktiveKonferenzen = computed(() =>
+  konferenzen.value.filter(k => new Date(k.date) < heute).length
+)
+
+const ausstehendKonferenzen = computed(() =>
+  konferenzen.value.filter(k => new Date(k.date) >= heute).length
+)
+
+const dieseWoche = computed(() => {
+  const wochenende = new Date()
+  wochenende.setDate(heute.getDate() + 7)
+  return konferenzen.value.filter(k => {
+    const d = new Date(k.date)
+    return d >= heute && d <= wochenende
+  }).length
+})
 
 const filtered = computed(() =>
   konferenzen.value.filter(k =>
-    k.name.toLowerCase().includes(search.value.toLowerCase()) ||
-    k.ort.toLowerCase().includes(search.value.toLowerCase())
+    k.title?.toLowerCase().includes(search.value.toLowerCase()) ||
+    k.city?.toLowerCase().includes(search.value.toLowerCase())
   )
 )
 
@@ -138,11 +198,23 @@ function loeschen(id) {
   deleteId.value = id
 }
 
-function loeschenBestaetigen() {
-  konferenzen.value = konferenzen.value.filter(k => k.id !== deleteId.value)
-  deleteId.value = null
-  successMessage.value = '🗑️ Konferenz wurde erfolgreich gelöscht!'
-  setTimeout(() => successMessage.value = '', 3000)
+async function loeschenBestaetigen() {
+  try {
+    const response = await fetch(`http://localhost:3000/api/events/${deleteId.value}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`
+      }
+    })
+    if (!response.ok) throw new Error()
+    konferenzen.value = konferenzen.value.filter(k => k.id !== deleteId.value)
+    successMessage.value = '🗑️ Konferenz wurde erfolgreich gelöscht!'
+    setTimeout(() => successMessage.value = '', 3000)
+  } catch {
+    ladeError.value = 'Löschen fehlgeschlagen. Bitte erneut versuchen.'
+  } finally {
+    deleteId.value = null
+  }
 }
 
 function logout() {
@@ -248,6 +320,22 @@ nav a.active { color: #a5b4fc; }
   outline: none;
 }
 .search:focus { border-color: #4f46e5; }
+
+.loading {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.error-banner {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
 
 table { width: 100%; border-collapse: collapse; }
 thead { background: #f8f9fa; }

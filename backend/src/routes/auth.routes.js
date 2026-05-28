@@ -1,6 +1,6 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
-
+const requireAuth = require("../middleware/auth.middleware");
 const router = express.Router();
 
 router.post("/login", (req, res) => {
@@ -22,5 +22,10 @@ router.post("/login", (req, res) => {
     token: token,
   });
 });
-
+router.get("/me", requireAuth, (req, res) => {
+  res.json({
+    message: "Admin ist eingeloggt",
+    user: req.user,
+  });
+});
 module.exports = router;

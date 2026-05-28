@@ -1,0 +1,46 @@
+// Prisma Schema für DMUN Plattform
+// Events Datenbankmodell
+// Admin-Modell wird von Max angelegt (Authentifizierung & Infrastruktur)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id Int @id @default(autoincrement())
+
+  // Titel & Beschreibung
+  title       String // Kurzer Titel (z.B. "MUNoH")
+  longTitle   String // Voller Titel (z.B. "Model United Nations of Hamburg")
+  description String? // Beschreibung des Events
+  city        String // Stadt/Ort
+
+  // Termine
+  date            DateTime // Startdatum (Konferenz)
+  endDate         DateTime? // Enddatum (Konferenz)
+  applicationDate DateTime? // Bewerbungsfrist
+
+  // Event-Details
+  firstConference Int? // Erstes Jahr der Konferenz (z.B. 2009)
+  participants    Int? // Anzahl der Teilnehmer
+  language        String  @default("english") // Sprache des Events
+  type            String? // Typ: "pupil", "student", etc.
+
+  // Medien & Links
+  logo    String? // URL zum Logo
+  website String? // Website der Veranstalter
+
+  // Position auf der Deutschlandkarte
+  mapPositionTop  String? // z.B. "21%"
+  mapPositionLeft String? // z.B. "45%"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("events")
+}
