@@ -30,7 +30,7 @@ Bearbeite `.env` mit deinen lokalen Einstellungen:
 
 ```env
 DATABASE_URL="postgresql://postgres@localhost:5432/dmun_db"
-PORT=3001
+PORT=5000
 NODE_ENV=development
 JWT_SECRET=your_jwt_secret_key_change_this_in_production
 FRONTEND_URL=http://localhost:5173
