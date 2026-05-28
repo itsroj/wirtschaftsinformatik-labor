@@ -17,57 +17,44 @@
 
         <img src="@/assets/images/logo.png">
 
-       <div class="socials">
-        <!-- Facebook -->
-        <a href="https://facebook.com" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" class="icon">
-            <path fill="currentColor" d="M22 12a10 10 0 1 0-11.6 9.9v-7h-2.1V12h2.1v-2c0-2.1 1.2-3.3 3.2-3.3.96 0 1.96.17 1.96.17v2.1h-1.1c-1.1 0-1.4.7-1.4 1.4V12h2.4l-.38 2.9h-2.02v7A10 10 0 0 0 22 12z"/>
-          </svg>
-        </a>
-
-        <!-- Instagram -->
-        <a href="https://instagram.com" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" class="icon">
-            <path fill="currentColor" d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm10 2c1.66 0 3 1.34 3 3v10c0 1.66-1.34 3-3 3H7c-1.66 0-3-1.34-3-3V7c0-1.66 1.34-3 3-3h10zm-5 3.5A4.5 4.5 0 1 0 16.5 12 4.5 4.5 0 0 0 12 7.5zm0 2A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5zM17.5 6.8a1 1 0 1 0 1 1 1 1 0 0 0-1-1z"/>
-          </svg>
-        </a>
-
-        <!-- X (Twitter) -->
-        <a href="https://x.com" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" class="icon">
-            <path fill="currentColor" d="M18.9 2H22l-6.8 7.8L23 22h-6.8l-5.3-6.6L5 22H2l7.3-8.4L1 2h6.9l4.8 6.1L18.9 2zm-1.2 18h1.9L7.1 4H5.1l12.6 16z"/>
-          </svg>
-        </a>
-
-      </div>
+      <SocialIcons
+        facebook="https://facebook.com"
+        instagram="https://instagram.com"
+        x="https://x.com"
+      />
 
       </div>
 
       <div class="footer-column">
         <h4>Konferenzen</h4>
-        <a href="">Studierende</a>
-        <a href="">Schüler:innen</a>
-        <a href="">Mini MUNs</a>
+        <RouterLink :to="{ name: 'konferenzen' }">Studierende</RouterLink>
+        <RouterLink :to="{ name: 'konferenzen' }">Schüler:innen</RouterLink>
+        <RouterLink :to="{ name: 'konferenzen' }">Mini MUNs</RouterLink>
       </div>
 
       <div class="footer-column">
         <h4>Teilnahme</h4>
-        <a href="">Infos zur Teilnahme</a>
-        <a href="">Internationale MUNs</a>
-        <a href="">Mini MUNs</a>
+        <RouterLink :to="{ name: 'teilnahme' }">Infos zur Teilnahme</RouterLink>
+        <RouterLink :to="{ name: 'teilnahme' }">Internationale MUNs</RouterLink>
+        <RouterLink :to="{ name: 'teilnahme' }">Mini MUNs</RouterLink>
       </div>
 
       <div class="footer-column">
         <h4>Service</h4>
-        <a href="">Kontakt</a>
-        <a href="">Impressum</a>
-        <a href="">Datenschutz</a>
+        <RouterLink :to="{ name: 'home' }">Kontakt</RouterLink>
+        <RouterLink :to="{ name: 'home' }">Impressum</RouterLink>
+        <RouterLink :to="{ name: 'home' }">Datenschutz</RouterLink>
       </div>
     </div>
     </div>
 
   </footer>
 </template>
+
+<script setup>
+import { RouterLink } from 'vue-router'
+import SocialIcons from '@/components/icons/SocialIcons.vue'
+</script>
 
 <style scoped>
 .footer-top {

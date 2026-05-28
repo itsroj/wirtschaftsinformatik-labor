@@ -87,8 +87,11 @@
 }
 
 .intro-card {
-  background:
-    rgba(255,255,255,0.94);
+  background: linear-gradient(
+  to bottom,
+  rgba(255,255,255,0.96),
+  rgba(255,255,255,0.88)
+  );
 
   border-radius: 28px;
 
@@ -99,7 +102,7 @@
 
   gap: 60px;
 
-  backdrop-filter: blur(4px);
+  /* backdrop-filter: blur(4px);  */
 
   box-shadow:
   0 8px 18px rgba(0,0,0,0.08);

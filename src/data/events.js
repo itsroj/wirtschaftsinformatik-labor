@@ -4,7 +4,7 @@ export default [
     title: "MUNoH",
     longTitle: "Model United Nations of Hamburg",
     description: "Model United Nations of Hamburg (MUNOH) is a MUN conference organized by the students of Gymnasium Meiendorf in the wonderful city of Hamburg. Since the first time in 2009, about 250 students from different European countries and beyond take part in it every year and debate the most important political issues in committees of the General Assembly, the Enviromental Comission and the Security Council.",
-    city: "Hamburg",
+    city: "Potsdam",
 
     applicationDate: "2026-09-17",
 
@@ -28,8 +28,9 @@ export default [
     website:
       'https://munoh.de/',
 
-    top: "21%",
-    left: "45%"
+    instagramLink: 'https://www.instagram.com/',
+
+    facebookLink: 'https://www.facebook.com/',
   },
 
   {
@@ -60,8 +61,9 @@ export default [
     website:
       'https://www.bermun.de/',
 
-    top: "34%",
-    left: "83%"
+    instagramLink: 'https://www.instagram.com/',
+
+    facebookLink: null
   },
 
   {
@@ -82,7 +84,7 @@ export default [
 
     language: "english",
 
-    type: "mini-mun",
+    type: "minimun",
 
     logo: new URL(
       '@/assets/images/events/munbw.png',
@@ -92,7 +94,8 @@ export default [
     website:
       'https://munbw.de/',
 
-    top: "80%",
-    left: "35%"
+    instagramLink: null,
+
+    facebookLink: null
   },
 ]

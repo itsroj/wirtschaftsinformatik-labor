@@ -7,9 +7,7 @@
     </section>
 
     <section class="map-wrapper">
-      <DeutschlandMap
-        :events="events"
-/>
+      <DeutschlandMap :events="events" size="small" />
     </section>
 
     <Footer />
