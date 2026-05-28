@@ -1,32 +1,81 @@
 services:
   postgres:
-    image: postgres:15
-    container_name: muntermacher_postgres
-    restart: always
+    image: postgres:15-alpine
+    container_name: dmun_postgres
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: munuser
-      POSTGRES_PASSWORD: munpassword
-      POSTGRES_DB: mundb
+      POSTGRES_USER: dmun_user
+      POSTGRES_PASSWORD: dmun_password
+      POSTGRES_DB: dmun_db
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dmun_network
 
   backend:
-    image: node:22
-    container_name: muntermacher_backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dmun_backend
+    restart: unless-stopped
     working_dir: /app
     volumes:
       - ./backend:/app
-    ports:
-      - "3000:3000"
-    command: sh -c "npm install && npm run dev"
+      - backend_node_modules:/app/node_modules
     environment:
-      PORT: 3000
-      JWT_SECRET: dev_secret
-      DATABASE_URL: postgresql://munuser:munpassword@postgres:5432/mundb
+      DATABASE_URL: postgresql://dmun_user:dmun_password@postgres:5432/dmun_db
+      PORT: 5000
+      NODE_ENV: development
+      JWT_SECRET: change_me_in_production
+      FRONTEND_URL: http://localhost:5173
+    ports:
+      - "5000:5000"
     depends_on:
       - postgres
+    networks:
+      - dmun_network
+    command: sh -c "npm install && npx prisma generate && npm run dev"
+
+  frontend:
+    image: node:22-alpine
+    container_name: dmun_frontend
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - dmun_network
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+
+  admin:
+    image: node:22-alpine
+    container_name: dmun_admin
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./mun-admin:/app
+      - admin_node_modules:/app/node_modules
+    ports:
+      - "5174:5173"
+    depends_on:
+      - backend
+    networks:
+      - dmun_network
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
 
 volumes:
   postgres_data:
+  backend_node_modules:
+  frontend_node_modules:
+  admin_node_modules:
+
+networks:
+  dmun_network:
+    driver: bridge
