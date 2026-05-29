@@ -4,7 +4,17 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('Starte Datenseeding...');
-
+// Admin-User erstellen
+  const bcrypt = await import('bcryptjs');
+  const hashedPassword = await bcrypt.default.hash('admin123', 10);
+  const admin = await prisma.admin.create({
+    data: {
+      email: 'admin@dmun.de',
+      password: hashedPassword,
+      name: 'DMUN Admin'
+    }
+  });
+  console.log('✅ Admin erstellt:', admin.email);
   // Event 1: MUNoH
   const event1 = await prisma.event.create({
     data: {

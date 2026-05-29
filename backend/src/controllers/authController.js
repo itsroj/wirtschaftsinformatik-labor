@@ -1,7 +1,4 @@
-// DIESE DATEI WIRD VON MAX IMPLEMENTIERT (Auth & Infrastruktur)
-// Admin-Login und JWT-Token-Generierung sind Max' Aufgabe
 
-/*
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -75,4 +72,4 @@ export const getCurrentUser = async (req, res) => {
     res.status(500).json({ error: 'Fehler beim Abrufen des Benutzers' });
   }
 };
-*/
+
