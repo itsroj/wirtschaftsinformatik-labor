@@ -11,12 +11,14 @@
         type="email"
         placeholder="E-Mail"
         :disabled="loading"
+        @keyup.enter="login"
       />
       <input
         v-model="password"
         type="password"
         placeholder="Passwort"
         :disabled="loading"
+        @keyup.enter="login"
       />
       <button @click="login" :disabled="loading">
         {{ loading ? 'Anmelden...' : 'Anmelden' }}

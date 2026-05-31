@@ -36,3 +36,47 @@ npm run dev
 ```sh
 npm run build
 ```
+
+
+## Setup für lokales Testen Admin Log in + Datenbank
+
+### Voraussetzungen
+- Node.js
+- Docker Desktop
+
+### Schritte
+
+1. Repo klonen
+   git clone https://github.com/itsroj/wirtschaftsinformatik-labor.git
+   cd wirtschaftsinformatik-labor
+
+2. Branch wechseln
+   git checkout feature/infrastructure-max
+
+3. .env Datei anlegen (im backend/ Ordner)
+   Inhalt:
+   PORT=5000
+   JWT_SECRET=geheimnis123
+   DB_USER=munuser
+   DB_PASSWORD=munpassword
+   DB_NAME=mundb
+   DATABASE_URL="postgresql://munuser:munpassword@localhost:5432/mundb"
+   FRONTEND_URL=http://localhost:5174
+   NODE_ENV=development
+
+4. Docker starten
+   cd backend
+   docker-compose up -d
+
+5. Datenbank einrichten
+   npx prisma migrate dev
+   npx prisma db seed
+
+6. Admin Panel starten
+   cd ../mun-admin
+   npm install
+   npm run dev
+
+7. Browser öffnen
+   http://localhost:5174
+   Login: admin@dmun.de / admin123
