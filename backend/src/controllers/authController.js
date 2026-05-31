@@ -1,4 +1,3 @@
-
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -9,12 +8,10 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validierung
     if (!email || !password) {
       return res.status(400).json({ error: 'E-Mail und Passwort erforderlich' });
     }
 
-    // Benutzer suchen
     const user = await prisma.admin.findUnique({
       where: { email }
     });
@@ -23,13 +20,11 @@ export const login = async (req, res) => {
       return res.status(401).json({ error: 'Ungültige Anmeldedaten' });
     }
 
-    // Passwort prüfen
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       return res.status(401).json({ error: 'Ungültige Anmeldedaten' });
     }
 
-    // JWT Token generieren
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       process.env.JWT_SECRET,
@@ -51,7 +46,6 @@ export const login = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-  // Token wird Client-seitig gelöscht
   res.json({ message: 'Erfolgreich abgemeldet' });
 };
 
@@ -73,3 +67,42 @@ export const getCurrentUser = async (req, res) => {
   }
 };
 
+export const updateAdmin = async (req, res) => {
+  try {
+    const { email, currentPassword, newPassword } = req.body;
+
+    const user = await prisma.admin.findUnique({
+      where: { id: req.userId }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Benutzer nicht gefunden' });
+    }
+
+    const updateData = {};
+
+    if (email) {
+      updateData.email = email;
+    }
+
+    if (currentPassword && newPassword) {
+      const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ error: 'Aktuelles Passwort ist falsch' });
+      }
+      updateData.password = await bcrypt.hash(newPassword, 10);
+    }
+
+    const updatedUser = await prisma.admin.update({
+      where: { id: req.userId },
+      data: updateData,
+      select: { id: true, email: true, name: true }
+    });
+
+    res.json({ message: 'Erfolgreich aktualisiert', user: updatedUser });
+
+  } catch (error) {
+    console.error('Fehler beim Aktualisieren:', error);
+    res.status(500).json({ error: 'Fehler beim Aktualisieren' });
+  }
+};

@@ -5,7 +5,7 @@
       <nav>
         <a @click="router.push('/dashboard')">Dashboard</a>
         <a @click="router.push('/konferenzen/neu')">+ Neue Konferenz</a>
-        <a @click="router.push('/einstellungen')">Einstellungen</a>
+        <a class="active">Einstellungen</a>
       </nav>
       <button class="logout" @click="logout">Abmelden</button>
     </aside>
@@ -13,20 +13,6 @@
     <main class="content">
       <h1>Einstellungen</h1>
       <p>Verwalte deine Admin-Zugangsdaten.</p>
-
-      <!-- Name ändern -->
-      <div class="section">
-        <h2>Name ändern</h2>
-        <div v-if="nameSuccess" class="success">{{ nameSuccess }}</div>
-        <div v-if="nameError" class="error">{{ nameError }}</div>
-        <div class="form-group">
-          <label>Neuer Name</label>
-          <input v-model="newName" type="text" placeholder="z.B. DMUN Admin" />
-        </div>
-        <button @click="saveName" :disabled="nameLoading">
-          {{ nameLoading ? 'Wird gespeichert...' : 'Name speichern' }}
-        </button>
-      </div>
 
       <!-- Email ändern -->
       <div class="section">
@@ -49,15 +35,24 @@
         <div v-if="pwError" class="error">{{ pwError }}</div>
         <div class="form-group">
           <label>Aktuelles Passwort</label>
-          <input v-model="currentPassword" type="password" placeholder="Aktuelles Passwort" />
+          <div class="pw-wrapper">
+            <input v-model="currentPassword" :type="showCurrent ? 'text' : 'password'" placeholder="Aktuelles Passwort" />
+            <button type="button" class="toggle-pw" @click="showCurrent = !showCurrent" tabindex="-1">{{ showCurrent ? '◉' : '○' }}</button>
+          </div>
         </div>
         <div class="form-group">
           <label>Neues Passwort</label>
-          <input v-model="newPassword" type="password" placeholder="Neues Passwort" />
+          <div class="pw-wrapper">
+            <input v-model="newPassword" :type="showNew ? 'text' : 'password'" placeholder="Neues Passwort" />
+            <button type="button" class="toggle-pw" @click="showNew = !showNew" tabindex="-1">{{ showNew ? '◉' : '○' }}</button>
+          </div>
         </div>
         <div class="form-group">
           <label>Neues Passwort bestätigen</label>
-          <input v-model="confirmPassword" type="password" placeholder="Passwort wiederholen" />
+          <div class="pw-wrapper">
+            <input v-model="confirmPassword" :type="showConfirm ? 'text' : 'password'" placeholder="Passwort wiederholen" />
+            <button type="button" class="toggle-pw" @click="showConfirm = !showConfirm" tabindex="-1">{{ showConfirm ? '◉' : '○' }}</button>
+          </div>
         </div>
         <button @click="savePassword" :disabled="pwLoading">
           {{ pwLoading ? 'Wird gespeichert...' : 'Passwort speichern' }}
@@ -76,33 +71,6 @@ const router = useRouter()
 
 function getToken() {
   return localStorage.getItem('admin_token')
-}
-
-// Name
-const newName = ref('')
-const nameLoading = ref(false)
-const nameSuccess = ref('')
-const nameError = ref('')
-
-async function saveName() {
-  nameError.value = ''
-  nameSuccess.value = ''
-  if (!newName.value) { nameError.value = 'Bitte einen Namen eingeben.'; return }
-  nameLoading.value = true
-  try {
-    const response = await fetch('http://localhost:5000/api/auth/update', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
-      body: JSON.stringify({ name: newName.value })
-    })
-    if (!response.ok) throw new Error()
-    nameSuccess.value = '✅ Name wurde gespeichert!'
-    newName.value = ''
-  } catch {
-    nameError.value = 'Fehler beim Speichern.'
-  } finally {
-    nameLoading.value = false
-  }
 }
 
 // Email
@@ -139,6 +107,9 @@ const confirmPassword = ref('')
 const pwLoading = ref(false)
 const pwSuccess = ref('')
 const pwError = ref('')
+const showCurrent = ref(false)
+const showNew = ref(false)
+const showConfirm = ref(false)
 
 async function savePassword() {
   pwError.value = ''
@@ -222,12 +193,35 @@ p { color: #666; margin: 0 0 2rem; }
 }
 .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
 label { font-size: 0.9rem; font-weight: 600; color: #374151; }
+.pw-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.pw-wrapper input {
+  width: 100%;
+  padding-right: 3rem;
+  box-sizing: border-box;
+}
+.toggle-pw {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0;
+  color: #666;
+  align-self: auto;
+}
 input {
   padding: 0.75rem 1rem;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 1rem;
   outline: none;
+  width: 100%;
+  box-sizing: border-box;
 }
 input:focus { border-color: #2677b5; }
 button {
