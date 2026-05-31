@@ -5,7 +5,7 @@
       <nav>
         <a @click="router.push('/dashboard')">Dashboard</a>
         <a class="active">Konferenzen</a>
-        <a href="#">Einstellungen</a>
+        <a @click="router.push('/einstellungen')">Einstellungen</a>
       </nav>
       <button class="logout" @click="logout">Abmelden</button>
     </aside>

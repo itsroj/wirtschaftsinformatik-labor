@@ -13,13 +13,18 @@
         :disabled="loading"
         @keyup.enter="login"
       />
-      <input
-        v-model="password"
-        type="password"
-        placeholder="Passwort"
-        :disabled="loading"
-        @keyup.enter="login"
-      />
+      <div class="password-wrapper">
+        <input
+          v-model="password"
+          :type="showPassword ? 'text' : 'password'"
+          placeholder="Passwort"
+          :disabled="loading"
+          @keyup.enter="login"
+        />
+<button type="button" class="toggle-pw" @click="showPassword = !showPassword" tabindex="-1">
+  {{ showPassword ? '◉' : '○' }}
+</button>
+      </div>
       <button @click="login" :disabled="loading">
         {{ loading ? 'Anmelden...' : 'Anmelden' }}
       </button>
@@ -36,6 +41,7 @@ const email = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
+const showPassword = ref(false)
 
 async function login() {
   error.value = ''
@@ -104,6 +110,8 @@ input {
   border-radius: 8px;
   font-size: 1rem;
   outline: none;
+  width: 100%;
+  box-sizing: border-box;
 }
 input:focus {
   border-color: #2677b5;
@@ -111,6 +119,24 @@ input:focus {
 input:disabled {
   background: #f9f9f9;
   color: #aaa;
+}
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.password-wrapper input {
+  padding-right: 3rem;
+}
+.toggle-pw {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0;
+  color: #666;
 }
 button {
   padding: 0.75rem;
