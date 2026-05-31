@@ -21,9 +21,9 @@
           :disabled="loading"
           @keyup.enter="login"
         />
-<button type="button" class="toggle-pw" @click="showPassword = !showPassword" tabindex="-1">
-  {{ showPassword ? '◉' : '○' }}
-</button>
+        <button type="button" class="toggle-pw" @click="showPassword = !showPassword" tabindex="-1">
+          {{ showPassword ? '◉' : '○' }}
+        </button>
       </div>
       <button @click="login" :disabled="loading">
         {{ loading ? 'Anmelden...' : 'Anmelden' }}

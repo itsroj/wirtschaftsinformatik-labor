@@ -41,13 +41,6 @@
             <span class="label">Ausstehend</span>
           </div>
         </div>
-        <div class="stat-card">
-          <span class="icon">📅</span>
-          <div>
-            <span class="number">{{ dieseWoche }}</span>
-            <span class="label">Diese Woche</span>
-          </div>
-        </div>
       </div>
 
       <div v-if="ladeError" class="error-banner">{{ ladeError }}</div>
@@ -63,10 +56,18 @@
         <table v-else>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Ort</th>
-              <th>Datum</th>
-              <th>Sprache</th>
+              <th @click="setSort('title')" class="sortable">
+                Name <span class="sort-icon">{{ sortIcon('title') }}</span>
+              </th>
+              <th @click="setSort('city')" class="sortable">
+                Ort <span class="sort-icon">{{ sortIcon('city') }}</span>
+              </th>
+              <th @click="setSort('date')" class="sortable">
+                Datum <span class="sort-icon">{{ sortIcon('date') }}</span>
+              </th>
+              <th @click="setSort('language')" class="sortable">
+                Sprache <span class="sort-icon">{{ sortIcon('language') }}</span>
+              </th>
               <th>Status</th>
               <th>Aktionen</th>
             </tr>
@@ -77,7 +78,7 @@
               <td>{{ k.city }}</td>
               <td>{{ formatDatum(k.date) }}</td>
               <td>{{ k.language?.toUpperCase() }}</td>
-              <td><span :class="['badge', getStatus(k.date)]">{{ getStatusLabel(k.date) }}</span></td>
+              <td><span :class="['badge', getStatus(k)]">{{ getStatusLabel(k) }}</span></td>
               <td>
                 <button class="btn-edit" @click="bearbeiten(k.id)">Bearbeiten</button>
                 <button class="btn-delete" @click="loeschen(k.id)">Löschen</button>
@@ -120,6 +121,8 @@ const successMessage = ref('')
 const konferenzen = ref([])
 const loading = ref(true)
 const ladeError = ref('')
+const sortKey = ref('')
+const sortDir = ref('asc')
 
 function getToken() {
   return localStorage.getItem('admin_token')
@@ -130,9 +133,7 @@ async function ladeKonferenzen() {
   ladeError.value = ''
   try {
     const response = await fetch('http://localhost:5000/api/events', {
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
+      headers: { 'Authorization': `Bearer ${getToken()}` }
     })
     if (!response.ok) throw new Error()
     konferenzen.value = await response.json()
@@ -143,18 +144,23 @@ async function ladeKonferenzen() {
   }
 }
 
-onMounted(() => {
-  ladeKonferenzen()
-})
+onMounted(() => ladeKonferenzen())
 
 const heute = new Date()
 
-function getStatus(datum) {
-  return new Date(datum) >= heute ? 'ausstehend' : 'aktiv'
+function getStatus(k) {
+  const start = new Date(k.date)
+  const end = new Date(k.endDate)
+  if (heute >= start && heute <= end) return 'aktiv'
+  if (start > heute) return 'ausstehend'
+  return 'vergangen'
 }
 
-function getStatusLabel(datum) {
-  return new Date(datum) >= heute ? 'Ausstehend' : 'Aktiv'
+function getStatusLabel(k) {
+  const status = getStatus(k)
+  if (status === 'aktiv') return 'Aktiv'
+  if (status === 'ausstehend') return 'Ausstehend'
+  return 'Vergangen'
 }
 
 function formatDatum(datum) {
@@ -165,28 +171,47 @@ function formatDatum(datum) {
 }
 
 const aktiveKonferenzen = computed(() =>
-  konferenzen.value.filter(k => new Date(k.date) < heute).length
+  konferenzen.value.filter(k => {
+    const start = new Date(k.date)
+    const end = new Date(k.endDate)
+    return heute >= start && heute <= end
+  }).length
 )
 
 const ausstehendKonferenzen = computed(() =>
-  konferenzen.value.filter(k => new Date(k.date) >= heute).length
+  konferenzen.value.filter(k => new Date(k.date) > heute).length
 )
 
-const dieseWoche = computed(() => {
-  const wochenende = new Date()
-  wochenende.setDate(heute.getDate() + 7)
-  return konferenzen.value.filter(k => {
-    const d = new Date(k.date)
-    return d >= heute && d <= wochenende
-  }).length
-})
+function setSort(key) {
+  if (sortKey.value === key) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortKey.value = key
+    sortDir.value = 'asc'
+  }
+}
 
-const filtered = computed(() =>
-  konferenzen.value.filter(k =>
+function sortIcon(key) {
+  if (sortKey.value !== key) return '↕'
+  return sortDir.value === 'asc' ? '↑' : '↓'
+}
+
+const filtered = computed(() => {
+  let result = konferenzen.value.filter(k =>
     k.title?.toLowerCase().includes(search.value.toLowerCase()) ||
     k.city?.toLowerCase().includes(search.value.toLowerCase())
   )
-)
+  if (sortKey.value) {
+    result = [...result].sort((a, b) => {
+      const valA = a[sortKey.value] || ''
+      const valB = b[sortKey.value] || ''
+      return sortDir.value === 'asc'
+        ? valA > valB ? 1 : -1
+        : valA < valB ? 1 : -1
+    })
+  }
+  return result
+})
 
 function bearbeiten(id) {
   router.push(`/konferenzen/bearbeiten/${id}`)
@@ -200,9 +225,7 @@ async function loeschenBestaetigen() {
   try {
     const response = await fetch(`http://localhost:5000/api/events/${deleteId.value}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
+      headers: { 'Authorization': `Bearer ${getToken()}` }
     })
     if (!response.ok) throw new Error()
     konferenzen.value = konferenzen.value.filter(k => k.id !== deleteId.value)
@@ -267,18 +290,18 @@ nav a.active { color: #66bdf5; }
 
 .btn-primary {
   padding: 0.75rem 1.5rem;
-  background: #2677b5;
+  background: #0f3b66;
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
 }
-.btn-primary:hover { background: #0f3b66; }
+.btn-primary:hover { background: #092a4a; }
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
   margin-bottom: 2rem;
 }
@@ -344,6 +367,12 @@ th {
   color: #666;
   font-weight: 600;
 }
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+th.sortable:hover { color: #0f3b66; }
+.sort-icon { margin-left: 0.25rem; }
 td {
   padding: 1rem 1.5rem;
   border-top: 1px solid #f0f0f0;
@@ -366,6 +395,7 @@ td {
 }
 .badge.aktiv { background: #dcfce7; color: #16a34a; }
 .badge.ausstehend { background: #fef9c3; color: #ca8a04; }
+.badge.vergangen { background: #f1f5f9; color: #94a3b8; }
 
 .btn-edit {
   padding: 0.35rem 0.75rem;
