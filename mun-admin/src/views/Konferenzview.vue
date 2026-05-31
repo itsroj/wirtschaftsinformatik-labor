@@ -1,0 +1,423 @@
+<template>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <h2>MUN Admin</h2>
+      <nav>
+        <a @click="router.push('/dashboard')">Dashboard</a>
+        <a class="active">Konferenzen</a>
+        <a href="#">Einstellungen</a>
+      </nav>
+      <button class="logout" @click="logout">Abmelden</button>
+    </aside>
+
+    <main class="content">
+      <h1>{{ istBearbeiten ? 'Konferenz bearbeiten' : 'Neue Konferenz eintragen' }}</h1>
+      <p>{{ istBearbeiten ? 'Ändere die Daten und speichere.' : 'Fülle das Formular aus um eine neue MUN-Konferenz hinzuzufügen.' }}</p>
+
+      <div v-if="success" class="success">{{ success }}</div>
+      <div v-if="error" class="error">{{ error }}</div>
+
+      <form class="form" @submit.prevent="submit">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Kurzname</label>
+            <input v-model="form.title" type="text" placeholder="z.B. BERMUN" required :disabled="loading" />
+          </div>
+          <div class="form-group">
+            <label>Ausgeschriebener Name</label>
+            <input v-model="form.longTitle" type="text" placeholder="z.B. Berlin Model United Nations 2025" required :disabled="loading" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Beschreibung</label>
+          <textarea v-model="form.description" rows="4" placeholder="Kurze Beschreibung der Konferenz..." :disabled="loading"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Stadt</label>
+          <input v-model="form.city" type="text" placeholder="z.B. Berlin, Deutschland" required :disabled="loading" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Startdatum</label>
+            <input v-model="form.date" type="date" required :disabled="loading" />
+          </div>
+          <div class="form-group">
+            <label>Enddatum</label>
+            <input v-model="form.endDate" type="date" required :disabled="loading" />
+          </div>
+          <div class="form-group">
+            <label>Anmeldefrist</label>
+            <input v-model="form.applicationDate" type="date" required :disabled="loading" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Teilnehmerzahl</label>
+            <input v-model="form.participants" type="number" min="1" placeholder="z.B. 200" required :disabled="loading" />
+          </div>
+          <div class="form-group">
+            <label>Erste Konferenz (Jahr)</label>
+            <input v-model="form.firstConference" type="number" min="1900" max="2100" placeholder="z.B. 2015" required :disabled="loading" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Sprache</label>
+            <select v-model="form.language" :disabled="loading">
+              <option value="de">Deutsch</option>
+              <option value="en">Englisch</option>
+              <option value="both">Deutsch & Englisch</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Typ</label>
+            <select v-model="form.type" :disabled="loading">
+              <option value="schueler">Schüler</option>
+              <option value="studenten">Studenten</option>
+              <option value="mini-mun">Mini-MUN</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Website</label>
+          <input v-model="form.website" type="url" placeholder="https://..." :disabled="loading" />
+        </div>
+
+        <div class="form-group">
+          <label>Logo</label>
+          <input type="file" accept=".png,.jpg,.jpeg" @change="handleLogo" :disabled="loading" />
+          <div v-if="logoPreview" class="logo-preview">
+            <img :src="logoPreview" alt="Logo Vorschau" />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="cancel" @click="reset" :disabled="loading">Zurücksetzen</button>
+          <button type="submit" :disabled="loading">
+            {{ loading ? 'Wird gespeichert...' : (istBearbeiten ? 'Änderungen speichern' : 'Konferenz speichern') }}
+          </button>
+        </div>
+
+      </form>
+    </main>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
+const success = ref('')
+const error = ref('')
+const loading = ref(false)
+const logoPreview = ref(null)
+
+const istBearbeiten = computed(() => !!route.params.id)
+
+const form = ref({
+  title: '',
+  longTitle: '',
+  description: '',
+  city: '',
+  date: '',
+  endDate: '',
+  applicationDate: '',
+  participants: '',
+  firstConference: '',
+  language: 'de',
+  type: 'schueler',
+  website: '',
+  logo: null
+})
+
+function getToken() {
+  return localStorage.getItem('admin_token')
+}
+
+onMounted(async () => {
+  if (istBearbeiten.value) {
+    try {
+      const response = await fetch(`http://localhost:3000/api/events/${route.params.id}`, {
+        headers: {
+          'Authorization': `Bearer ${getToken()}`
+        }
+      })
+      if (!response.ok) throw new Error()
+      const data = await response.json()
+      form.value = {
+        title: data.title || '',
+        longTitle: data.longTitle || '',
+        description: data.description || '',
+        city: data.city || '',
+        date: data.date ? data.date.substring(0, 10) : '',
+        endDate: data.endDate ? data.endDate.substring(0, 10) : '',
+        applicationDate: data.applicationDate ? data.applicationDate.substring(0, 10) : '',
+        participants: data.participants || '',
+        firstConference: data.firstConference || '',
+        language: data.language || 'de',
+        type: data.type || 'schueler',
+        website: data.website || '',
+        logo: null
+      }
+    } catch {
+      error.value = 'Konferenz konnte nicht geladen werden.'
+    }
+  }
+})
+
+function handleLogo(event) {
+  const file = event.target.files[0]
+  if (file) {
+    form.value.logo = file
+    logoPreview.value = URL.createObjectURL(file)
+  }
+}
+
+async function submit() {
+  error.value = ''
+  success.value = ''
+  loading.value = true
+
+  try {
+    const payload = {
+      title: form.value.title,
+      longTitle: form.value.longTitle,
+      description: form.value.description,
+      city: form.value.city,
+      date: form.value.date,
+      endDate: form.value.endDate,
+      applicationDate: form.value.applicationDate,
+      participants: form.value.participants,
+      firstConference: form.value.firstConference,
+      language: form.value.language,
+      type: form.value.type,
+      website: form.value.website
+    }
+
+    const url = istBearbeiten.value
+      ? `http://localhost:3000/api/events/${route.params.id}`
+      : 'http://localhost:3000/api/events'
+
+    const method = istBearbeiten.value ? 'PUT' : 'POST'
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify(payload)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      error.value = data.error || 'Ein Fehler ist aufgetreten.'
+      return
+    }
+
+    success.value = istBearbeiten.value
+      ? '✅ Konferenz wurde erfolgreich bearbeitet!'
+      : '✅ Konferenz wurde erfolgreich erstellt!'
+
+    setTimeout(() => {
+      success.value = ''
+      router.push('/dashboard')
+    }, 1500)
+
+  } catch {
+    error.value = 'Server nicht erreichbar. Bitte später erneut versuchen.'
+  } finally {
+    loading.value = false
+  }
+}
+
+function reset() {
+  form.value = {
+    title: '',
+    longTitle: '',
+    description: '',
+    city: '',
+    date: '',
+    endDate: '',
+    applicationDate: '',
+    participants: '',
+    firstConference: '',
+    language: 'de',
+    type: 'schueler',
+    website: '',
+    logo: null
+  }
+  logoPreview.value = null
+}
+
+function logout() {
+  localStorage.removeItem('admin_token')
+  router.push('/login')
+}
+</script>
+
+<style scoped>
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+}
+.sidebar {
+  width: 240px;
+  background: #1a1a2e;
+  color: white;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.sidebar h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #a5b4fc;
+}
+nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+nav a {
+  color: #cbd5e1;
+  text-decoration: none;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+nav a:hover, nav a.active {
+  background: #ffffff15;
+  color: white;
+}
+nav a.active {
+  color: #a5b4fc;
+}
+.logout {
+  margin-top: auto;
+  padding: 0.75rem;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.content {
+  flex: 1;
+  padding: 2.5rem;
+  background: #f0f2f5;
+}
+h1 {
+  margin: 0 0 0.5rem;
+  color: #1a1a2e;
+}
+p {
+  color: #666;
+  margin: 0 0 2rem;
+}
+.form {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+.form-row .form-group {
+  flex: 1;
+}
+label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+}
+input, select, textarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  font-family: inherit;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #4f46e5;
+}
+input:disabled, select:disabled, textarea:disabled {
+  background: #f9f9f9;
+  color: #aaa;
+}
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+button[type="submit"] {
+  padding: 0.75rem 1.5rem;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+button[type="submit"]:hover:not(:disabled) {
+  background: #4338ca;
+}
+button[type="submit"]:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
+}
+.cancel {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.success {
+  background: #dcfce7;
+  color: #16a34a;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+.error {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+.logo-preview {
+  margin-top: 0.5rem;
+}
+.logo-preview img {
+  max-height: 100px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+</style>
