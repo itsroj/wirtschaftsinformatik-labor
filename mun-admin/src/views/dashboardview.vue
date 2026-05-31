@@ -131,7 +131,7 @@ async function ladeKonferenzen() {
   loading.value = true
   ladeError.value = ''
   try {
-    const response = await fetch('http://localhost:3000/api/events', {
+    const response = await fetch('http://localhost:5000/api/events', {
       headers: {
         'Authorization': `Bearer ${getToken()}`
       }
@@ -200,7 +200,7 @@ function loeschen(id) {
 
 async function loeschenBestaetigen() {
   try {
-    const response = await fetch(`http://localhost:3000/api/events/${deleteId.value}`, {
+    const response = await fetch(`http://localhost:5000/api/events/${deleteId.value}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${getToken()}`

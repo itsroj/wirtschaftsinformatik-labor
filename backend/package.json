@@ -31,5 +31,8 @@
     "model united nations"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "prisma": {
+  "seed": "node prisma/seed.js"
+  }
 }

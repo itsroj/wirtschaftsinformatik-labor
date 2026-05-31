@@ -146,7 +146,7 @@ function getToken() {
 onMounted(async () => {
   if (istBearbeiten.value) {
     try {
-      const response = await fetch(`http://localhost:3000/api/events/${route.params.id}`, {
+      const response = await fetch(`http://localhost:5000/api/events/${route.params.id}`, {
         headers: {
           'Authorization': `Bearer ${getToken()}`
         }
@@ -204,8 +204,8 @@ async function submit() {
     }
 
     const url = istBearbeiten.value
-      ? `http://localhost:3000/api/events/${route.params.id}`
-      : 'http://localhost:3000/api/events'
+      ? `http://localhost:5000/api/events/${route.params.id}`
+      : 'http://localhost:5000/api/events'
 
     const method = istBearbeiten.value ? 'PUT' : 'POST'
 
