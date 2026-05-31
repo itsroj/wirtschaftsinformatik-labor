@@ -273,7 +273,7 @@ function logout() {
 }
 .sidebar {
   width: 240px;
-  background: #1a1a2e;
+  background: #0f3b66;
   color: white;
   padding: 2rem 1.5rem;
   display: flex;
@@ -283,7 +283,7 @@ function logout() {
 .sidebar h2 {
   margin: 0;
   font-size: 1.4rem;
-  color: #a5b4fc;
+  color: #66bdf5;
 }
 nav {
   display: flex;
@@ -302,7 +302,7 @@ nav a:hover, nav a.active {
   color: white;
 }
 nav a.active {
-  color: #a5b4fc;
+  color: #66bdf5;
 }
 .logout {
   margin-top: auto;
@@ -320,7 +320,7 @@ nav a.active {
 }
 h1 {
   margin: 0 0 0.5rem;
-  color: #1a1a2e;
+  color: #0f3b66;
 }
 p {
   color: #666;
@@ -362,7 +362,7 @@ input, select, textarea {
   font-family: inherit;
 }
 input:focus, select:focus, textarea:focus {
-  border-color: #4f46e5;
+  border-color: #2677b5;
 }
 input:disabled, select:disabled, textarea:disabled {
   background: #f9f9f9;
@@ -375,7 +375,7 @@ input:disabled, select:disabled, textarea:disabled {
 }
 button[type="submit"] {
   padding: 0.75rem 1.5rem;
-  background: #4f46e5;
+  background: #0f3b66;
   color: white;
   border: none;
   border-radius: 8px;
@@ -383,10 +383,10 @@ button[type="submit"] {
   cursor: pointer;
 }
 button[type="submit"]:hover:not(:disabled) {
-  background: #4338ca;
+  background: #092a4a;
 }
 button[type="submit"]:disabled {
-  background: #a5b4fc;
+  background: #66bdf5;
   cursor: not-allowed;
 }
 .cancel {

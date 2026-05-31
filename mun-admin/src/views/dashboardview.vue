@@ -90,7 +90,6 @@
         </table>
       </div>
 
-      <!-- Löschen Bestätigung Modal -->
       <div v-if="deleteId" class="modal-overlay">
         <div class="modal">
           <h3>Konferenz löschen?</h3>
@@ -102,7 +101,6 @@
         </div>
       </div>
 
-      <!-- Erfolgsmeldung Toast -->
       <div v-if="successMessage" class="success-toast">
         {{ successMessage }}
       </div>
@@ -228,14 +226,14 @@ function logout() {
 
 .sidebar {
   width: 240px;
-  background: #1a1a2e;
+  background: #0f3b66;
   color: white;
   padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
-.sidebar h2 { margin: 0; font-size: 1.4rem; color: #a5b4fc; }
+.sidebar h2 { margin: 0; font-size: 1.4rem; color: #66bdf5; }
 nav { display: flex; flex-direction: column; gap: 0.5rem; }
 nav a {
   color: #cbd5e1;
@@ -245,7 +243,7 @@ nav a {
   cursor: pointer;
 }
 nav a:hover, nav a.active { background: #ffffff15; color: white; }
-nav a.active { color: #a5b4fc; }
+nav a.active { color: #66bdf5; }
 .logout {
   margin-top: auto;
   padding: 0.75rem;
@@ -264,19 +262,19 @@ nav a.active { color: #a5b4fc; }
   align-items: center;
   margin-bottom: 2rem;
 }
-.topbar h1 { margin: 0 0 0.25rem; color: #1a1a2e; }
+.topbar h1 { margin: 0 0 0.25rem; color: #0f3b66; }
 .topbar p { margin: 0; color: #666; }
 
 .btn-primary {
   padding: 0.75rem 1.5rem;
-  background: #4f46e5;
+  background: #2677b5;
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
 }
-.btn-primary:hover { background: #4338ca; }
+.btn-primary:hover { background: #0f3b66; }
 
 .stats {
   display: grid;
@@ -295,7 +293,7 @@ nav a.active { color: #a5b4fc; }
 }
 .stat-card .icon { font-size: 2rem; }
 .stat-card div { display: flex; flex-direction: column; }
-.number { font-size: 1.8rem; font-weight: bold; color: #1a1a2e; }
+.number { font-size: 1.8rem; font-weight: bold; color: #0f3b66; }
 .label { font-size: 0.85rem; color: #666; }
 
 .table-card {
@@ -311,7 +309,7 @@ nav a.active { color: #a5b4fc; }
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid #f0f0f0;
 }
-.table-header h2 { margin: 0; font-size: 1.1rem; color: #1a1a2e; }
+.table-header h2 { margin: 0; font-size: 1.1rem; color: #0f3b66; }
 .search {
   padding: 0.5rem 1rem;
   border: 1px solid #ddd;
@@ -319,7 +317,7 @@ nav a.active { color: #a5b4fc; }
   font-size: 0.9rem;
   outline: none;
 }
-.search:focus { border-color: #4f46e5; }
+.search:focus { border-color: #2677b5; }
 
 .loading {
   padding: 2rem;
@@ -371,8 +369,8 @@ td {
 
 .btn-edit {
   padding: 0.35rem 0.75rem;
-  background: #ede9fe;
-  color: #4f46e5;
+  background: #dbeafe;
+  color: #2677b5;
   border: none;
   border-radius: 6px;
   font-size: 0.85rem;
@@ -405,7 +403,7 @@ td {
   width: 400px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.2);
 }
-.modal h3 { margin: 0 0 0.5rem; color: #1a1a2e; }
+.modal h3 { margin: 0 0 0.5rem; color: #0f3b66; }
 .modal p { margin: 0 0 1.5rem; color: #666; }
 .modal-actions {
   display: flex;
@@ -436,7 +434,7 @@ td {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
-  background: #1a1a2e;
+  background: #0f3b66;
   color: white;
   padding: 1rem 1.5rem;
   border-radius: 10px;

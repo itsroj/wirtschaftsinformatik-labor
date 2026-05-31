@@ -77,13 +77,13 @@ async function login() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f0f2f5;
+  background: radial-gradient(circle at top, #66bdf5 0%, #3c95d1 45%, #2677b5 100%);
 }
 .login-card {
   background: white;
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
   width: 360px;
   display: flex;
   flex-direction: column;
@@ -92,7 +92,7 @@ async function login() {
 h1 {
   margin: 0;
   font-size: 1.8rem;
-  color: #1a1a2e;
+  color: #0f3b66;
 }
 p {
   margin: 0;
@@ -106,7 +106,7 @@ input {
   outline: none;
 }
 input:focus {
-  border-color: #4f46e5;
+  border-color: #2677b5;
 }
 input:disabled {
   background: #f9f9f9;
@@ -114,7 +114,7 @@ input:disabled {
 }
 button {
   padding: 0.75rem;
-  background: #4f46e5;
+  background: #0f3b66;
   color: white;
   border: none;
   border-radius: 8px;
@@ -122,10 +122,10 @@ button {
   cursor: pointer;
 }
 button:hover:not(:disabled) {
-  background: #4338ca;
+  background: #092a4a;
 }
 button:disabled {
-  background: #a5b4fc;
+  background: #66bdf5;
   cursor: not-allowed;
 }
 .error {
