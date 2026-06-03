@@ -40,7 +40,17 @@ services:
       - backend
     networks:
       - dmun_network
-
+  admin:
+    build:
+      context: ../mun-admin
+      dockerfile: Dockerfile
+    container_name: dmun_admin
+    ports:
+      - "5174:80"
+    depends_on:
+      - backend
+    networks:
+      - dmun_network
 volumes:
   postgres_data:
 
