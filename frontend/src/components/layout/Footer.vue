@@ -41,9 +41,9 @@
 
       <div class="footer-column">
         <h4>Service</h4>
-        <RouterLink :to="{ name: 'home' }">Kontakt</RouterLink>
-        <RouterLink :to="{ name: 'home' }">Impressum</RouterLink>
-        <RouterLink :to="{ name: 'home' }">Datenschutz</RouterLink>
+        <RouterLink :to="{ name: 'service' }">Kontakt</RouterLink>
+        <RouterLink :to="{ name: 'service' }">Impressum</RouterLink>
+        <RouterLink :to="{ name: 'service' }">Datenschutz</RouterLink>
       </div>
     </div>
     </div>

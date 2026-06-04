@@ -96,6 +96,10 @@
           Teilnahme
         </RouterLink>
 
+        <RouterLink to="/service" @click="closeMenu">
+          Service
+        </RouterLink>
+
       </div>
 
     </transition>

@@ -3,6 +3,7 @@ import HomeView from '@/views/HomeView.vue'
 import WasIstMunView from '@/views/WasIstMunView.vue'
 import KonferenzenView from '@/views/KonferenzenView.vue'
 import TeilnahmeView from '@/views/TeilnahmeView.vue'
+import ServiceView from '@/views/ServiceView.vue'
 
 const routes = [
   {
@@ -27,6 +28,12 @@ const routes = [
     path: '/teilnahme',
     name: 'teilnahme',
     component: TeilnahmeView
+  },
+
+  {
+    path: '/service',
+    name: 'service',
+    component: ServiceView
   }
 
 ]
