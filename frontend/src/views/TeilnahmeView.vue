@@ -10,22 +10,14 @@
       <ParticipationBlock
         title="Infos zur Teilnahme"
         :text="block1"
-        :images="[
-            '/src/assets/images/mun10.jpg',
-            '/src/assets/images/mun11.jpg',
-            '/src/assets/images/mun12.jpg'
-        ]"
+        :images="imagesBlock1"
       />
 
       <!-- BLOCK 2 -->
       <ParticipationBlock
         title="Teilnahme an internationalen MUNs"
         :text="block2"
-        :images="[
-            '/src/assets/images/mun7.jpg',
-            '/src/assets/images/mun8.jpg',
-            '/src/assets/images/mun9.jpg'
-        ]"
+        :images="imagesBlock2"
         reverse
       />
 
@@ -33,10 +25,7 @@
       <ParticipationBlock
         title="Mini-MUNs für Schüler:innen"
         :text="block3"
-        :images="[
-            '/src/assets/images/mun6.jpg',
-            '/src/assets/images/mun5.jpg'
-        ]"
+        :images="imagesBlock3"
       />
 
     </section>
@@ -52,6 +41,21 @@ import Navbar from '@/components/layout/Navbar.vue'
 import Footer from '@/components/layout/Footer.vue'
 
 import ParticipationBlock from '@/components/participation/ParticipationBlock.vue'
+
+// Import images
+import mun5 from '@/assets/images/mun5.jpg'
+import mun6 from '@/assets/images/mun6.jpg'
+import mun7 from '@/assets/images/mun7.jpg'
+import mun8 from '@/assets/images/mun8.jpg'
+import mun9 from '@/assets/images/mun9.jpg'
+import mun10 from '@/assets/images/mun10.jpg'
+import mun11 from '@/assets/images/mun11.jpg'
+import mun12 from '@/assets/images/mun12.jpg'
+
+// Image arrays for blocks
+const imagesBlock1 = [mun10, mun11, mun12]
+const imagesBlock2 = [mun7, mun8, mun9]
+const imagesBlock3 = [mun6, mun5]
 
 /* BLOCK 1 */
 const block1 = [
