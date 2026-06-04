@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import LoginView from '../views/LoginView.vue'
-import DashboardView from '../views/DashboardView.vue'
+import LoginView from '../views/Loginview.vue'
+import DashboardView from '../views/dashboardview.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,13 +23,13 @@ const router = createRouter({
     {
       path: '/konferenzen/neu',
       name: 'konferenzen-neu',
-      component: () => import('../views/KonferenzView.vue'),
+      component: () => import('../views/Konferenzview.vue'),
       meta: { requiresAuth: true }
     },
     {
       path: '/konferenzen/bearbeiten/:id',
       name: 'konferenzen-bearbeiten',
-      component: () => import('../views/KonferenzView.vue'),
+      component: () => import('../views/Konferenzview.vue'),
       meta: { requiresAuth: true }
     },
     {
