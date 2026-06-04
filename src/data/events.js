@@ -17,7 +17,6 @@ export default [
 
     language: "english",
 
-
     type: "pupil",
 
     logo: new URL(
@@ -32,6 +31,7 @@ export default [
 
     facebookLink: 'https://www.facebook.com/',
   },
+
 
   {
     id: 2,
