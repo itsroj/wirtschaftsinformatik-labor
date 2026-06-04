@@ -7,45 +7,26 @@
     <section class="page-content">
 
       <!-- TOP -->
-      <section 
-        class="top-section"
-        ref="topSectionRef"
-      >
+      <section class="top-section" ref="topSectionRef">
 
         <!-- FILTER -->
-        <ConferenceFilters
-          :search="search"
-          :selectedTypes="selectedTypes"
-          :selectedLanguages="selectedLanguages"
-          :sortConfig="sortConfig"
-          @update-search="search = $event"
-          @toggle-type="toggleType"
-          @toggle-language="toggleLanguage"
-          @sort="setSort"
-        />
+        <ConferenceFilters :search="search" :selectedTypes="selectedTypes" :selectedLanguages="selectedLanguages"
+          :sortConfig="sortConfig" @update-search="search = $event" @toggle-type="toggleType"
+          @toggle-language="toggleLanguage" @sort="setSort" />
 
         <!-- MAP -->
-        <ConferenceMapSection
-        :events="filteredEvents"
-        />
+        <ConferenceMapSection :events="filteredEvents" />
 
       </section>
 
       <!-- Button zum Runterscrollen zur Event-Liste -->
-        <button 
-          class="scroll-to-list-button"
-          :class="{ hidden: !showScrollButton }"
-          @click="scrollToList"
-        >
-          <span class="label">Eventliste</span>
-          <span class="arrow">↓</span>
-        </button>
+      <button class="scroll-to-list-button" :class="{ hidden: !showScrollButton }" @click="scrollToList">
+        <span class="label">Eventliste</span>
+        <span class="arrow">↓</span>
+      </button>
 
       <!-- LIST -->
-      <ConferenceList
-        ref="listRef"
-        :events="filteredEvents"
-      />
+      <ConferenceList ref="listRef" :events="filteredEvents" />
 
     </section>
 
@@ -65,7 +46,23 @@ import ConferenceFilters from '@/components/conferences/ConferenceFilters.vue'
 import ConferenceMapSection from '@/components/conferences/ConferenceMapSection.vue'
 import ConferenceList from '@/components/conferences/ConferenceList.vue'
 
-import events from '@/data/events'
+// Fetch events vom Backend statt aus static data
+const events = ref([])
+const loading = ref(true)
+const error = ref(null)
+
+onMounted(async () => {
+  try {
+    const response = await fetch('http://localhost:5000/api/events')
+    if (!response.ok) throw new Error('Failed to fetch events')
+    events.value = await response.json()
+  } catch (err) {
+    error.value = err.message
+    console.error('Error fetching events:', err)
+  } finally {
+    loading.value = false
+  }
+})
 
 /* SEARCH */
 const search = ref('')
@@ -120,7 +117,7 @@ const toggleLanguage = (language) => {
 /* FILTERED EVENTS */
 const filteredEvents = computed(() => {
 
-  let result = events.filter(event => {
+  let result = (events.value || []).filter(event => {
 
     const matchesSearch =
       event.title
@@ -207,18 +204,15 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-
 .conferences-page {
   overflow: visible;
   min-height: 100vh;
 
   background:
-    radial-gradient(
-      circle at top,
+    radial-gradient(circle at top,
       #66bdf5 0%,
       #3c95d1 45%,
-      #2677b5 100%
-    );
+      #2677b5 100%);
 }
 
 .page-content {
@@ -259,7 +253,7 @@ onUnmounted(() => {
 
   padding: 10px 22px;
 
-  background: rgba(255,255,255,0.92);
+  background: rgba(255, 255, 255, 0.92);
   color: #0f3b66;
 
   border: none;
@@ -267,8 +261,8 @@ onUnmounted(() => {
 
   cursor: pointer;
 
-  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-/*  backdrop-filter: blur(10px); */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  /*  backdrop-filter: blur(10px); */
 
   transition:
     opacity 0.25s ease,
@@ -278,7 +272,7 @@ onUnmounted(() => {
 
 .scroll-to-list-button:hover {
   transform: translateX(-50%) translateY(-3px);
-  box-shadow: 0 14px 34px rgba(0,0,0,0.22);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
 }
 
 .scroll-to-list-button.hidden {
@@ -288,8 +282,7 @@ onUnmounted(() => {
   pointer-events: none;
 
   transform:
-    translateX(-50%)
-    translateY(12px);
+    translateX(-50%) translateY(12px);
 }
 
 .label {
@@ -311,7 +304,8 @@ onUnmounted(() => {
 
 @keyframes bounce {
 
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
 
@@ -341,6 +335,4 @@ onUnmounted(() => {
     padding: 9px 18px;
   }
 }
-
-
 </style>
