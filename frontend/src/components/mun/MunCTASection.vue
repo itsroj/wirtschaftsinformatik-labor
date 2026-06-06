@@ -1,5 +1,4 @@
 <template>
-
   <section class="cta-section">
 
     <img
@@ -9,19 +8,22 @@
 
     <div class="buttons">
 
-      <button>
+      <RouterLink to="/konferenzen" class="cta-button">
         Konferenzen finden
-      </button>
+      </RouterLink>
 
-      <button>
+      <RouterLink to="/teilnahme" class="cta-button">
         Teilnahme
-      </button>
+      </RouterLink>
 
     </div>
 
   </section>
-
 </template>
+
+<script setup>
+import { RouterLink } from 'vue-router'
+</script>
 
 <style scoped>
 
@@ -49,13 +51,15 @@
   gap: 24px;
 }
 
-button {
-  border: none;
+.cta-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
 
+  border: none;
   border-radius: 14px;
 
-  padding:
-    16px 28px;
+  padding: 16px 28px;
 
   background: white;
 
@@ -63,17 +67,18 @@ button {
   font-weight: 600;
 
   cursor: pointer;
+  text-decoration: none;
+
+  color: #1b1b1b;
 
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
 }
 
-button:hover {
+.cta-button:hover {
   transform: translateY(-2px);
-
-  box-shadow:
-    0 10px 22px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.15);
 }
 
 @media (max-width: 1000px) {

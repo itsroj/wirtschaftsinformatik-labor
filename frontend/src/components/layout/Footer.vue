@@ -18,32 +18,103 @@
         <img src="@/assets/images/logo.png">
 
       <SocialIcons
-        facebook="https://facebook.com"
-        instagram="https://instagram.com"
-        x="https://x.com"
+        facebook="https://www.facebook.com/deutschemodelunitednations/?locale=de_DE"
+        instagram="https://www.instagram.com/munsh_dmun/"
+        x="https://x.com/DMUN_eV"
       />
 
       </div>
 
       <div class="footer-column">
         <h4>Konferenzen</h4>
-        <RouterLink :to="{ name: 'konferenzen' }">Studierende</RouterLink>
-        <RouterLink :to="{ name: 'konferenzen' }">Schüler:innen</RouterLink>
-        <RouterLink :to="{ name: 'konferenzen' }">Mini MUNs</RouterLink>
+          <RouterLink
+            :to="{
+              name: 'konferenzen',
+              query: { type: 'student' }
+            }"
+          >
+            Studierende
+          </RouterLink>
+
+          <RouterLink
+            :to="{
+              name: 'konferenzen',
+              query: { type: 'pupil' }
+            }"
+          >
+            Schüler:innen
+          </RouterLink>
+
+          <RouterLink
+            :to="{
+              name: 'konferenzen',
+              query: { type: 'mini-mun' }
+            }"
+          >
+            Mini MUNs
+          </RouterLink>
       </div>
 
       <div class="footer-column">
         <h4>Teilnahme</h4>
-        <RouterLink :to="{ name: 'teilnahme' }">Infos zur Teilnahme</RouterLink>
-        <RouterLink :to="{ name: 'teilnahme' }">Internationale MUNs</RouterLink>
-        <RouterLink :to="{ name: 'teilnahme' }">Mini MUNs</RouterLink>
+
+        <RouterLink
+          :to="{
+            name: 'teilnahme',
+            hash: '#infos'
+          }"
+        >
+          Infos zur Teilnahme
+        </RouterLink>
+
+        <RouterLink
+          :to="{
+            name: 'teilnahme',
+            hash: '#internationale-muns'
+          }"
+        >
+          Internationale MUNs
+        </RouterLink>
+
+        <RouterLink
+          :to="{
+            name: 'teilnahme',
+            hash: '#mini-muns'
+          }"
+        >
+          Mini MUNs
+        </RouterLink>
       </div>
 
       <div class="footer-column">
         <h4>Service</h4>
-        <RouterLink :to="{ name: 'service' }">Kontakt</RouterLink>
-        <RouterLink :to="{ name: 'service' }">Impressum</RouterLink>
-        <RouterLink :to="{ name: 'service' }">Datenschutz</RouterLink>
+
+        <RouterLink
+          :to="{
+            name: 'service',
+            hash: '#kontakt'
+          }"
+        >
+          Kontakt
+        </RouterLink>
+
+        <RouterLink
+          :to="{
+            name: 'service',
+            hash: '#impressum'
+          }"
+        >
+          Impressum
+        </RouterLink>
+
+        <RouterLink
+          :to="{
+            name: 'service',
+            hash: '#datenschutz'
+          }"
+        >
+          Datenschutz
+        </RouterLink>
       </div>
     </div>
     </div>

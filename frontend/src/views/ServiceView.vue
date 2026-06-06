@@ -4,23 +4,29 @@
 
     <section class="page-content">
       <!-- BLOCK 1: Hintergrund & Kontakt -->
-      <ContactBackgroundBlock
-        :backgroundContent="backgroundContent"
-        :questions="questions"
-      />
+      <section id="kontakt">
+        <ContactBackgroundBlock
+          :backgroundContent="backgroundContent"
+          :questions="questions"
+        />
+      </section>
 
       <!-- BLOCK 2: IMPRESSUM -->
-      <ServiceBlock
-        title="Impressum"
-        :content="impressumContent"
-        :contactInfo="impressumDetails"
-      />
+      <section id="impressum">
+        <ServiceBlock
+          title="Impressum"
+          :content="impressumContent"
+          :contactInfo="impressumDetails"
+        />
+      </section>
 
       <!-- BLOCK 3: DATENSCHUTZ -->
-      <ServiceBlock
-        title="Datenschutz"
-        :content="datenschutzContent"
-      />
+      <section id="datenschutz">
+        <ServiceBlock
+          title="Datenschutz"
+          :content="datenschutzContent"
+        />
+      </section>
     </section>
 
     <Footer />
@@ -112,6 +118,12 @@ const datenschutzContent = [
 .page-content {
   width: min(1200px, 92%);
   margin: 70px auto 120px;
+}
+
+#kontakt,
+#impressum,
+#datenschutz {
+  scroll-margin-top: 120px;
 }
 
 @media (max-width: 768px) {

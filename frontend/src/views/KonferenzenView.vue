@@ -37,7 +37,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 import Navbar from '@/components/layout/Navbar.vue'
 import Footer from '@/components/layout/Footer.vue'
@@ -50,12 +51,32 @@ import ConferenceList from '@/components/conferences/ConferenceList.vue'
 const events = ref([])
 const loading = ref(true)
 const error = ref(null)
+const route = useRoute()
+
+watch(
+  () => route.query,
+  (q) => {
+
+    if (!q.type) return
+
+    // reset + set filter
+    selectedTypes.value = [q.type]
+
+  },
+  { immediate: true }
+)
 
 onMounted(async () => {
   try {
     const response = await fetch('http://localhost:5000/api/events')
     if (!response.ok) throw new Error('Failed to fetch events')
     events.value = await response.json()
+
+    // 👉 SEARCH AUS HOMEPAGE
+    if (route.query.search) {
+      search.value = route.query.search
+    }
+
   } catch (err) {
     error.value = err.message
     console.error('Error fetching events:', err)

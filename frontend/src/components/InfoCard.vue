@@ -18,8 +18,11 @@
           aus und verabschieden Resolutionen.
         </p>
 
-        <button>
-          Zur Infoseite
+        <button
+          class="info-button"
+          @click="goToMunPage"
+        >
+          Mehr erfahren
         </button>
 
       </div>
@@ -36,6 +39,16 @@
 
   </div>
 </template>
+
+<script setup>
+  import { useRouter } from 'vue-router'
+
+  const router = useRouter()
+
+  const goToMunPage = () => {
+    router.push('/was-ist-mun')
+  }
+</script>
 
 <style scoped>
 .card {
@@ -74,7 +87,7 @@ p {
   color: #202020;
 }
 
-button {
+.info-button {
   margin-top: 22px;
 
   height: 46px;
@@ -84,10 +97,32 @@ button {
   border: 2px solid #0f3b66;
 
   background: white;
+  color: #0f3b66;
 
   font-weight: 600;
+  font-size: 0.95rem;
 
   cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.info-button:hover {
+  background: #0f3b66;
+  color: white;
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 22px rgba(15, 59, 102, 0.25);
+}
+
+.info-button:active {
+  transform: translateY(0);
 }
 
 .images {

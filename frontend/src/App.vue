@@ -20,8 +20,6 @@ body,
   width: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-
-  scroll-behavior: smooth;
 }
 
 /* Moderne System-Schriftarten */

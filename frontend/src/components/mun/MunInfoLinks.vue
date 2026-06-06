@@ -11,15 +11,35 @@
     <ul>
 
       <li>
-        Artikel „Model United Nations“ bei Wikipedia
+        <a
+          href="https://de.wikipedia.org/wiki/Model_United_Nations"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Artikel „Model United Nations“ bei Wikipedia
+        </a>
       </li>
 
       <li>
-        MUN-Galerie des Vereins „Deutsche MUN e.V.“. Mit Fotos und Filmen von mehreren Schüler-MUNs
+        <a
+          href="https://galerie.dmun.de/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          MUN-Galerie des Vereins „Deutsche MUN e.V.“
+        </a>
+        – mit Fotos und Filmen von mehreren Schüler-MUNs
       </li>
 
       <li>
-        Junges UNO-Netzwerk Deutschland e.V. – ein Verein, in dessen Rahmen u.a. die deutschen MUNs zusammenarbeiten
+        <a
+          href="https://junges-uno-netzwerk.de/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Junges UNO-Netzwerk Deutschland e.V.
+        </a>
+        – ein Verein, in dessen Rahmen u.a. die deutschen MUNs zusammenarbeiten
       </li>
 
     </ul>
@@ -68,6 +88,21 @@ ul {
 
 li {
   font-weight: 700;
+}
+
+.info-card li a {
+  color: #0f3b66;
+  text-decoration: none;
+
+  border-bottom: 1px solid rgba(15, 59, 102, 0.4);
+  font-weight: 800;
+
+  transition: all 0.2s ease;
+}
+
+.info-card li a:hover {
+  opacity: 0.7;
+  border-bottom-color: rgba(15, 59, 102, 0.9);
 }
 
 </style>

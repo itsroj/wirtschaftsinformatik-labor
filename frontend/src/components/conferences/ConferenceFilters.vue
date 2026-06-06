@@ -6,7 +6,7 @@
 
     <input
       type="text"
-      placeholder="257 Events"
+      placeholder="Events suchen..."
       :value="search"
       @input="$emit('update-search', $event.target.value)"
     >
