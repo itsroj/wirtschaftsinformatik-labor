@@ -1,7 +1,3 @@
-// DIESE DATEI WIRD VON MAX IMPLEMENTIERT (Auth & Infrastruktur)
-// Sie ist hier bereits als Platzhalter, wird aber von Max mit echtem JWT-Code gefüllt
-
-/*
 import jwt from 'jsonwebtoken';
 
 export const authenticateToken = (req, res, next) => {
@@ -22,4 +18,4 @@ export const authenticateToken = (req, res, next) => {
     next();
   });
 };
-*/
+

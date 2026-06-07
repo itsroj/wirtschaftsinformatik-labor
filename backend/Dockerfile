@@ -1,18 +1,10 @@
-FROM node:18-alpine
-
+FROM node:20-alpine
+RUN apk add --no-cache openssl
 WORKDIR /app
-
-# Dependencies
 COPY package*.json ./
 RUN npm ci
-
-# Prisma
 COPY prisma ./prisma
 RUN npx prisma generate
-
-# Source code
 COPY src ./src
-
 EXPOSE 5000
-
 CMD ["npm", "start"]
