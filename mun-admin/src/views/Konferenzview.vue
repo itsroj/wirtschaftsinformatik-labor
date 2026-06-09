@@ -153,14 +153,22 @@ onMounted(async () => {
       })
       if (!response.ok) throw new Error()
       const data = await response.json()
+      // Hole neueste Conference oder nutze Event-Daten
+      let latestConf = null
+      if (data.conferences && data.conferences.length > 0) {
+        const sorted = [...data.conferences].sort((a, b) => 
+          new Date(b.date) - new Date(a.date)
+        )
+        latestConf = sorted[0]
+      }
       form.value = {
         title: data.title || '',
         longTitle: data.longTitle || '',
         description: data.description || '',
         city: data.city || '',
-        date: data.date ? data.date.substring(0, 10) : '',
-        endDate: data.endDate ? data.endDate.substring(0, 10) : '',
-        applicationDate: data.applicationDate ? data.applicationDate.substring(0, 10) : '',
+        date: latestConf?.date ? latestConf.date.substring(0, 10) : (data.date ? data.date.substring(0, 10) : ''),
+        endDate: latestConf?.endDate ? latestConf.endDate.substring(0, 10) : (data.endDate ? data.endDate.substring(0, 10) : ''),
+        applicationDate: latestConf?.applicationDate ? latestConf.applicationDate.substring(0, 10) : (data.applicationDate ? data.applicationDate.substring(0, 10) : ''),
         participants: data.participants || '',
         firstConference: data.firstConference || '',
         language: data.language || 'de',

@@ -76,7 +76,7 @@
             <tr v-for="k in filtered" :key="k.id">
               <td><strong>{{ k.title }}</strong></td>
               <td>{{ k.city }}</td>
-              <td>{{ formatDatum(k.date) }}</td>
+              <td>{{ getLatestConferenceDate(k) }}</td>
               <td>{{ k.language?.toUpperCase() }}</td>
               <td><span :class="['badge', getStatus(k)]">{{ getStatusLabel(k) }}</span></td>
               <td>
@@ -148,9 +148,21 @@ onMounted(() => ladeKonferenzen())
 
 const heute = new Date()
 
+function getDateForStatus(event) {
+  // Nutze neueste Conference oder Event-Datum
+  if (event.conferences && event.conferences.length > 0) {
+    const sorted = [...event.conferences].sort((a, b) => 
+      new Date(b.date) - new Date(a.date)
+    )
+    return { date: sorted[0].date, endDate: sorted[0].endDate }
+  }
+  return { date: event.date, endDate: event.endDate }
+}
+
 function getStatus(k) {
-  const start = new Date(k.date)
-  const end = new Date(k.endDate)
+  const { date, endDate } = getDateForStatus(k)
+  const start = new Date(date)
+  const end = new Date(endDate)
   if (heute >= start && heute <= end) return 'aktiv'
   if (start > heute) return 'ausstehend'
   return 'vergangen'
@@ -170,10 +182,23 @@ function formatDatum(datum) {
   })
 }
 
+function getLatestConferenceDate(event) {
+  // Hole neueste Conference oder nutze Event-Datum als Fallback
+  if (event.conferences && event.conferences.length > 0) {
+    const sorted = [...event.conferences].sort((a, b) => 
+      new Date(b.date) - new Date(a.date)
+    )
+    return formatDatum(sorted[0].date)
+  }
+  return formatDatum(event.date)
+}
+
 const aktiveKonferenzen = computed(() =>
   konferenzen.value.filter(k => {
-    const start = new Date(k.date)
-    const end = new Date(k.endDate)
+    // Nutze erste Conference oder Event-Datum
+    const confDate = k.conferences?.length > 0 ? k.conferences[0] : k
+    const start = new Date(confDate.date)
+    const end = new Date(confDate.endDate)
     return heute >= start && heute <= end
   }).length
 )
