@@ -18,12 +18,12 @@ model Event {
   title       String // Kurzer Titel (z.B. "MUNoH")
   longTitle   String // Voller Titel (z.B. "Model United Nations of Hamburg")
   description String? // Beschreibung des Events
-  city        String // Stadt/Ort
+  city        String? // Stadt/Ort
 
-  // Termine
-  date            DateTime // Startdatum (Konferenz)
-  endDate         DateTime? // Enddatum (Konferenz)
-  applicationDate DateTime? // Bewerbungsfrist
+  // Termine (jetzt in Conference Model)
+  date            DateTime? // Startdatum (optional, für backwards compatibility)
+  endDate         DateTime? // Enddatum (optional, für backwards compatibility)
+  applicationDate DateTime? // Bewerbungsfrist (optional, für backwards compatibility)
 
   // Event-Details
   firstConference Int? // Erstes Jahr der Konferenz (z.B. 2009)
@@ -32,16 +32,35 @@ model Event {
   type            String? // Typ: "pupil", "student", etc.
 
   // Medien & Links
-  logo    String? // URL zum Logo
-  website String? // Website der Veranstalter
+  logo          String? // URL zum Logo
+  website       String? // Website der Veranstalter
   instagramLink String? // Instagram URL
-  facebookLink String? // Facebook URL
+  facebookLink  String? // Facebook URL
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  conferences Conference[]
+
   @@map("events")
 }
+
+model Conference {
+  id              Int       @id @default(autoincrement())
+  eventId         Int
+  date            DateTime
+  endDate         DateTime?
+  applicationDate DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, date])
+  @@index([eventId])
+  @@map("conferences")
+}
+
 model Admin {
   id        Int      @id @default(autoincrement())
   email     String   @unique

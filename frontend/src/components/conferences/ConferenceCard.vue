@@ -68,15 +68,15 @@
 
           <!-- ROW 2 -->
           <div class="meta-row">
-
+            <!-- Zeige erste Conference oder Event-Daten als Fallback -->
             <span class="meta-item">
               <Calendar :size="16" />
-              {{ formatDateOrNull(props.event.date) }} – {{ formatDateOrNull(props.event.endDate) }}
+              {{ latestConferenceDisplay }}
             </span>
 
-            <span v-if="hasApplicationDate" class="meta-item">
+            <span v-if="latestApplicationDate" class="meta-item">
               <Clock :size="16" />
-              {{ `Anmeldeschluss: ${formatDateOrNull(props.event.applicationDate)}` }}
+              {{ `Anmeldeschluss: ${latestApplicationDate}` }}
             </span>
 
           </div>
@@ -140,7 +140,35 @@ const props = defineProps({
 
 const hasDescription = computed(() => !!props.event?.description)
 
-const hasApplicationDate = computed(() => !!props.event?.applicationDate)
+const latestConference = computed(() => {
+  // Versuche neueste Conference zu finden
+  if (props.event?.conferences && props.event.conferences.length > 0) {
+    const sorted = [...props.event.conferences].sort((a, b) => 
+      new Date(b.date) - new Date(a.date)
+    )
+    return sorted[0]
+  }
+  // Fallback zu Event-Daten für alte Events
+  return {
+    date: props.event?.date,
+    endDate: props.event?.endDate,
+    applicationDate: props.event?.applicationDate
+  }
+})
+
+const latestConferenceDisplay = computed(() => {
+  const conf = latestConference.value
+  const start = formatDateOrNull(conf.date)
+  const end = formatDateOrNull(conf.endDate)
+  return start && end ? `${start} – ${end}` : start || '—'
+})
+
+const latestApplicationDate = computed(() => {
+  const appDate = latestConference.value?.applicationDate
+  return appDate ? formatDateOrNull(appDate) : null
+})
+
+const hasApplicationDate = computed(() => !!latestApplicationDate.value)
 
 const toggleCard = () => {
   isOpen.value = !isOpen.value
