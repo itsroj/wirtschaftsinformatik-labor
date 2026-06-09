@@ -10,37 +10,21 @@
       <section class="top-section" ref="topSectionRef">
 
         <!-- FILTER -->
-        <ConferenceFilters
-          :search="eventsStore.search"
-          :selectedTypes="eventsStore.selectedTypes"
-          :selectedLanguages="eventsStore.selectedLanguages"
-          :sortConfig="sortConfig"
-          :viewMode="viewMode"
-
-          @update-search="eventsStore.search = $event"
-          @toggle-type="eventsStore.toggleType"
-          @toggle-language="eventsStore.toggleLanguage"
-          @sort="setSort"
-
-          @change-view="viewMode = $event"
-        />
+        <ConferenceFilters :search="eventsStore.search" :selectedTypes="eventsStore.selectedTypes"
+          :selectedLanguages="eventsStore.selectedLanguages" :sortConfig="sortConfig" :viewMode="viewMode"
+          @update-search="eventsStore.search = $event" @toggle-type="eventsStore.toggleType"
+          @toggle-language="eventsStore.toggleLanguage" @sort="setSort" @change-view="viewMode = $event" />
 
         <!-- CALENDAR & MAP -->
-        <ConferenceCalendarSection
-          v-if="viewMode === 'calendar'"
-          :events="filteredEvents"
-        />
+        <ConferenceCalendarSection v-if="viewMode === 'calendar'" :events="filteredEvents" />
 
-        <ConferenceMapSection
-          v-else
-          :events="filteredEvents"
-        />
+        <ConferenceMapSection v-else :events="filteredEvents" />
 
       </section>
 
       <!-- Button zum Runterscrollen zur Event-Liste -->
       <button class="scroll-to-list-button" :class="{ hidden: !showScrollButton }" @click="scrollToList">
-        <span class="label">Eventliste</span>
+        <span class="label">{{ languageStore.t('konferenzen.scrollToList') }}</span>
         <span class="arrow">↓</span>
       </button>
 
@@ -58,8 +42,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useLanguageStore } from '@/stores/useLanguageStore'
 
 import { useEventsStore } from '@/stores/useEventsStore'
+
+const languageStore = useLanguageStore()
 
 import Navbar from '@/components/layout/Navbar.vue'
 import Footer from '@/components/layout/Footer.vue'
@@ -74,6 +61,9 @@ const route = useRoute()
 
 const eventsStore = useEventsStore()
 
+// Sortierungskonfiguration
+const sortConfig = ref({ key: null, direction: null })
+
 watch(
   () => route.query,
   (q) => {
@@ -83,7 +73,40 @@ watch(
   { immediate: true }
 )
 
-const filteredEvents = computed(() => eventsStore.filteredEvents)
+const filteredEvents = computed(() => {
+  let events = eventsStore.filteredEvents
+
+  // Sortierung anwenden
+  if (sortConfig.value.key) {
+    events = [...events].sort((a, b) => {
+      let aVal, bVal
+
+      if (sortConfig.value.key === 'date') {
+        // Sortiere nach dem nächsten/aktuellsten Termin
+        const aConf = a.conferences && a.conferences.length > 0
+          ? a.conferences[0]?.date || a.date
+          : a.date
+        const bConf = b.conferences && b.conferences.length > 0
+          ? b.conferences[0]?.date || b.date
+          : b.date
+
+        aVal = aConf ? new Date(aConf).getTime() : Infinity
+        bVal = bConf ? new Date(bConf).getTime() : Infinity
+      } else if (sortConfig.value.key === 'participants') {
+        aVal = a.participants || 0
+        bVal = b.participants || 0
+      }
+
+      return sortConfig.value.direction === 'asc' ? aVal - bVal : bVal - aVal
+    })
+  }
+
+  return events
+})
+
+const setSort = ({ key, direction }) => {
+  sortConfig.value = { key, direction }
+}
 
 onMounted(() => {
   eventsStore.fetchEvents()

@@ -5,23 +5,13 @@
 
       <div class="left">
 
-        <h3>Model United Nations ?</h3>
+        <h3>{{ languageStore.t('infoCard.title') }}</h3>
 
         <p>
-          Model-United-Nations-Konferenzen (MUNs)
-          sind Planspiele, bei denen die Teilnehmer
-          in die Rolle von Delegierten bei den
-          Vereinten Nationen schlüpfen. In simulierten 
-          Gremien wie dem Sicherheitsrat oder der 
-          Generalversammlung debattieren die Delegierten
-          über weltpolitische Themen, handeln Kompromisse 
-          aus und verabschieden Resolutionen.
+          {{ infoText }}
         </p>
 
-        <button
-          class="info-button"
-          @click="goToMunPage"
-        >
+        <button class="info-button" @click="goToMunPage">
           Mehr erfahren
         </button>
 
@@ -41,13 +31,22 @@
 </template>
 
 <script setup>
-  import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
+import { useLanguageStore } from '@/stores/useLanguageStore'
+import { computed } from 'vue'
 
-  const router = useRouter()
+const router = useRouter()
+const languageStore = useLanguageStore()
 
-  const goToMunPage = () => {
-    router.push('/was-ist-mun')
-  }
+const infoText = computed(() => {
+  return languageStore.currentLanguage === 'de'
+    ? 'Model-United-Nations-Konferenzen (MUNs) sind Planspiele, bei denen die Teilnehmer in die Rolle von Delegierten bei den Vereinten Nationen schlüpfen. In simulierten Gremien wie dem Sicherheitsrat oder der Generalversammlung debattieren die Delegierten über weltpolitische Themen, handeln Kompromisse aus und verabschieden Resolutionen.'
+    : 'Model United Nations (MUN) conferences are simulation games in which participants take on the role of delegates at the United Nations. In simulated bodies such as the Security Council or the General Assembly, delegates debate global political issues, negotiate compromises, and adopt resolutions.'
+})
+
+const goToMunPage = () => {
+  router.push('/was-ist-mun')
+}
 </script>
 
 <style scoped>
@@ -61,7 +60,7 @@
   padding: 22px;
 
   box-shadow:
-    0 12px 30px rgba(0,0,0,0.16);
+    0 12px 30px rgba(0, 0, 0, 0.16);
 }
 
 .card-content {

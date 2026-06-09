@@ -4,45 +4,33 @@
     <div class="hero-left">
 
       <h1>
-        Finde MUN Events
+        {{ languageStore.t('hero.title') }}
         <br>
-        in ganz Deutschland
+        {{ languageStore.t('hero.titleLine2') }}
       </h1>
 
       <p>
-        Mit unserer interaktiven Suche findest du
+        {{ languageStore.t('hero.subtitle') }}
         <br>
-        genau die passenden MUN's für dich!
+        {{ languageStore.t('hero.subtitleLine2') }}
       </p>
 
       <div class="hero-buttons">
 
         <RouterLink to="/konferenzen" class="primary-btn">
-          Alle Konferenzen
+          {{ languageStore.t('hero.allConferences') }}
         </RouterLink>
 
         <div class="search-box">
 
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Events suchen..."
-            @keyup.enter="submitSearch"
-          />
+          <input v-model="search" type="text" :placeholder="languageStore.t('hero.searchPlaceholder')"
+            @keyup.enter="submitSearch" />
 
           <button @click="submitSearch">
-            <svg
-              class="search-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M21 21L15.5 15.5M17 10.5C17 14.0899 14.0899 17 10.5 17C6.91015 17 4 14.0899 4 10.5C4 6.91015 6.91015 4 10.5 4C14.0899 4 17 6.91015 17 10.5Z"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
             </svg>
           </button>
 
@@ -60,7 +48,9 @@
 import InfoCard from './InfoCard.vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { ref } from 'vue'
+import { useLanguageStore } from '@/stores/useLanguageStore'
 
+const languageStore = useLanguageStore()
 const router = useRouter()
 const search = ref('')
 
@@ -98,7 +88,7 @@ h1 {
 p {
   margin-top: 24px;
 
-  color: rgba(255,255,255,0.92);
+  color: rgba(255, 255, 255, 0.92);
 
   font-size: 22px;
   line-height: 1.5;
@@ -132,7 +122,7 @@ p {
   align-items: center;
   justify-content: center;
 
-  box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 
   transition:
     transform 0.25s ease,
@@ -142,7 +132,7 @@ p {
 
 .primary-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 14px 28px rgba(0,0,0,0.25);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25);
   background: #124a80;
 }
 
@@ -161,7 +151,7 @@ p {
 
   min-width: 260px;
 
-  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
 }
 
 .search-box input {

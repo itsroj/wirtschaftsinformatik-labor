@@ -15,9 +15,7 @@
     </div>
 
     <!-- CALENDAR -->
-    <FullCalendar
-      :options="calendarOptions"
-    />
+    <FullCalendar :options="calendarOptions" />
 
   </section>
 </template>
@@ -40,8 +38,8 @@ const store = useEventsStore()
 
 /**
  * CALENDAR EVENTS
- * - KEIN FILTERING mehr hier (optional später im Store)
- * - nur Mapping in FullCalendar Format
+ * - Nutzt neue Struktur mit Conferences
+ * - Zeigt alle Conferences eines Events an
  */
 const calendarEvents = computed(() => {
 
@@ -49,39 +47,77 @@ const calendarEvents = computed(() => {
 
     const items = []
 
-    // 🟦 KONFERENZ
-    items.push({
-      id: `${event.id}-conference`,
-      title: `${event.title} - ${event.longTitle}`,
-      start: event.date,
-      end: event.endDate,
+    // 🟦 ALLE KONFERENZEN
+    if (event.conferences && event.conferences.length > 0) {
+      event.conferences.forEach((conf, idx) => {
+        items.push({
+          id: `${event.id}-conference-${conf.id}`,
+          title: `${event.title} - ${event.longTitle}`,
+          start: conf.date,
+          end: conf.endDate,
 
-      allDay: true,
+          allDay: true,
 
-      extendedProps: {
-        eventId: event.id,
-        type: 'conference'
-      },
+          extendedProps: {
+            eventId: event.id,
+            type: 'conference'
+          },
 
-      classNames: ['event-conference']
-    })
+          classNames: ['event-conference']
+        })
 
-    // 🟧 BEWERBUNG
-    if (event.applicationDate) {
+        // 🟧 BEWERBUNG für diese Conference
+        if (conf.applicationDate) {
+          items.push({
+            id: `${event.id}-application-${conf.id}`,
+            title: `${event.title} Anmeldeschluss`,
+            start: conf.applicationDate,
+
+            allDay: true,
+
+            extendedProps: {
+              eventId: event.id,
+              type: 'application'
+            },
+
+            classNames: ['event-application']
+          })
+        }
+      })
+    } else if (event.date) {
+      // FALLBACK für alte Events (Abwärtskompatibilität)
       items.push({
-        id: `${event.id}-application`,
-        title: `${event.title} Frist`,
-        start: event.applicationDate,
+        id: `${event.id}-conference`,
+        title: `${event.title} - ${event.longTitle}`,
+        start: event.date,
+        end: event.endDate,
 
         allDay: true,
 
         extendedProps: {
           eventId: event.id,
-          type: 'application'
+          type: 'conference'
         },
 
-        classNames: ['event-application']
+        classNames: ['event-conference']
       })
+
+      if (event.applicationDate) {
+        items.push({
+          id: `${event.id}-application`,
+          title: `${event.title} Frist`,
+          start: event.applicationDate,
+
+          allDay: true,
+
+          extendedProps: {
+            eventId: event.id,
+            type: 'application'
+          },
+
+          classNames: ['event-application']
+        })
+      }
     }
 
     return items
@@ -100,23 +136,22 @@ const calendarOptions = computed(() => ({
 
   events: calendarEvents.value,
 
-    eventClick(info) {
+  eventClick(info) {
     const id = info.event.extendedProps.eventId
 
     store.setSelectedEvent(id, { scroll: true })
-    }
   }
+}
 ))
 </script>
 
 <style scoped>
-
 .calendar-section {
-  background: rgba(255,255,255,0.92);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   border-radius: 28px;
   padding: 24px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 .legend {
@@ -177,8 +212,7 @@ const calendarOptions = computed(() => ({
 
 :deep(.fc-event:hover) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
   cursor: pointer;
 }
-
 </style>

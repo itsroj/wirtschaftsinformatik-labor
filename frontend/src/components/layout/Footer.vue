@@ -1,122 +1,97 @@
 <template>
   <footer class="footer-top">
 
-    <img
-      src="@/assets/images/flags.png"
-      class="flags"
-      alt="Flags"
-    >
+    <img src="@/assets/images/flags.png" class="flags" alt="Flags">
 
     <div class="divider"></div>
 
     <div class="footer-bottom">
 
-    <div class="footer-content">
+      <div class="footer-content">
 
-      <div class="footer-logo">
+        <div class="footer-logo">
 
-        <img src="@/assets/images/logo.png">
+          <img src="@/assets/images/logo.png">
 
-      <SocialIcons
-        facebook="https://www.facebook.com/deutschemodelunitednations/?locale=de_DE"
-        instagram="https://www.instagram.com/munsh_dmun/"
-        x="https://x.com/DMUN_eV"
-      />
+          <SocialIcons facebook="https://www.facebook.com/deutschemodelunitednations/?locale=de_DE"
+            instagram="https://www.instagram.com/munsh_dmun/" x="https://x.com/DMUN_eV" />
 
-      </div>
+        </div>
 
-      <div class="footer-column">
-        <h4>Konferenzen</h4>
-          <RouterLink
-            :to="{
-              name: 'konferenzen',
-              query: { type: 'student' }
-            }"
-          >
-            Studierende
+        <div class="footer-column">
+          <h4>{{ languageStore.t('footer.conferences') }}</h4>
+          <RouterLink :to="{
+            name: 'konferenzen',
+            query: { type: 'student' }
+          }">
+            {{ languageStore.t('footer.students') }}
           </RouterLink>
 
-          <RouterLink
-            :to="{
-              name: 'konferenzen',
-              query: { type: 'pupil' }
-            }"
-          >
-            Schüler:innen
+          <RouterLink :to="{
+            name: 'konferenzen',
+            query: { type: 'pupil' }
+          }">
+            {{ languageStore.t('footer.pupils') }}
           </RouterLink>
 
-          <RouterLink
-            :to="{
-              name: 'konferenzen',
-              query: { type: 'mini-mun' }
-            }"
-          >
-            Mini MUNs
+          <RouterLink :to="{
+            name: 'konferenzen',
+            query: { type: 'mini-mun' }
+          }">
+            {{ languageStore.t('footer.miniMuns') }}
           </RouterLink>
-      </div>
+        </div>
 
-      <div class="footer-column">
-        <h4>Teilnahme</h4>
+        <div class="footer-column">
+          <h4>{{ languageStore.t('footer.participate') }}</h4>
 
-        <RouterLink
-          :to="{
+          <RouterLink :to="{
             name: 'teilnahme',
             hash: '#infos'
-          }"
-        >
-          Infos zur Teilnahme
-        </RouterLink>
+          }">
+            Infos zur Teilnahme
+          </RouterLink>
 
-        <RouterLink
-          :to="{
+          <RouterLink :to="{
             name: 'teilnahme',
             hash: '#internationale-muns'
-          }"
-        >
-          Internationale MUNs
-        </RouterLink>
+          }">
+            Internationale MUNs
+          </RouterLink>
 
-        <RouterLink
-          :to="{
+          <RouterLink :to="{
             name: 'teilnahme',
             hash: '#mini-muns'
-          }"
-        >
-          Mini MUNs
-        </RouterLink>
-      </div>
+          }">
+            Mini MUNs
+          </RouterLink>
+        </div>
 
-      <div class="footer-column">
-        <h4>Service</h4>
+        <div class="footer-column">
+          <h4>Service</h4>
 
-        <RouterLink
-          :to="{
+          <RouterLink :to="{
             name: 'service',
             hash: '#kontakt'
-          }"
-        >
-          Kontakt
-        </RouterLink>
+          }">
+            Kontakt
+          </RouterLink>
 
-        <RouterLink
-          :to="{
+          <RouterLink :to="{
             name: 'service',
             hash: '#impressum'
-          }"
-        >
-          Impressum
-        </RouterLink>
+          }">
+            Impressum
+          </RouterLink>
 
-        <RouterLink
-          :to="{
+          <RouterLink :to="{
             name: 'service',
             hash: '#datenschutz'
-          }"
-        >
-          Datenschutz
-        </RouterLink>
+          }">
+            Datenschutz
+          </RouterLink>
+        </div>
       </div>
-    </div>
     </div>
 
   </footer>
@@ -125,6 +100,9 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import SocialIcons from '@/components/icons/SocialIcons.vue'
+import { useLanguageStore } from '@/stores/useLanguageStore'
+
+const languageStore = useLanguageStore()
 </script>
 
 <style scoped>
@@ -175,7 +153,8 @@ import SocialIcons from '@/components/icons/SocialIcons.vue'
   display: flex;
   gap: 20px;
 
-  margin-top: 20px; /* Abstand unter Logo */
+  margin-top: 20px;
+  /* Abstand unter Logo */
   align-items: center;
 }
 
@@ -189,8 +168,10 @@ import SocialIcons from '@/components/icons/SocialIcons.vue'
   width: auto;
   height: auto;
 
-  background: transparent; /* 👈 wichtig */
-  border-radius: 0;        /* kein Kreis mehr */
+  background: transparent;
+  /* 👈 wichtig */
+  border-radius: 0;
+  /* kein Kreis mehr */
 
   transition: transform 0.2s ease, opacity 0.2s ease;
   text-decoration: none;

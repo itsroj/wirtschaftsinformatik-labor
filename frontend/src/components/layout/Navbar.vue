@@ -6,10 +6,7 @@
 
       <!-- Logo -->
       <div class="logo">
-        <img
-          src="@/assets/images/logo.png"
-          alt="DMUN Logo"
-        >
+        <img src="@/assets/images/logo.png" alt="DMUN Logo">
       </div>
 
       <!-- Desktop Navigation -->
@@ -17,19 +14,19 @@
 
 
         <li>
-          <RouterLink to="/">Startseite</RouterLink>
+          <RouterLink to="/">{{ languageStore.t('navbar.home') }}</RouterLink>
         </li>
 
         <li>
-          <RouterLink to="/was-ist-mun">Was ist MUN?</RouterLink>
+          <RouterLink to="/was-ist-mun">{{ languageStore.t('navbar.wasIstMun') }}</RouterLink>
         </li>
 
         <li>
-          <RouterLink to="/konferenzen">Konferenzen</RouterLink>
+          <RouterLink to="/konferenzen">{{ languageStore.t('navbar.konferenzen') }}</RouterLink>
         </li>
 
         <li>
-          <RouterLink to="/teilnahme">Teilnahme</RouterLink>
+          <RouterLink to="/teilnahme">{{ languageStore.t('navbar.teilnahme') }}</RouterLink>
         </li>
 
 
@@ -39,32 +36,19 @@
       <div class="nav-actions">
 
         <!-- Sprache -->
-        <button class="language-button">
-          🇩🇪
+        <button class="language-button" @click="languageStore.toggleLanguage()"
+          :title="languageStore.currentLanguage === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'">
+          {{ languageStore.currentLanguage === 'de' ? '🇩🇪 DE' : '🇬🇧 EN' }}
         </button>
 
         <!-- Mobile Menü -->
-        <button
-          class="menu-button"
-          @click="toggleMenu"
-          :aria-expanded="isMenuOpen"
-          aria-label="Navigation öffnen"
-        >
+        <button class="menu-button" @click="toggleMenu" :aria-expanded="isMenuOpen" aria-label="Navigation öffnen">
 
-          <span
-            class="line"
-            :class="{ active: isMenuOpen }"
-          ></span>
+          <span class="line" :class="{ active: isMenuOpen }"></span>
 
-          <span
-            class="line"
-            :class="{ active: isMenuOpen }"
-          ></span>
+          <span class="line" :class="{ active: isMenuOpen }"></span>
 
-          <span
-            class="line"
-            :class="{ active: isMenuOpen }"
-          ></span>
+          <span class="line" :class="{ active: isMenuOpen }"></span>
 
         </button>
 
@@ -75,25 +59,22 @@
     <!-- Mobile Dropdown -->
     <transition name="dropdown">
 
-      <div
-        v-if="isMenuOpen"
-        class="mobile-menu"
-      >
+      <div v-if="isMenuOpen" class="mobile-menu">
 
         <RouterLink to="/" @click="closeMenu">
-          Startseite
+          {{ languageStore.t('navbar.home') }}
         </RouterLink>
 
         <RouterLink to="/was-ist-mun" @click="closeMenu">
-          Was ist MUN?
+          {{ languageStore.t('navbar.wasIstMun') }}
         </RouterLink>
 
         <RouterLink to="/konferenzen" @click="closeMenu">
-          Konferenzen
+          {{ languageStore.t('navbar.konferenzen') }}
         </RouterLink>
 
         <RouterLink to="/teilnahme" @click="closeMenu">
-          Teilnahme
+          {{ languageStore.t('navbar.teilnahme') }}
         </RouterLink>
 
         <RouterLink to="/service" @click="closeMenu">
@@ -111,7 +92,9 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useLanguageStore } from '@/stores/useLanguageStore'
 
+const languageStore = useLanguageStore()
 const isMenuOpen = ref(false)
 
 const toggleMenu = () => {
@@ -124,7 +107,6 @@ const closeMenu = () => {
 </script>
 
 <style scoped>
-
 .navbar-wrapper {
   width: 100%;
 
@@ -158,7 +140,7 @@ const closeMenu = () => {
   backdrop-filter: blur(4px);
 
   box-shadow:
-    0 10px 30px rgba(0,0,0,0.08);
+    0 10px 30px rgba(0, 0, 0, 0.08);
 
   isolation: isolate;
 
@@ -242,7 +224,7 @@ const closeMenu = () => {
   transform: translateY(-1px);
 
   box-shadow:
-    0 6px 18px rgba(0,0,0,0.08);
+    0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
 /* MOBILE BUTTON */
@@ -329,7 +311,7 @@ const closeMenu = () => {
   margin-top: 14px;
 
   background:
-    rgba(255,255,255,0.96);
+    rgba(255, 255, 255, 0.96);
 
   backdrop-filter: blur(12px);
 
@@ -339,7 +321,7 @@ const closeMenu = () => {
     12px 24px;
 
   box-shadow:
-    0 12px 30px rgba(0,0,0,0.08);
+    0 12px 30px rgba(0, 0, 0, 0.08);
 
   display: flex;
   flex-direction: column;
@@ -357,7 +339,7 @@ const closeMenu = () => {
   padding: 18px 0;
 
   border-bottom:
-    1px solid rgba(0,0,0,0.06);
+    1px solid rgba(0, 0, 0, 0.06);
 
   transition:
     color 0.2s ease,
@@ -410,5 +392,4 @@ const closeMenu = () => {
     height: 46px;
   }
 }
-
 </style>

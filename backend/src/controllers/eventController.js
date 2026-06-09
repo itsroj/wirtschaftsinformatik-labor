@@ -81,7 +81,8 @@ export const createEvent = async (req, res) => {
     const {
       title,
       longTitle,
-      description,
+      description_de,
+      description_en,
       city,
       date,
       endDate,
@@ -107,7 +108,8 @@ export const createEvent = async (req, res) => {
     const eventData = {
       title,
       longTitle,
-      description: description || '',
+      description_de: description_de || '',
+      description_en: description_en || '',
       city,
       firstConference: firstConference ? parseInt(firstConference) : null,
       participants: participants ? parseInt(participants) : null,

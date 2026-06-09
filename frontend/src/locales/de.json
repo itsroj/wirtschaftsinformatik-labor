@@ -1,0 +1,111 @@
+{
+  "navbar": {
+    "home": "Startseite",
+    "wasIstMun": "Was ist MUN?",
+    "konferenzen": "Konferenzen",
+    "teilnahme": "Teilnahme",
+    "language": "Sprache"
+  },
+  "home": {
+    "title": "Finde MUN Events",
+    "titleLine2": "in ganz Deutschland",
+    "subtitle": "Mit unserer interaktiven Suche findest du",
+    "subtitleLine2": "genau die passenden MUN's für dich!",
+    "allConferences": "Alle Konferenzen",
+    "searchPlaceholder": "Events suchen..."
+  },
+  "hero": {
+    "title": "Finde MUN Events",
+    "titleLine2": "in ganz Deutschland",
+    "subtitle": "Mit unserer interaktiven Suche findest du",
+    "subtitleLine2": "genau die passenden MUN's für dich!",
+    "allConferences": "Alle Konferenzen",
+    "searchPlaceholder": "Events suchen...",
+    "mapTitle": "Alle Konferenzen in Deutschland"
+  },
+  "konferenzen": {
+    "title": "Konferenzen in Deutschland",
+    "search": "Suche",
+    "searchPlaceholder": "Events suchen...",
+    "scrollToList": "Eventliste",
+    "filters": {
+      "search": "Suche",
+      "sorting": "Sortierung",
+      "targetGroup": "Zielgruppe",
+      "language": "Sprache",
+      "view": "Ansicht",
+      "date": "Datum",
+      "participants": "Teilnehmende",
+      "english": "Englisch",
+      "german": "Deutsch",
+      "pupils": "Schüler:innen",
+      "students": "Studierende",
+      "miniMun": "Mini MUNs",
+      "calendar": "Kalender",
+      "map": "Karte"
+    },
+    "card": {
+      "firstConference": "Erste Konferenz",
+      "applicationDeadline": "Anmeldeschluss",
+      "website": "Website",
+      "participants": "Teilnehmende"
+    },
+    "calendar": {
+      "legend": {
+        "conference": "Konferenz",
+        "application": "Bewerbungsfrist"
+      }
+    }
+  },
+  "wasIstMun": {
+    "title": "Was ist MUN?",
+    "intro": "Model United Nations ist...",
+    "benefits": {
+      "communication": "Rhetorik & Kommunikation",
+      "politics": "Politisches Verständnis",
+      "networking": "Networking & Freundschaften",
+      "leadership": "Führungskompetenzen"
+    }
+  },
+  "teilnahme": {
+    "title": "Wie kannst du teilnehmen?",
+    "block1Title": "Infos zur Teilnahme",
+    "block2Title": "Teilnahme an internationalen MUNs",
+    "block3Title": "Mini-MUNs für Schüler:innen",
+    "steps": {
+      "step1": "Event auswählen",
+      "step2": "Anmelden",
+      "step3": "Vorbereitung",
+      "step4": "Teilnahme"
+    }
+  },
+  "footer": {
+    "conferences": "Konferenzen",
+    "students": "Studierende",
+    "pupils": "Schüler:innen",
+    "miniMuns": "Mini MUNs",
+    "participate": "Teilnahme",
+    "aboutUs": "Über uns",
+    "contact": "Kontakt",
+    "imprint": "Impressum"
+  },
+  "infoCard": {
+    "title": "Model United Nations?",
+    "description": "Model United Nations (MUN) ist ein Planspiel, in dem Schüler:innen und Studierende die Rolle von Diplomat:innen übernehmen..."
+  },
+  "common": {
+    "close": "Schließen",
+    "submit": "Absenden",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "success": "Erfolgreich",
+    "city": "Stadt",
+    "date": "Datum",
+    "language": "Sprache",
+    "type": "Typ"
+  }
+}

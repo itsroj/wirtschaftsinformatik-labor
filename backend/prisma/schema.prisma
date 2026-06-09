@@ -14,11 +14,14 @@ datasource db {
 model Event {
   id Int @id @default(autoincrement())
 
-  // Titel & Beschreibung
-  title       String // Kurzer Titel (z.B. "MUNoH")
-  longTitle   String // Voller Titel (z.B. "Model United Nations of Hamburg")
-  description String? // Beschreibung des Events
-  city        String? // Stadt/Ort
+  // Titel & Beschreibung (UNIVERSAL - nicht übersetzt)
+  title     String // Kurzer Titel (z.B. "MUNoH")
+  longTitle String // Voller Titel (z.B. "Model United Nations of Hamburg")
+  city      String? // Stadt/Ort
+
+  // Beschreibungen in beiden Sprachen
+  description_de String? // Deutsche Beschreibung
+  description_en String? // Englische Beschreibung
 
   // Termine (jetzt in Conference Model)
   date            DateTime? // Startdatum (optional, für backwards compatibility)
@@ -28,10 +31,10 @@ model Event {
   // Event-Details
   firstConference Int? // Erstes Jahr der Konferenz (z.B. 2009)
   participants    Int? // Anzahl der Teilnehmer
-  language        String  @default("english") // Sprache des Events
+  language        String  @default("english") // Verfügbare Sprachen: "de", "en", "both"
   type            String? // Typ: "pupil", "student", etc.
 
-  // Medien & Links
+  // Medien & Links (UNIVERSAL)
   logo          String? // URL zum Logo
   website       String? // Website der Veranstalter
   instagramLink String? // Instagram URL

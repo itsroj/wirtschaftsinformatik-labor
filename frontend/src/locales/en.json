@@ -1,0 +1,111 @@
+{
+  "navbar": {
+    "home": "Home",
+    "wasIstMun": "What is MUN?",
+    "konferenzen": "Conferences",
+    "teilnahme": "Participate",
+    "language": "Language"
+  },
+  "home": {
+    "title": "Find MUN Events",
+    "titleLine2": "across Germany",
+    "subtitle": "With our interactive search you will find",
+    "subtitleLine2": "exactly the right MUNs for you!",
+    "allConferences": "All Conferences",
+    "searchPlaceholder": "Search events..."
+  },
+  "hero": {
+    "title": "Find MUN Events",
+    "titleLine2": "across Germany",
+    "subtitle": "With our interactive search you will find",
+    "subtitleLine2": "exactly the right MUNs for you!",
+    "allConferences": "All Conferences",
+    "searchPlaceholder": "Search events...",
+    "mapTitle": "All Conferences in Germany"
+  },
+  "konferenzen": {
+    "title": "Conferences in Germany",
+    "search": "Search",
+    "searchPlaceholder": "Search events...",
+    "scrollToList": "Event List",
+    "filters": {
+      "search": "Search",
+      "sorting": "Sorting",
+      "targetGroup": "Target Group",
+      "language": "Language",
+      "view": "View",
+      "date": "Date",
+      "participants": "Participants",
+      "english": "English",
+      "german": "German",
+      "pupils": "Pupils",
+      "students": "Students",
+      "miniMun": "Mini MUNs",
+      "calendar": "Calendar",
+      "map": "Map"
+    },
+    "card": {
+      "firstConference": "First Conference",
+      "applicationDeadline": "Application Deadline",
+      "website": "Website",
+      "participants": "Participants"
+    },
+    "calendar": {
+      "legend": {
+        "conference": "Conference",
+        "application": "Application Deadline"
+      }
+    }
+  },
+  "wasIstMun": {
+    "title": "What is MUN?",
+    "intro": "Model United Nations is...",
+    "benefits": {
+      "communication": "Rhetoric & Communication",
+      "politics": "Political Understanding",
+      "networking": "Networking & Friendships",
+      "leadership": "Leadership Skills"
+    }
+  },
+  "teilnahme": {
+    "title": "How can you participate?",
+    "block1Title": "Information on Participation",
+    "block2Title": "Participation in International MUNs",
+    "block3Title": "Mini-MUNs for Pupils",
+    "steps": {
+      "step1": "Choose an event",
+      "step2": "Register",
+      "step3": "Prepare",
+      "step4": "Participate"
+    }
+  },
+  "footer": {
+    "conferences": "Conferences",
+    "students": "Students",
+    "pupils": "Pupils",
+    "miniMuns": "Mini MUNs",
+    "participate": "Participate",
+    "aboutUs": "About Us",
+    "contact": "Contact",
+    "imprint": "Imprint"
+  },
+  "infoCard": {
+    "title": "Model United Nations?",
+    "description": "Model United Nations (MUN) is a simulation game in which pupils and students take on the role of diplomats..."
+  },
+  "common": {
+    "close": "Close",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "city": "City",
+    "date": "Date",
+    "language": "Language",
+    "type": "Type"
+  }
+}

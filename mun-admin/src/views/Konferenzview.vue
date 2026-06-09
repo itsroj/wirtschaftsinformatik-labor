@@ -32,8 +32,14 @@
         </div>
 
         <div class="form-group">
-          <label>Beschreibung</label>
-          <textarea v-model="form.description" rows="4" placeholder="Kurze Beschreibung der Konferenz..."
+          <label>Beschreibung (Deutsch)</label>
+          <textarea v-model="form.description_de" rows="4" placeholder="Kurze deutsche Beschreibung der Konferenz..."
+            :disabled="loading"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Description (English)</label>
+          <textarea v-model="form.description_en" rows="4" placeholder="Short English description of the conference..."
             :disabled="loading"></textarea>
         </div>
 
@@ -136,7 +142,8 @@ const beschreibungsText = computed(() => {
 const form = ref({
   title: '',
   longTitle: '',
-  description: '',
+  description_de: '',
+  description_en: '',
   city: '',
   date: '',
   endDate: '',
@@ -174,7 +181,8 @@ onMounted(async () => {
       form.value = {
         title: data.title || '',
         longTitle: data.longTitle || '',
-        description: data.description || '',
+        description_de: data.description_de || '',
+        description_en: data.description_en || '',
         city: data.city || '',
         date: latestConf?.date ? latestConf.date.substring(0, 10) : (data.date ? data.date.substring(0, 10) : ''),
         endDate: latestConf?.endDate ? latestConf.endDate.substring(0, 10) : (data.endDate ? data.endDate.substring(0, 10) : ''),
@@ -209,7 +217,8 @@ async function submit() {
     const payload = {
       title: form.value.title,
       longTitle: form.value.longTitle,
-      description: form.value.description,
+      description_de: form.value.description_de,
+      description_en: form.value.description_en,
       city: form.value.city,
       date: form.value.date,
       endDate: form.value.endDate,
@@ -292,7 +301,8 @@ function reset() {
   form.value = {
     title: '',
     longTitle: '',
-    description: '',
+    description_de: '',
+    description_en: '',
     city: '',
     date: '',
     endDate: '',
