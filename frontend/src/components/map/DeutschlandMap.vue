@@ -8,27 +8,16 @@
     </div>
 
     <!-- Map Container -->
-    <div class="map-container" :class="{ small: props.size === 'small' }">
+    <div
+      class="map-container"
+      :class="{ small: props.size === 'small' }"
+    >
 
       <!-- SVG Map -->
       <img
         src="@/assets/images/germany.svg"
         class="map"
         alt="Deutschland Karte"
-      />
-
-      <EventSidebar
-        v-if="selectedEvent && !isMobile"
-        :selected-event="selectedEvent"
-        @close="handleClose"
-        @goToList="scrollToList"
-      />
-
-      <EventMobileSheet
-        v-if="selectedEvent && isMobile"
-        :event="selectedEvent"
-        @close="store.clearSelectedEvent()"
-        @goToList="scrollToList"
       />
 
       <!-- Event Pins -->
@@ -38,8 +27,33 @@
         :event="event"
         :isMobile="isMobile"
 
-        @hover="handleHover"
         @select="handleSelect"
+      />
+
+        <!-- BACKDROP -->
+      <!-- BACKDROP (nur Desktop) -->
+      <div
+        v-if="selectedEvent && !isMobile"
+        class="backdrop"
+        @click="handleOutsideClick"
+      ></div>
+
+      <div
+        v-if="selectedEvent && !isMobile"
+        class="sidebar-wrapper"
+        @click.stop
+      >
+        <EventSidebar
+          :selected-event="selectedEvent"
+          @goToList="scrollToList"
+        />
+      </div>
+
+      <EventMobileSheet
+        v-if="selectedEvent && isMobile"
+        :event="selectedEvent"
+        @close="store.clearSelectedEvent()"
+        @goToList="handleMobileGoToList"
       />
 
             <!-- Verbindungslinie -->
@@ -74,7 +88,7 @@ const props = defineProps({
 
 const store = useEventsStore()
 
-const handleClose = () => {
+const handleOutsideClick = () => {
   store.clearSelectedEvent()
 }
 
@@ -91,14 +105,6 @@ const selectedEvent = computed(() => store.selectedEvent)
 
 const isMobile = ref(false)
 
-const selectEvent = (event) => {
-  if (!event) {
-    store.clearSelectedEvent()
-    return
-  }
-
-  store.setSelectedEvent(event.id)
-}
 
 const checkScreenSize = () => {
   isMobile.value = window.innerWidth <= 900
@@ -123,17 +129,13 @@ onUnmounted(() => {
   )
 })
 
-const handleHover = (event) => {
-  if (!event) {
-    store.clearSelectedEvent()
-    return
-  }
-
+const handleSelect = (event) => {
   store.setSelectedEvent(event.id)
 }
 
-const handleSelect = (event) => {
-  store.setSelectedEvent(event.id)
+const handleMobileGoToList = () => {
+  scrollToList()
+  store.clearSelectedEvent()
 }
 </script>
 
@@ -190,6 +192,19 @@ const handleSelect = (event) => {
   cursor: pointer;
 }
 
+/* Marker über Backdrop */
+.marker {
+  z-index: 30;
+}
+
+/* Backdrop unter Sidebar aber über Map */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: transparent;
+}
+
 .dot {
   width: 14px;
   height: 14px;
@@ -216,7 +231,7 @@ const handleSelect = (event) => {
   100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
 }
 
-/* Sidebar */
+/* Sidebar ganz oben */
 .sidebar {
   position: absolute;
 
@@ -227,6 +242,7 @@ const handleSelect = (event) => {
   rgba(255,255,255,0.96),
   rgba(255,255,255,0.88)
   );
+  z-index: 40;
 
 /*  backdrop-filter: blur(4px); */
 
@@ -270,42 +286,6 @@ const handleSelect = (event) => {
   pointer-events: none;
 }
 
-.bottom-sheet {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-
-  background: linear-gradient(
-  to bottom,
-  rgba(255,255,255,0.96),
-  rgba(255,255,255,0.88)
-  );
-  /* backdrop-filter: blur(12px); */
-
-  border-top-left-radius: 24px;
-  border-top-right-radius: 24px;
-
-  padding: 20px 24px;
-
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
-
-  z-index: 9999;
-
-  animation: slideUp 0.3s ease;
-
-  touch-action: none;
-}
-
-.handle {
-  width: 50px;
-  height: 5px;
-
-  background: #ccc;
-  border-radius: 999px;
-
-  margin: 0 auto 12px auto;
-}
 
 @media (max-width: 900px) {
 

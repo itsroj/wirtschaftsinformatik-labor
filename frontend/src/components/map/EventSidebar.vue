@@ -14,10 +14,6 @@
       <div class="info">
 
         <div>
-          📍 {{ selectedEvent.university }}
-        </div>
-
-        <div>
           📅 {{ formatEventDate(selectedEvent.date) }}
         </div>
 

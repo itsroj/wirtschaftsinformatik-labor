@@ -30,33 +30,26 @@ defineProps({
 
 const store = useEventsStore()
 
-watch(
-  () => store.scrollRequestId,
+watch(() => store.scrollRequestId, async () => {
+  const id = store.selectedEventId
+  if (!id) return
 
-  async () => {
+  await nextTick()
 
-    const eventId = store.selectedEventId
+  const el = document.getElementById(`event-${id}`)
+  if (!el) return
 
-    if (!eventId) return
+  el.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center'
+  })
 
-    await nextTick()
+  el.classList.add('highlight')
 
-    const el = document.getElementById(`event-${eventId}`)
-
-    if (el) {
-      el.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      })
-
-      el.classList.add('highlight')
-
-      setTimeout(() => {
-        el.classList.remove('highlight')
-      }, 1500)
-    }
-  }
-)
+  setTimeout(() => {
+    el.classList.remove('highlight')
+  }, 1500)
+})
 </script>
 
 <style scoped>

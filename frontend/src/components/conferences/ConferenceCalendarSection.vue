@@ -103,7 +103,7 @@ const calendarOptions = computed(() => ({
     eventClick(info) {
     const id = info.event.extendedProps.eventId
 
-    store.setSelectedEvent(id)
+    store.setSelectedEvent(id, { scroll: true })
     }
   }
 ))

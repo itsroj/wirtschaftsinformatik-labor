@@ -1,11 +1,8 @@
 <template>
     <div
-        class="marker"
-        :style="positionStyle"
-
-        @mouseenter="handleHover"
-        @mouseleave="handleLeave"
-        @click="handleClick"
+      class="marker"
+      :style="positionStyle"
+      @click.stop="handleClick"
     >
 
     <!-- Punkt -->
@@ -41,18 +38,6 @@ const positionStyle = computed(() => {
   return getEventPosition(props.event.city)
 })
 
-const handleHover = () => {
-  if (!props.isMobile) {
-    emit('hover', props.event)
-  }
-}
-
-const handleLeave = () => {
-  if (!props.isMobile) {
-    emit('hover', null)
-  }
-}
-
 const handleClick = () => {
   emit('select', props.event)
 }
@@ -80,6 +65,10 @@ const handleClick = () => {
 /* Hover Effekt */
 .marker:hover .dot {
   transform: scale(1.3);
+}
+
+.marker:hover {
+  z-index: 20;
 }
 
 /* 🌊 Puls Animation */

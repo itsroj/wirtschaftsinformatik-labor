@@ -10,7 +10,8 @@ export const useEventsStore = defineStore('events', {
     search: '',
 
     selectedEventId: null,
-    scrollRequestId: 0
+    scrollRequestId: 0,
+    highlightRequestId: 0
   }),
 
   getters: {
@@ -68,9 +69,17 @@ export const useEventsStore = defineStore('events', {
       }
     },
 
-    setSelectedEvent(id) {
-      this.selectedEventId = id
-      this.scrollRequestId++
+    setSelectedEvent(id, { scroll = false } = {}) {
+        this.selectedEventId = id
+        this.selectedEventLocked = true
+
+        // nur Highlight (Sidebar / Map)
+        this.highlightRequestId++
+
+        // nur wenn explizit gewünscht
+        if (scroll) {
+            this.scrollRequestId++
+        }
     },
 
     setSearch(value) {
@@ -78,7 +87,9 @@ export const useEventsStore = defineStore('events', {
     },
 
     clearSelectedEvent() {
-      this.selectedEventId = null
+        this.selectedEventId = null
+        this.selectedEventLocked = false
+        this.highlightRequestId++
     }
   }
 })
