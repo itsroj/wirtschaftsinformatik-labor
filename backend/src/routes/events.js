@@ -1,11 +1,29 @@
 import express from 'express';
+import multer from 'multer';
 import {
   getEvents,
   getEventById,
   createEvent,
   updateEvent,
-  deleteEvent
+  deleteEvent,
+  uploadEventImage
 } from '../controllers/eventController.js';
+
+// Multer Konfiguration für File-Upload (In-Memory)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB max
+  },
+  fileFilter: (req, file, cb) => {
+    // Nur Bilder erlauben
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Nur Bilddateien sind erlaubt'), false);
+    }
+  }
+});
 
 // // TODO: Auth Middleware durch Max implementieren
 // import { authenticateToken } from '../middleware/auth.js';
@@ -57,5 +75,14 @@ router.put('/:id', updateEvent);
  */
 router.delete('/:id', deleteEvent);
 // router.delete('/:id', authenticateToken, deleteEvent);
+
+/**
+ * POST /api/events/:id/upload-image
+ * Event-Bild zu Supabase Storage hochladen
+ * Content-Type: multipart/form-data
+ * Field: image (file)
+ */
+router.post('/:id/upload-image', upload.single('image'), uploadEventImage);
+// router.post('/:id/upload-image', authenticateToken, upload.single('image'), uploadEventImage);
 
 export default router;
