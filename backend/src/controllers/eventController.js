@@ -36,8 +36,11 @@ export const getEvents = async (req, res) => {
 
     res.json(events);
   } catch (error) {
-    console.error('Fehler beim Abrufen von Events:', error);
-    res.status(500).json({ error: 'Fehler beim Abrufen von Events' });
+    console.error('❌ Fehler beim Abrufen von Events:');
+    console.error('   Message:', error.message);
+    console.error('   Code:', error.code);
+    console.error('   Stack:', error.stack);
+    res.status(500).json({ error: 'Fehler beim Abrufen von Events', details: error.message });
   }
 };
 
