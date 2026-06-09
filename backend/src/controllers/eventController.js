@@ -139,8 +139,13 @@ export const createEvent = async (req, res) => {
 
     res.status(201).json(event);
   } catch (error) {
-    console.error('Fehler beim Erstellen des Events:', error);
-    res.status(500).json({ error: 'Fehler beim Erstellen des Events' });
+    console.error('❌ Fehler beim Erstellen des Events:');
+    console.error('   Message:', error.message);
+    console.error('   Stack:', error.stack);
+    res.status(500).json({ 
+      error: 'Fehler beim Erstellen des Events',
+      details: error.message
+    });
   }
 };
 
@@ -208,8 +213,13 @@ export const updateEvent = async (req, res) => {
     
     res.json(finalEvent);
   } catch (error) {
-    console.error('Fehler beim Aktualisieren des Events:', error);
-    res.status(500).json({ error: 'Fehler beim Aktualisieren des Events' });
+    console.error('❌ Fehler beim Aktualisieren des Events:');
+    console.error('   Message:', error.message);
+    console.error('   Stack:', error.stack);
+    res.status(500).json({ 
+      error: 'Fehler beim Aktualisieren des Events',
+      details: error.message
+    });
   }
 };
 

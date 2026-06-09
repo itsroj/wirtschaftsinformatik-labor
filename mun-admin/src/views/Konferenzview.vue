@@ -95,9 +95,20 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Website</label>
-          <input v-model="form.website" type="url" placeholder="https://..." :disabled="loading" />
+        <div class="form-row">
+          <div class="form-group">
+            <label>Website</label>
+            <input v-model="form.website" type="url" placeholder="https://..." :disabled="loading" />
+          </div>
+          <div class="form-group">
+            <label>Instagram</label>
+            <input v-model="form.instagramLink" type="url" placeholder="https://instagram.com/..."
+              :disabled="loading" />
+          </div>
+          <div class="form-group">
+            <label>Facebook</label>
+            <input v-model="form.facebookLink" type="url" placeholder="https://facebook.com/..." :disabled="loading" />
+          </div>
         </div>
 
         <div class="form-group">
@@ -153,6 +164,8 @@ const form = ref({
   language: 'de',
   type: 'schueler',
   website: '',
+  instagramLink: '',
+  facebookLink: '',
   logo: null
 })
 
@@ -190,6 +203,8 @@ onMounted(async () => {
         participants: data.participants || '',
         firstConference: data.firstConference || '',
         language: data.language || 'de',
+        instagramLink: data.instagramLink || '',
+        facebookLink: data.facebookLink || '',
         type: data.type || 'schueler',
         website: data.website || '',
         logo: null
@@ -224,6 +239,8 @@ async function submit() {
       endDate: form.value.endDate,
       applicationDate: form.value.applicationDate,
       participants: form.value.participants,
+      instagramLink: form.value.instagramLink,
+      facebookLink: form.value.facebookLink,
       firstConference: form.value.firstConference,
       language: form.value.language,
       type: form.value.type,
