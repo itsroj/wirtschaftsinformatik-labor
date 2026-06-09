@@ -1,19 +1,21 @@
 import { createApp, nextTick } from 'vue'
 import App from './App.vue'
 import router from './router'
+import { createPinia } from 'pinia'
 
-createApp(App)
-  .use(router)
-  .mount('#app')
+const app = createApp(App)
+
+const pinia = createPinia()
+
+app.use(pinia)
+app.use(router)
+
+app.mount('#app')
 
 router.afterEach(async (to) => {
   await nextTick()
 
-  // -------------------------
-  // 1. FOOTER / HASH SCROLL
-  // -------------------------
   if (to.hash) {
-
     const tryScroll = () => {
       const el = document.querySelector(to.hash)
       if (!el) return false
@@ -39,20 +41,8 @@ router.afterEach(async (to) => {
     return
   }
 
-  // -------------------------
-  // 2. NORMAL NAVIGATION → TOP
-  // -------------------------
   requestAnimationFrame(() => {
-
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    })
-
-    document.getElementById('app')?.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    })
-
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    document.getElementById('app')?.scrollTo({ top: 0, behavior: 'smooth' })
   })
 })

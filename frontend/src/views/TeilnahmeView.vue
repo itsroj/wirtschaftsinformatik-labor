@@ -125,22 +125,6 @@ const block2 = [
 
   `
   <div class="link-card">
-    <a href="https://www.be-boosted.org/" target="_blank" rel="noopener noreferrer">
-      be.boosted / eMUN-fellows
-    </a>
-  </div>
-  `,
-
-  `
-  <div class="link-card">
-    <a href="https://www.dmun.de" target="_blank" rel="noopener noreferrer">
-      Deutsche MUN e.V. (DMUN)
-    </a>
-  </div>
-  `,
-
-  `
-  <div class="link-card">
     <a href="https://www.jgw-ev.de" target="_blank" rel="noopener noreferrer">
       Jugendbildung in Gesellschaft und Wissenschaft e.V.
     </a>

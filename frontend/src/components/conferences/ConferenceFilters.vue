@@ -62,7 +62,7 @@
             :class="{ active: isActiveSort('participants', 'desc') }"
         >
             ↓
-</button>
+        </button>
 
       </div>
 
@@ -127,6 +127,30 @@
 
     </div>
 
+    <div class="section">
+
+      <h3>Ansicht</h3>
+
+      <div class="view-toggle">
+
+        <button
+          @click="$emit('change-view', 'calendar')"
+          :class="{ active: viewMode === 'calendar' }"
+        >
+          Kalender
+        </button>
+
+        <button
+          @click="$emit('change-view', 'map')"
+          :class="{ active: viewMode === 'map' }"
+        >
+          Karte
+        </button>
+
+      </div>
+
+    </div>
+
   </aside>
 
 </template>
@@ -136,14 +160,16 @@ const props = defineProps({
   search: String,
   selectedTypes: Array,
   selectedLanguages: Array,
-  sortConfig: Object
+  sortConfig: Object,
+  viewMode: String
 })
 
 defineEmits([
   'update-search',
   'toggle-type',
   'toggle-language',
-  'sort'
+  'sort',
+  'change-view'
 ])
 
 const isActiveSort = (key, direction) => {
@@ -285,6 +311,20 @@ button.active {
   color: white;
   box-shadow: 0 6px 16px rgba(15, 59, 102, 0.25);
   transform: translateY(-1px);
+}
+
+.view-toggle {
+
+  display: flex;
+
+  gap: 10px;
+
+  margin-top: 12px;
+}
+
+.view-toggle button {
+
+  flex: 1;
 }
 
 @media (max-width: 1100px) {

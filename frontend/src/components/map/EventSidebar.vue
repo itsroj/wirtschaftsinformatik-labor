@@ -18,7 +18,7 @@
         </div>
 
         <div>
-          📅 {{ selectedEvent.date }}
+          📅 {{ formatEventDate(selectedEvent.date) }}
         </div>
 
         <div>
@@ -27,7 +27,7 @@
 
       </div>
 
-      <button>
+      <button @click="$emit('goToList')">
         Zur Konferenz
       </button>
 
@@ -44,9 +44,12 @@
 </template>
 
 <script setup>
+import { formatEventDate } from '@/utils/eventPresenter'
+
 defineProps({
   selectedEvent: Object
 })
+
 </script>
 
 <style scoped>

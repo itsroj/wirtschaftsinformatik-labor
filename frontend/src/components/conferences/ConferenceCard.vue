@@ -1,6 +1,6 @@
 <template>
 
-  <article class="card">
+  <article class="card" :id="`event-${event.id}`">
 
     <!-- LEFT -->
     <div class="left">
@@ -421,6 +421,17 @@ h3 {
 
 .close-btn:hover {
   background: rgba(15,59,102,0.18);
+}
+
+.highlight {
+  animation: pulse 1.2s ease;
+  outline: 2px solid #0f3b66;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
 }
 
 @keyframes fadeIn {

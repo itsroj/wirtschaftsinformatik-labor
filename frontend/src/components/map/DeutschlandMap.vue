@@ -17,13 +17,29 @@
         alt="Deutschland Karte"
       />
 
+      <EventSidebar
+        v-if="selectedEvent && !isMobile"
+        :selected-event="selectedEvent"
+        @close="handleClose"
+        @goToList="scrollToList"
+      />
+
+      <EventMobileSheet
+        v-if="selectedEvent && isMobile"
+        :event="selectedEvent"
+        @close="store.clearSelectedEvent()"
+        @goToList="scrollToList"
+      />
+
       <!-- Event Pins -->
       <EventMarker
         v-for="event in props.events"
         :key="event.id"
         :event="event"
         :isMobile="isMobile"
-        @select="selectEvent"
+
+        @hover="handleHover"
+        @select="handleSelect"
       />
 
             <!-- Verbindungslinie -->
@@ -33,51 +49,7 @@
         :style="lineStyle"
       ></div>
 
-
-    
-
-      <!-- Sidebar -->
-      <div
-        class="sidebar"
-        v-if="selectedEvent && !isMobile"
-        :style="sidebarStyle"
-
-        @mouseenter="isHoveringSidebar = true"
-        @mouseleave="
-          isHoveringSidebar = false;
-          selectEvent(null)
-        "
-      >
-
-        <h3>{{ selectedEvent.title }}</h3>
-
-        <p>{{ selectedEvent.city }}</p>
-
-        <p>{{ selectedEvent.date }}</p>
-
-      </div>
-
-      <!-- Mobile Bottom Sheet -->
-      <div
-        v-if="selectedEvent && isMobile"
-        class="bottom-sheet"
-
-        @touchstart="startDrag"
-        @touchmove="onDrag"
-        @touchend="endDrag"
-
-        :style="sheetStyle"
-      >
-        <div class="handle"></div>
-
-        <h3>{{ selectedEvent.title }}</h3>
-        <p>{{ selectedEvent.city }}</p>
-        <p>{{ selectedEvent.date }}</p>
-      </div>
-
     </div>
-    
-
 
   </section>
 </template>
@@ -85,7 +57,9 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import EventMarker from './EventMarker.vue'
-import { getEventPosition } from '@/utils/cityCoordinates'
+import EventSidebar from './EventSidebar.vue'
+import EventMobileSheet from './EventMobileSheet.vue'
+import { useEventsStore } from '@/stores/useEventsStore'
 
 const props = defineProps({
   events: {
@@ -98,146 +72,37 @@ const props = defineProps({
   }
 })
 
-const selectedEvent = ref(null)
+const store = useEventsStore()
 
-// NEU: kontrolliert ob Sidebar offen bleiben darf
-const isHoveringSidebar = ref(false)
-
-const dragY = ref(0)
-const startY = ref(0)
-const isDragging = ref(false)
-
-const startDrag = (e) => {
-  startY.value = e.touches[0].clientY
-  isDragging.value = true
+const handleClose = () => {
+  store.clearSelectedEvent()
 }
 
-const onDrag = (e) => {
-  if (!isDragging.value) return
+const scrollToList = () => {
+  const id = store.selectedEventId
+  if (!id) return
 
-  const currentY = e.touches[0].clientY
-  const diff = currentY - startY.value
-
-  if (diff > 0) {
-    dragY.value = diff
-  }
+  document.getElementById(`event-${id}`)
+    ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
-const endDrag = () => {
-  isDragging.value = false
+const selectedEvent = computed(() => store.selectedEvent)
 
-  // 👉 Threshold: 120px runterziehen = close
-  if (dragY.value > 120) {
-    selectedEvent.value = null
-  }
-
-  // Reset animation
-  dragY.value = 0
-}
-
-// NEU: Delay gegen Flackern
-let hoverTimeout = null
 
 const isMobile = ref(false)
 
 const selectEvent = (event) => {
-
-  clearTimeout(hoverTimeout)
-
   if (!event) {
-    hoverTimeout = setTimeout(() => {
-
-      // nur schließen wenn NICHT über Sidebar gehovert wird
-      if (!isHoveringSidebar.value) {
-        selectedEvent.value = null
-      }
-
-    }, 120)
-
+    store.clearSelectedEvent()
     return
   }
 
-  selectedEvent.value = event
+  store.setSelectedEvent(event.id)
 }
 
 const checkScreenSize = () => {
   isMobile.value = window.innerWidth <= 900
 }
-
-/**
- * Positionierung der Pins (prozentual!)
- * → später aus Backend ersetzbar
- */
-const getPosition = (event) => {
-  return {
-    top: event.top,
-    left: event.left
-  }
-}
-/**
- * Automatische Position aus Stadt-Namen
- */
-const getAutoPosition = (event) => {
-  const position = cityPositions[event.city]
-  
-  if (position) {
-    return position
-  }
-  
-  // Fallback wenn Stadt nicht im Mapping
-  console.warn(`Stadt nicht gefunden: ${event.city}`)
-  return { top: "50%", left: "50%" }
-}
-
-
-const sheetStyle = computed(() => ({
-  transform: `translateY(${dragY.value}px)`,
-  transition: isDragging.value ? 'none' : 'transform 0.25s ease'
-}))
-
-const lineStyle = computed(() => {
-
-  if (!selectedEvent.value) return {}
-
-  const position = getEventPosition(selectedEvent.value.city)
-  const leftValue = parseFloat(position.left)
-  const showLeft = leftValue > 55
-
-  return {
-    top: position.top,
-
-    left: showLeft
-      ? `calc(${position.left} - 240px)`
-      : position.left,
-
-    width: '240px',
-
-    transform: 'translateY(-50%)'
-  }
-})
-
-const sidebarStyle = computed(() => {
-
-  if (!selectedEvent.value) return {}
-
-  const position = getEventPosition(selectedEvent.value.city)
-  const leftValue = parseFloat(position.left)
-  const showLeft = leftValue > 55
-
-  if (isMobile.value) {
-    return {
-      top: `calc(${position.top} - 220px)`,
-      left: position.left,
-      transform: 'translateX(-50%)'
-    }
-  }
-
-  return {
-    top: position.top,
-    left: showLeft ? `calc(${position.left} - 360px)` : `calc(${position.left} + 80px)`,
-    transform: 'translateY(-50%)'
-  }
-})
 
 
 onMounted(() => {
@@ -258,6 +123,18 @@ onUnmounted(() => {
   )
 })
 
+const handleHover = (event) => {
+  if (!event) {
+    store.clearSelectedEvent()
+    return
+  }
+
+  store.setSelectedEvent(event.id)
+}
+
+const handleSelect = (event) => {
+  store.setSelectedEvent(event.id)
+}
 </script>
 
 <style>

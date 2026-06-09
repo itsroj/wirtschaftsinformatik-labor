@@ -7,20 +7,80 @@ import TeilnahmeView from '@/views/TeilnahmeView.vue'
 import ServiceView from '@/views/ServiceView.vue'
 
 const routes = [
-  { path: '/', name: 'home', component: HomeView },
-  { path: '/was-ist-mun', name: 'was-ist-mun', component: WasIstMunView },
-  { path: '/konferenzen', name: 'konferenzen', component: KonferenzenView },
-  { path: '/teilnahme', name: 'teilnahme', component: TeilnahmeView },
-  { path: '/service', name: 'service', component: ServiceView }
+  {
+    path: '/',
+    name: 'home',
+    component: HomeView,
+    meta: {
+      title: 'DMUN | Startseite',
+      description: 'Model United Nations in Deutschland – Konferenzen und Teilnahmeinformationen.'
+    }
+  },
+
+  {
+    path: '/was-ist-mun',
+    name: 'was-ist-mun',
+    component: WasIstMunView,
+    meta: {
+      title: 'DMUN | Was ist MUN?',
+      description: 'Erklärung von Model United Nations und wie das Planspiel funktioniert.'
+    }
+  },
+
+  {
+    path: '/konferenzen',
+    name: 'konferenzen',
+    component: KonferenzenView,
+    meta: {
+      title: 'DMUN | Konferenzen',
+      description: 'Übersicht aller Model United Nations Konferenzen in Deutschland und international.'
+    }
+  },
+
+  {
+    path: '/teilnahme',
+    name: 'teilnahme',
+    component: TeilnahmeView,
+    meta: {
+      title: 'DMUN | Teilnahme',
+      description: 'Informationen zur Teilnahme an Model United Nations Konferenzen.'
+    }
+  },
+
+  {
+    path: '/service',
+    name: 'service',
+    component: ServiceView,
+    meta: {
+      title: 'DMUN | Service',
+      description: 'Kontakt, Impressum und Datenschutz von DMUN.'
+    }
+  }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-
   scrollBehavior() {
-    // wichtig: komplett deaktivieren
     return false
+  }
+})
+
+router.afterEach((to) => {
+  document.title = to.meta.title || 'DMUN'
+
+  const description = to.meta.description
+
+  if (description) {
+    let tag = document.querySelector('meta[name="description"]')
+
+    if (!tag) {
+      tag = document.createElement('meta')
+      tag.name = 'description'
+      document.head.appendChild(tag)
+    }
+
+    tag.setAttribute('content', description)
   }
 })
 

@@ -10,12 +10,31 @@
       <section class="top-section" ref="topSectionRef">
 
         <!-- FILTER -->
-        <ConferenceFilters :search="search" :selectedTypes="selectedTypes" :selectedLanguages="selectedLanguages"
-          :sortConfig="sortConfig" @update-search="search = $event" @toggle-type="toggleType"
-          @toggle-language="toggleLanguage" @sort="setSort" />
+        <ConferenceFilters
+          :search="eventsStore.search"
+          :selectedTypes="eventsStore.selectedTypes"
+          :selectedLanguages="eventsStore.selectedLanguages"
+          :sortConfig="sortConfig"
+          :viewMode="viewMode"
 
-        <!-- MAP -->
-        <ConferenceMapSection :events="filteredEvents" />
+          @update-search="eventsStore.search = $event"
+          @toggle-type="eventsStore.toggleType"
+          @toggle-language="eventsStore.toggleLanguage"
+          @sort="setSort"
+
+          @change-view="viewMode = $event"
+        />
+
+        <!-- CALENDAR & MAP -->
+        <ConferenceCalendarSection
+          v-if="viewMode === 'calendar'"
+          :events="filteredEvents"
+        />
+
+        <ConferenceMapSection
+          v-else
+          :events="filteredEvents"
+        />
 
       </section>
 
@@ -40,60 +59,45 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
+import { useEventsStore } from '@/stores/useEventsStore'
+
 import Navbar from '@/components/layout/Navbar.vue'
 import Footer from '@/components/layout/Footer.vue'
 
 import ConferenceFilters from '@/components/conferences/ConferenceFilters.vue'
 import ConferenceMapSection from '@/components/conferences/ConferenceMapSection.vue'
+import ConferenceCalendarSection from '@/components/conferences/ConferenceCalendarSection.vue'
 import ConferenceList from '@/components/conferences/ConferenceList.vue'
 
-// Fetch events vom Backend statt aus static data
-const events = ref([])
-const loading = ref(true)
-const error = ref(null)
+
 const route = useRoute()
+
+const eventsStore = useEventsStore()
 
 watch(
   () => route.query,
   (q) => {
-
     if (!q.type) return
-
-    // reset + set filter
-    selectedTypes.value = [q.type]
-
+    eventsStore.selectedTypes = [q.type]
   },
   { immediate: true }
 )
 
-onMounted(async () => {
-  try {
-    const response = await fetch('http://localhost:5000/api/events')
-    if (!response.ok) throw new Error('Failed to fetch events')
-    events.value = await response.json()
+const filteredEvents = computed(() => eventsStore.filteredEvents)
 
-    // 👉 SEARCH AUS HOMEPAGE
-    if (route.query.search) {
-      search.value = route.query.search
-    }
+onMounted(() => {
+  eventsStore.fetchEvents()
 
-  } catch (err) {
-    error.value = err.message
-    console.error('Error fetching events:', err)
-  } finally {
-    loading.value = false
+  if (route.query.search) {
+    eventsStore.search = route.query.search
   }
 })
 
+
+
 /* SEARCH */
-const search = ref('')
 
-/* FILTER */
-const selectedTypes = ref([])
-
-const selectedLanguages = ref([])
-
-const sortConfig = ref(null)
+const viewMode = ref('calendar')
 
 const listRef = ref(null)
 
@@ -103,95 +107,6 @@ const showScrollButton = ref(true)
 
 let observer = null
 
-/* TOGGLE TYPE */
-const toggleType = (type) => {
-
-  if (selectedTypes.value.includes(type)) {
-
-    selectedTypes.value =
-      selectedTypes.value.filter(
-        t => t !== type
-      )
-
-  } else {
-
-    selectedTypes.value.push(type)
-  }
-}
-
-/* TOGGLE LANGUAGE */
-const toggleLanguage = (language) => {
-
-  if (selectedLanguages.value.includes(language)) {
-
-    selectedLanguages.value =
-      selectedLanguages.value.filter(
-        l => l !== language
-      )
-
-  } else {
-
-    selectedLanguages.value.push(language)
-  }
-}
-
-/* FILTERED EVENTS */
-const filteredEvents = computed(() => {
-
-  let result = (events.value || []).filter(event => {
-
-    const matchesSearch =
-      event.title
-        .toLowerCase()
-        .includes(search.value.toLowerCase())
-
-    const matchesType =
-      selectedTypes.value.length === 0 ||
-      selectedTypes.value.includes(event.type)
-
-    const matchesLanguage =
-      selectedLanguages.value.length === 0 ||
-      selectedLanguages.value.includes(event.language)
-
-    return (
-      matchesSearch &&
-      matchesType &&
-      matchesLanguage
-    )
-  })
-
-  /* SORTIERUNG */
-  if (sortConfig.value) {
-
-    const { key, direction } = sortConfig.value
-
-    result = [...result].sort((a, b) => {
-
-      const valA = a[key]
-      const valB = b[key]
-
-      if (direction === 'asc') {
-        return valA > valB ? 1 : -1
-      }
-
-      return valA < valB ? 1 : -1
-    })
-  }
-
-  return result
-})
-
-const setSort = (config) => {
-  if (
-    sortConfig.value?.key === config.key &&
-    sortConfig.value?.direction === config.direction
-  ) {
-    sortConfig.value = null
-    return
-  }
-
-  sortConfig.value = config
-}
 
 const scrollToList = () => {
   listRef.value?.$el?.scrollIntoView({

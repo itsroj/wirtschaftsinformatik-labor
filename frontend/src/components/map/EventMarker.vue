@@ -3,9 +3,8 @@
         class="marker"
         :style="positionStyle"
 
-        @mouseenter="!isMobile && $emit('select', event)"
-        @mouseleave="!isMobile && $emit('select', null)"
-
+        @mouseenter="handleHover"
+        @mouseleave="handleLeave"
         @click="handleClick"
     >
 
@@ -33,7 +32,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['select'])
+const emit = defineEmits(['hover', 'select'])
 
 /**
  * Position automatisch aus Stadt-Namen berechnen
@@ -41,6 +40,18 @@ const emit = defineEmits(['select'])
 const positionStyle = computed(() => {
   return getEventPosition(props.event.city)
 })
+
+const handleHover = () => {
+  if (!props.isMobile) {
+    emit('hover', props.event)
+  }
+}
+
+const handleLeave = () => {
+  if (!props.isMobile) {
+    emit('hover', null)
+  }
+}
 
 const handleClick = () => {
   emit('select', props.event)
