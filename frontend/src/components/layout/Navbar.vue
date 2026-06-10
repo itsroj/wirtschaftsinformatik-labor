@@ -38,7 +38,7 @@
         <!-- Sprache -->
         <button class="language-button" @click="languageStore.toggleLanguage()"
           :title="languageStore.currentLanguage === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'">
-          {{ languageStore.currentLanguage === 'de' ? '🇩🇪 DE' : '🇬🇧 EN' }}
+          {{ languageStore.currentLanguage === 'de' ? '🇩🇪' : '🇬🇧' }}
         </button>
 
         <!-- Mobile Menü -->

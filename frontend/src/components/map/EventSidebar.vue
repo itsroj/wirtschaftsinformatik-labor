@@ -68,12 +68,14 @@ defineEmits(['goToList'])
 const getEventDate = () => {
   if (!props.selectedEvent) return ''
 
+  const lang = languageStore.currentLanguage
+
   if (props.selectedEvent?.conferences?.[0]?.date) {
-    return formatEventDate(props.selectedEvent.conferences[0].date)
+    return formatEventDate(props.selectedEvent.conferences[0].date, lang)
   }
 
   if (props.selectedEvent?.date) {
-    return formatEventDate(props.selectedEvent.date)
+    return formatEventDate(props.selectedEvent.date, lang)
   }
 
   return ''

@@ -57,6 +57,7 @@
       "website": "Website",
       "participants": "Teilnehmende",
       "collapse": "Einklappen",
+      "expandHint": "Mehr Details",
       "language": {
         "de": "Deutsch",
         "en": "Englisch",
@@ -115,8 +116,8 @@
     "block3Title": "Mini-MUNs für Schüler:innen",
     "block3": [
       "Mini-MUNs bringen die Weltpolitik ins eigene Klassenzimmer. Statt regulärem Unterricht werden die SchülerInnen so selbst aktiv und für einen Tag zu jungen Nachwuchsdiplomaten. Mini-MUNs werden meist in Schulen angeboten für Klassen, Kurse oder einen ganzen Jahrgang und dauern von zwei Schulstunden bis zu einem ganzen Projekttag.",
-      "Die Deutsche Gesellschaft für die Vereinten Nationen e.V. (DGVN) hat in Kooperation mit dem Jungen UNO-Netzwerk (JUNON) das Projekt <div class=\"link-card\"><a href=\"https://dgvn.de/aktivitaeten/un-im-klassenzimmer\" target=\"_blank\" rel=\"noopener noreferrer\">\"UN im Klassenzimmer\"</a></div> gestartet. Durch zwei unterschiedliche Module wird das Thema Vereinte Nationen von Studentinnen und Studenten \"ins Klassenzimmer gebracht\".",
-      "Zuvor hatte die AG Model United Nations des <div class=\"link-card\"><a href=\"https://junges-uno-netzwerk.de/\" target=\"_blank\" rel=\"noopener noreferrer\">Jungen-UNO-Netzwerks Deutschland e.V.</a></div> 2008 eine umfangreiche <div class=\"link-card\"><a href=\"/download/MiniMUNs.zip\" target=\"_blank\" rel=\"noopener noreferrer\">Toolbox für Mini-UNO-Planspiele an Schulen</a></div> erstellt. Diese Toolbox enthält alle Materialien, die eine UNO-Gruppe braucht um ein Mini-UNO-Planspiel an einer Schule durchzuführen, insb. zwei Leitfäden und 16 Anhänge (Handbücher, Präsentationen, Zeitplan etc.)."
+      "Die Deutsche Gesellschaft für die Vereinten Nationen e.V. (DGVN) hat in Kooperation mit dem Jungen UNO-Netzwerk (JUNON) das Projekt <a class=\"inline-link\" href=\"https://dgvn.de/aktivitaeten/un-im-klassenzimmer\" target=\"_blank\" rel=\"noopener noreferrer\">\"UN im Klassenzimmer\"</a> gestartet. Durch zwei unterschiedliche Module wird das Thema Vereinte Nationen von Studentinnen und Studenten \"ins Klassenzimmer gebracht\".",
+      "Zuvor hatte die AG Model United Nations des <a class=\"inline-link\" href=\"https://junges-uno-netzwerk.de/\" target=\"_blank\" rel=\"noopener noreferrer\">Jungen-UNO-Netzwerks Deutschland e.V.</a> 2008 eine umfangreiche <a class=\"inline-link\" href=\"/download/MiniMUNs.zip\" target=\"_blank\" rel=\"noopener noreferrer\">Toolbox für Mini-UNO-Planspiele an Schulen</a> erstellt. Diese Toolbox enthält alle Materialien, die eine UNO-Gruppe braucht um ein Mini-UNO-Planspiel an einer Schule durchzuführen, insb. zwei Leitfäden und 16 Anhänge (Handbücher, Präsentationen, Zeitplan etc.)."
     ],
     "steps": {
       "step1": "Event auswählen",

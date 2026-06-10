@@ -55,6 +55,7 @@
       "website": "Website",
       "participants": "Participants",
       "collapse": "Collapse",
+      "expandHint": "More details",
       "language": {
         "de": "German",
         "en": "English",
@@ -113,8 +114,8 @@
     "block3Title": "Mini-MUNs for Pupils",
     "block3": [
       "Mini-MUNs bring world politics into the classroom. Instead of regular lessons, pupils become active and become young diplomats for a day. Mini-MUNs are usually offered in schools for classes, courses or an entire grade level and last from two school hours to a whole project day.",
-      "The German Society for the United Nations (DGVN) has launched the project <div class=\"link-card\"><a href=\"https://dgvn.de/aktivitaeten/un-im-klassenzimmer\" target=\"_blank\" rel=\"noopener noreferrer\">\"UN in the Classroom\"</a></div> in cooperation with the Young UN Network (JUNON). Through two different modules, the topic of the United Nations is brought \"into the classroom\" by students.",
-      "Previously, the Model United Nations working group of the <div class=\"link-card\"><a href=\"https://junges-uno-netzwerk.de/\" target=\"_blank\" rel=\"noopener noreferrer\">Young UN Network Germany e.V.</a></div> created a comprehensive <div class=\"link-card\"><a href=\"/download/MiniMUNs.zip\" target=\"_blank\" rel=\"noopener noreferrer\">toolbox for mini UN simulations in schools</a></div> in 2008. This toolbox contains all the materials an UN group needs to conduct a mini UN simulation at a school, in particular two guides and 16 appendices (handbooks, presentations, schedules, etc.)."
+      "The German Society for the United Nations (DGVN) has launched the project <a class=\"inline-link\" href=\"https://dgvn.de/aktivitaeten/un-im-klassenzimmer\" target=\"_blank\" rel=\"noopener noreferrer\">\"UN in the Classroom\"</a> in cooperation with the Young UN Network (JUNON). Through two different modules, the topic of the United Nations is brought \"into the classroom\" by students.",
+      "Previously, the Model United Nations working group of the <a class=\"inline-link\" href=\"https://junges-uno-netzwerk.de/\" target=\"_blank\" rel=\"noopener noreferrer\">Young UN Network Germany e.V.</a> created a comprehensive <a class=\"inline-link\" href=\"/download/MiniMUNs.zip\" target=\"_blank\" rel=\"noopener noreferrer\">toolbox for mini UN simulations in schools</a> in 2008. This toolbox contains all the materials an UN group needs to conduct a mini UN simulation at a school, in particular two guides and 16 appendices (handbooks, presentations, schedules, etc.)."
     ],
     "steps": {
       "step1": "Choose an event",

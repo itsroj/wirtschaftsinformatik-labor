@@ -80,11 +80,17 @@
 
         </div>
 
+        <!-- Hinweis: Klicken zum Aufklappen (nur wenn geschlossen) -->
+        <div v-if="!isOpen" class="expand-hint">
+          <span>{{ languageStore.t('konferenzen.card.expandHint') }}</span>
+          <span class="chevron">›</span>
+        </div>
+
         <!-- EXPANDED CONTENT -->
         <div v-if="isOpen" class="expanded">
 
           <p class="description">
-            {{ props.event.description }}
+            {{ localizedDescription }}
           </p>
 
           <p class="first-conference">
@@ -134,7 +140,17 @@ const props = defineProps({
   event: Object
 })
 
-const hasDescription = computed(() => !!props.event?.description)
+const hasDescription = computed(() => !!(props.event?.description_de || props.event?.description_en || props.event?.description))
+
+// Gibt die Beschreibung in der aktuellen Sprache zurück.
+// Neue Struktur: description_de / description_en
+// Fallback: altes description-Feld (für ältere Einträge)
+const localizedDescription = computed(() => {
+  const lang = languageStore.currentLanguage
+  if (lang === 'en' && props.event?.description_en) return props.event.description_en
+  if (props.event?.description_de) return props.event.description_de
+  return props.event?.description || ''
+})
 
 const latestConference = computed(() => {
   // Versuche neueste Conference zu finden
@@ -173,7 +189,8 @@ const toggleCard = () => {
 const formatDateOrNull = (dateString) => {
   if (!dateString) return ''
 
-  return new Date(dateString).toLocaleDateString('de-DE')
+  const locale = languageStore.currentLanguage === 'en' ? 'en-GB' : 'de-DE'
+  return new Date(dateString).toLocaleDateString(locale)
 }
 
 /* FORMAT LANGUAGE */
@@ -440,6 +457,36 @@ h3 {
 
 .close-btn:hover {
   background: rgba(15, 59, 102, 0.18);
+}
+
+/* Hinweis zum Aufklappen */
+.expand-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #0b558f;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  user-select: none;
+}
+
+.content:hover .expand-hint {
+  opacity: 1;
+}
+
+.expand-hint .chevron {
+  font-size: 16px;
+  line-height: 1;
+  display: inline-block;
+  transform: rotate(90deg);
+  transition: transform 0.2s ease;
+}
+
+.content:hover .expand-hint .chevron {
+  transform: rotate(90deg) translateX(2px);
 }
 
 .highlight {

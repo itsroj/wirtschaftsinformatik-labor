@@ -10,17 +10,22 @@
     <!-- Visueller Griff-Balken oben am Sheet (zeigt, dass es verschiebbar ist) -->
     <div class="handle"></div>
 
-    <h3>{{ props.event.title }}</h3>
-    <p>{{ props.event.city }}</p>
+    <!-- Inhalt: Links Infos, Rechts Button -->
+    <div class="content-row">
 
-    <div class="meta">
-      {{ getEventDate() }}
+      <div class="info">
+        <div class="badge">{{ props.event.city }}</div>
+        <h3>{{ props.event.title }}</h3>
+        <p class="long-title">{{ props.event.longTitle }}</p>
+        <div class="meta">📅 {{ getEventDate() }}</div>
+      </div>
+
+      <!-- Button: sendet "goToList" nach oben → DeutschlandMap scrollt zur Liste -->
+      <button class="goto-btn" @click="$emit('goToList')">
+        {{ languageStore.t('map.goToConference') }} →
+      </button>
+
     </div>
-
-    <!-- Button: sendet "goToList" nach oben → DeutschlandMap scrollt zur Liste -->
-    <button @click="$emit('goToList')">
-      {{ languageStore.t('map.goToConference') }}
-    </button>
 
   </div>
 </template>
@@ -77,12 +82,14 @@ const onTouchEnd = () => {
 const getEventDate = () => {
   if (!props.event) return ''
 
+  const lang = languageStore.currentLanguage
+
   if (props.event?.conferences?.[0]?.date) {
-    return formatEventDate(props.event.conferences[0].date)
+    return formatEventDate(props.event.conferences[0].date, lang)
   }
 
   if (props.event?.date) {
-    return formatEventDate(props.event.date)
+    return formatEventDate(props.event.date, lang)
   }
 
   return ''
@@ -99,7 +106,7 @@ const getEventDate = () => {
   background: white;
   border-radius: 24px 24px 0 0;
 
-  padding: 16px 20px 24px;
+  padding: 16px 20px 28px;
 
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
 
@@ -107,28 +114,84 @@ const getEventDate = () => {
 
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
 }
 
-/* Handle jetzt korrekt positioniert */
+/* Handle */
 .handle {
   width: 44px;
   height: 5px;
-
   background: rgb(127, 126, 126);
   border-radius: 999px;
-
-  margin: 6px auto 12px;
-
+  margin: 6px auto 16px;
   flex-shrink: 0;
 }
 
-h3 {
+/* Hauptzeile: Infos links, Button rechts */
+.content-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #d9eefc, #c7e3f8);
+  color: #0b558f;
+  font-weight: 600;
+  font-size: 12px;
   margin-bottom: 8px;
 }
 
+h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f3b66;
+  margin: 0 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.long-title {
+  font-size: 12px;
+  color: #888;
+  margin: 0 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .meta {
-  margin-top: 10px;
-  color: #666;
+  font-size: 13px;
+  color: #555;
+}
+
+/* Rechter Button */
+.goto-btn {
+  flex-shrink: 0;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #0f3b66, #1a5fa8);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(15, 59, 102, 0.3);
+  transition: opacity 0.2s ease;
+}
+
+.goto-btn:hover {
+  opacity: 0.88;
 }
 </style>
