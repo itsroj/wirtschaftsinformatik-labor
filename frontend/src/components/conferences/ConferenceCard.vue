@@ -8,10 +8,7 @@
       <!-- LOGO -->
       <div class="logo-wrapper">
 
-        <img
-          :src="props.event.logo"
-          :alt="props.event.title"
-        >
+        <img :src="props.event.logo" :alt="props.event.title">
 
       </div>
 
@@ -83,23 +80,23 @@
 
         </div>
 
-          <!-- EXPANDED CONTENT -->
-          <div v-if="isOpen" class="expanded">
-            
-            <p class="description">
-              {{ props.event.description }}
-            </p>
+        <!-- EXPANDED CONTENT -->
+        <div v-if="isOpen" class="expanded">
 
-            <p class="first-conference">
-              {{ languageStore.t('konferenzen.card.firstConference') }}: {{ props.event.firstConference }}
-            </p>
+          <p class="description">
+            {{ props.event.description }}
+          </p>
 
-            <!-- CLOSE BUTTON -->
-            <button class="close-btn" @click.stop="toggleCard">
-              {{ languageStore.t('konferenzen.card.collapse') }}
-            </button>
+          <p class="first-conference">
+            {{ languageStore.t('konferenzen.card.firstConference') }}: {{ props.event.firstConference }}
+          </p>
 
-          </div>
+          <!-- CLOSE BUTTON -->
+          <button class="close-btn" @click.stop="toggleCard">
+            {{ languageStore.t('konferenzen.card.collapse') }}
+          </button>
+
+        </div>
 
       </div>
 
@@ -116,12 +113,9 @@
       </a>
 
       <!-- Socials -->
-      <SocialIcons
-        :facebook="props.event.facebookLink"
-        :instagram="props.event.instagramLink"
-      />
+      <SocialIcons :facebook="props.event.facebookLink" :instagram="props.event.instagramLink" />
 
-  </div>
+    </div>
 
   </article>
 
@@ -129,7 +123,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { MapPin, Users, Calendar, Clock} from '@lucide/vue'
+import { MapPin, Users, Calendar, Clock } from '@lucide/vue'
 import SocialIcons from '@/components/icons/SocialIcons.vue'
 import { useLanguageStore } from '@/stores/useLanguageStore'
 
@@ -145,7 +139,7 @@ const hasDescription = computed(() => !!props.event?.description)
 const latestConference = computed(() => {
   // Versuche neueste Conference zu finden
   if (props.event?.conferences && props.event.conferences.length > 0) {
-    const sorted = [...props.event.conferences].sort((a, b) => 
+    const sorted = [...props.event.conferences].sort((a, b) =>
       new Date(b.date) - new Date(a.date)
     )
     return sorted[0]
@@ -183,32 +177,27 @@ const formatDateOrNull = (dateString) => {
 }
 
 /* FORMAT LANGUAGE */
+// Liest den übersetzten Sprachnamen aus der Locale-Datei.
+// DB-Werte: "de", "en", "both" → wird je nach Seitensprache übersetzt.
 const formatLanguage = (language) => {
-
-  const map = {
-    english: 'Englisch',
-    german: 'Deutsch'
-  }
-
-  return map[language] || language
+  const key = `konferenzen.card.language.${language}`
+  const translated = languageStore.t(key)
+  // Fallback: wenn kein Übersetzungsschlüssel gefunden, Originalwert anzeigen
+  return translated !== key ? translated : language
 }
 
 /* FORMAT TYPE */
+// Liest den übersetzten Typ aus der Locale-Datei.
+// DB-Werte können variieren: "pupil"/"schueler", "student"/"studenten", "minimun"/"mini-mun"
 const formatType = (type) => {
-
-  const map = {
-    pupil: 'Schüler:innen',
-    student: 'Studierende',
-    minimun: 'Mini MUN'
-  }
-
-  return map[type] || type
+  const key = `konferenzen.card.type.${type}`
+  const translated = languageStore.t(key)
+  return translated !== key ? translated : type
 }
 
 </script>
 
 <style scoped>
-
 .card {
   display: flex;
   justify-content: space-between;
@@ -221,30 +210,30 @@ const formatType = (type) => {
   border-radius: 26px;
 
   background:
-    rgba(255,255,255,0.96);
+    rgba(255, 255, 255, 0.96);
 
   border:
-    1px solid rgba(0,0,0,0.08);
+    1px solid rgba(0, 0, 0, 0.08);
 
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease;
 
   box-shadow:
-    0 10px 22px rgba(0,0,0,0.08);
+    0 10px 22px rgba(0, 0, 0, 0.08);
 
-    will-change: transform;
+  will-change: transform;
 
-    transform: translateZ(0);
+  transform: translateZ(0);
 
-    backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .card:hover {
   transform: translateY(-4px);
 
   box-shadow:
-    0 20px 40px rgba(0,0,0,0.12);
+    0 20px 40px rgba(0, 0, 0, 0.12);
 }
 
 /* LEFT */
@@ -266,7 +255,7 @@ const formatType = (type) => {
   overflow: hidden;
 
   background:
-    rgba(0,0,0,0.04);
+    rgba(0, 0, 0, 0.04);
 
   display: flex;
   justify-content: center;
@@ -326,7 +315,7 @@ h3 {
   border-radius: 999px;
 
   background:
-    rgba(15,59,102,0.08);
+    rgba(15, 59, 102, 0.08);
 
   color:
     #0f3b66;
@@ -415,7 +404,7 @@ h3 {
 .expanded {
   margin-top: 18px;
   padding-top: 18px;
-  border-top: 1px solid rgba(0,0,0,0.08);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 
   display: flex;
   flex-direction: column;
@@ -443,14 +432,14 @@ h3 {
   border-radius: 10px;
 
   border: none;
-  background: rgba(15,59,102,0.1);
+  background: rgba(15, 59, 102, 0.1);
   color: #0f3b66;
 
   cursor: pointer;
 }
 
 .close-btn:hover {
-  background: rgba(15,59,102,0.18);
+  background: rgba(15, 59, 102, 0.18);
 }
 
 .highlight {
@@ -459,9 +448,17 @@ h3 {
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.02);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes fadeIn {
@@ -469,6 +466,7 @@ h3 {
     opacity: 0;
     transform: translateY(-6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -501,5 +499,4 @@ h3 {
     width: 100%;
   }
 }
-
 </style>

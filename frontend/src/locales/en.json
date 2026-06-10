@@ -1,4 +1,9 @@
 {
+  "notFound": {
+    "title": "Page not found",
+    "message": "The page you are looking for does not exist or has been moved.",
+    "button": "Back to Home"
+  },
   "navbar": {
     "home": "Home",
     "wasIstMun": "What is MUN?",
@@ -27,8 +32,8 @@
     "title": "Conferences in Germany",
     "search": "Search",
     "searchPlaceholder": "Search events...",
-    "scrollToList": "Event List",
-    "filters": {
+    "scrollToList": "Event List",    "noResults": "No conferences found",
+    "noResultsHint": "Try different filters or clear your search.",    "filters": {
       "search": "Search",
       "sorting": "Sorting",
       "targetGroup": "Target Group",
@@ -49,7 +54,20 @@
       "applicationDeadline": "Application Deadline",
       "website": "Website",
       "participants": "Participants",
-      "collapse": "Collapse"
+      "collapse": "Collapse",
+      "language": {
+        "de": "German",
+        "en": "English",
+        "both": "German & English"
+      },
+      "type": {
+        "pupil": "Pupils",
+        "schueler": "Pupils",
+        "student": "Students",
+        "studenten": "Students",
+        "minimun": "Mini MUN",
+        "mini-mun": "Mini MUN"
+      }
     },
     "calendar": {
       "legend": {

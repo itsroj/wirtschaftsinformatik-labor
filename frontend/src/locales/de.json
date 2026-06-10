@@ -1,4 +1,9 @@
 {
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "message": "Die Seite, die du suchst, existiert nicht oder wurde verschoben.",
+    "button": "Zur Startseite"
+  },
   "navbar": {
     "home": "Startseite",
     "wasIstMun": "Was ist MUN?",
@@ -28,6 +33,8 @@
     "search": "Suche",
     "searchPlaceholder": "Events suchen...",
     "scrollToList": "Eventliste",
+    "noResults": "Keine Konferenzen gefunden",
+    "noResultsHint": "Versuche andere Filter oder setze die Suche zurück.",
     "filters": {
       "search": "Suche",
       "sorting": "Sortierung",
@@ -49,7 +56,20 @@
       "applicationDeadline": "Anmeldeschluss",
       "website": "Website",
       "participants": "Teilnehmende",
-      "collapse": "Einklappen"
+      "collapse": "Einklappen",
+      "language": {
+        "de": "Deutsch",
+        "en": "Englisch",
+        "both": "Deutsch & Englisch"
+      },
+      "type": {
+        "pupil": "Schüler:innen",
+        "schueler": "Schüler:innen",
+        "student": "Studierende",
+        "studenten": "Studierende",
+        "minimun": "Mini MUN",
+        "mini-mun": "Mini MUN"
+      }
     },
     "calendar": {
       "legend": {

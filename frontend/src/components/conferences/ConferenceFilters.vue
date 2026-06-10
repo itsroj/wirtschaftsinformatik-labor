@@ -88,11 +88,11 @@
 
       <div class="filter-group">
 
-        <button @click="$emit('toggle-language', 'english')" :class="{ active: selectedLanguages.includes('english') }">
+        <button @click="$emit('toggle-language', 'en')" :class="{ active: selectedLanguages.includes('en') }">
           {{ languageStore.t('konferenzen.filters.english') }}
         </button>
 
-        <button @click="$emit('toggle-language', 'german')" :class="{ active: selectedLanguages.includes('german') }">
+        <button @click="$emit('toggle-language', 'de')" :class="{ active: selectedLanguages.includes('de') }">
           {{ languageStore.t('konferenzen.filters.german') }}
         </button>
 

@@ -18,6 +18,25 @@ export const useEventsStore = defineStore('events', {
     filteredEvents: (state) => {
       const search = (state.search || '').toLowerCase()
 
+      // Normalisiert alle bekannten DB-Werte auf einen kanonischen Wert
+      const normalizeType = (type) => {
+        if (!type) return ''
+        const t = type.toLowerCase()
+        if (t === 'pupil' || t === 'schueler') return 'pupil'
+        if (t === 'student' || t === 'studenten') return 'student'
+        if (t === 'minimun' || t === 'mini-mun') return 'mini-mun'
+        return t
+      }
+
+      // Normalisiert Sprach-Werte auf kanonische Form
+      const normalizeLanguage = (lang) => {
+        if (!lang) return ''
+        const l = lang.toLowerCase()
+        if (l === 'english') return 'en'
+        if (l === 'german' || l === 'deutsch') return 'de'
+        return l
+      }
+
       return state.events.filter(event => {
 
         const matchesSearch =
@@ -26,11 +45,14 @@ export const useEventsStore = defineStore('events', {
 
         const matchesType =
           state.selectedTypes.length === 0 ||
-          state.selectedTypes.includes(event.type)
+          state.selectedTypes.includes(normalizeType(event.type))
 
+        // Bei Sprachfilter: 'both' passt immer zu de UND en
+        const eventLang = normalizeLanguage(event.language)
         const matchesLanguage =
           state.selectedLanguages.length === 0 ||
-          state.selectedLanguages.includes(event.language)
+          state.selectedLanguages.includes(eventLang) ||
+          eventLang === 'both'
 
         return matchesSearch && matchesType && matchesLanguage
       })

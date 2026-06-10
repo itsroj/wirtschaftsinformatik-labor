@@ -7,12 +7,14 @@
 
     <div class="list">
 
-      <ConferenceCard
-        v-for="event in events"
-        :key="event.id"
-        :event="event"
-        :id="`event-${event.id}`"
-      />
+      <ConferenceCard v-for="event in events" :key="event.id" :event="event" :id="`event-${event.id}`" />
+
+      <!-- Wird angezeigt, wenn Filter keine Treffer liefern -->
+      <div v-if="events && events.length === 0" class="no-results">
+        <span class="no-results-icon">🔍</span>
+        <p>{{ languageStore.t('konferenzen.noResults') }}</p>
+        <p class="no-results-hint">{{ languageStore.t('konferenzen.noResultsHint') }}</p>
+      </div>
 
     </div>
 
@@ -55,22 +57,19 @@ watch(() => store.scrollRequestId, async () => {
 </script>
 
 <style scoped>
-
 .conference-list {
-  background: linear-gradient(
-  to bottom,
-  rgba(255,255,255,0.96),
-  rgba(255,255,255,0.88)
-  );
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0.96),
+      rgba(255, 255, 255, 0.88));
 
   border-radius: 26px;
 
   padding: 34px;
 
-/*  backdrop-filter: blur(12px); */
+  /*  backdrop-filter: blur(12px); */
 
   box-shadow:
-    0 10px 30px rgba(0,0,0,0.12);
+    0 10px 30px rgba(0, 0, 0, 0.12);
 }
 
 h2 {
@@ -84,4 +83,28 @@ h2 {
   gap: 18px;
 }
 
+.no-results {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.no-results-icon {
+  font-size: 40px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.no-results p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.no-results-hint {
+  margin-top: 6px !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: #9ca3af !important;
+}
 </style>
