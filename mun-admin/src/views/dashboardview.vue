@@ -149,9 +149,8 @@ onMounted(() => ladeKonferenzen())
 const heute = new Date()
 
 function getDateForStatus(event) {
-  // Nutze neueste Conference oder Event-Datum
   if (event.conferences && event.conferences.length > 0) {
-    const sorted = [...event.conferences].sort((a, b) => 
+    const sorted = [...event.conferences].sort((a, b) =>
       new Date(b.date) - new Date(a.date)
     )
     return { date: sorted[0].date, endDate: sorted[0].endDate }
@@ -183,9 +182,8 @@ function formatDatum(datum) {
 }
 
 function getLatestConferenceDate(event) {
-  // Hole neueste Conference oder nutze Event-Datum als Fallback
   if (event.conferences && event.conferences.length > 0) {
-    const sorted = [...event.conferences].sort((a, b) => 
+    const sorted = [...event.conferences].sort((a, b) =>
       new Date(b.date) - new Date(a.date)
     )
     return formatDatum(sorted[0].date)
@@ -195,16 +193,18 @@ function getLatestConferenceDate(event) {
 
 const aktiveKonferenzen = computed(() =>
   konferenzen.value.filter(k => {
-    // Nutze erste Conference oder Event-Datum
-    const confDate = k.conferences?.length > 0 ? k.conferences[0] : k
-    const start = new Date(confDate.date)
-    const end = new Date(confDate.endDate)
+    const { date, endDate } = getDateForStatus(k)
+    const start = new Date(date)
+    const end = new Date(endDate)
     return heute >= start && heute <= end
   }).length
 )
 
 const ausstehendKonferenzen = computed(() =>
-  konferenzen.value.filter(k => new Date(k.date) > heute).length
+  konferenzen.value.filter(k => {
+    const { date } = getDateForStatus(k)
+    return new Date(date) > heute
+  }).length
 )
 
 function setSort(key) {
