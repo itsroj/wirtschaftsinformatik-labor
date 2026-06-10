@@ -50,22 +50,23 @@ defineProps({
 
 <style scoped>
 .sidebar {
+  width: 320px;
+
   background: linear-gradient(
-  to bottom,
-  rgba(255,255,255,0.96),
-  rgba(255,255,255,0.88)
-);
+    to bottom,
+    rgba(255,255,255,0.96),
+    rgba(255,255,255,0.88)
+  );
 
-  border-radius: 30px;
+  border-radius: 28px;
 
-  padding: 30px;
-
-  min-height: 720px;
-
-/*  backdrop-filter: blur(10px); */
+  padding: 28px;
 
   box-shadow:
     0 15px 40px rgba(0,0,0,0.12);
+
+  display: flex;
+  flex-direction: column;
 }
 
 .badge {
@@ -83,38 +84,51 @@ defineProps({
 }
 
 h3 {
-  margin-top: 20px;
+  margin-top: 18px;
 
-  font-size: 34px;
+  font-size: 24px;
+  line-height: 1.25;
+
+  color: #0f3b66;
 }
 
 .info {
-  margin-top: 30px;
+  margin-top: 24px;
 
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
 
   color: #4a4a4a;
+
+  font-size: 15px;
 }
 
 button {
-  margin-top: 40px;
+  margin-top: 28px;
 
   width: 100%;
-  height: 58px;
+  height: 54px;
 
   border: none;
   border-radius: 16px;
 
   background: #0f3b66;
-
   color: white;
 
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 600;
 
   cursor: pointer;
+
+  transition:
+    transform .2s ease,
+    background .2s ease;
+}
+
+button:hover {
+  background: #144a80;
+  transform: translateY(-1px);
 }
 
 .placeholder {

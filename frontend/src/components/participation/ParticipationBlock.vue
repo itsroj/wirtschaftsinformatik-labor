@@ -153,7 +153,7 @@ h2 {
 
 /* 👇 wichtig: deep selector */
 :deep(.link-card) {
-  margin: 2px 0;
+  margin: 0px 0;
 }
 
 :deep(.link-card a) {

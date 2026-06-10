@@ -10,10 +10,18 @@
     <div class="handle"></div>
 
     <h3>{{ event.title }}</h3>
-    <p>{{ event.city }}</p>
+    <div class="badge">
+      {{ event.city }}
+    </div>
 
-    <div class="meta">
-      {{ formatEventDate(event.date) }}
+    <div class="meta-row">
+      <div>
+        📅 {{ formatEventDate(event.date) }}
+      </div>
+
+      <div>
+        👥 {{ event.participants }} Teilnehmer
+      </div>
     </div>
 
     <button @click="$emit('closeAndGoToList')">
@@ -64,22 +72,28 @@ const onTouchEnd = () => {
 <style scoped>
 .popup {
   position: fixed;
+
   left: 0;
   right: 0;
   bottom: 0;
 
-  background: white;
-  border-radius: 24px 24px 0 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.98),
+    rgba(255,255,255,0.94)
+  );
 
-  padding: 16px 20px 24px;
+  border-radius: 28px 28px 0 0;
 
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+  padding: 18px 24px 28px;
+
+  box-shadow:
+    0 -15px 40px rgba(0,0,0,0.15);
 
   z-index: 9999;
 
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
 /* Handle jetzt korrekt positioniert */
@@ -96,11 +110,55 @@ const onTouchEnd = () => {
 }
 
 h3 {
-  margin-bottom: 8px;
+  margin-top: 16px;
+
+  font-size: 22px;
+  line-height: 1.3;
+
+  color: #0f3b66;
 }
 
-.meta {
-  margin-top: 10px;
-  color: #666;
+.meta-row {
+  margin-top: 18px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  color: #4a4a4a;
+}
+
+.badge {
+  display: inline-flex;
+
+  align-self: flex-start;
+
+  margin-top: 6px;
+
+  padding: 6px 12px;
+
+  border-radius: 999px;
+
+  background: #d9eefc;
+  color: #0b558f;
+
+  font-weight: 600;
+  font-size: 14px;
+}
+
+button {
+  margin-top: 24px;
+
+  width: 100%;
+  height: 52px;
+
+  border: none;
+  border-radius: 16px;
+
+  background: #0f3b66;
+  color: white;
+
+  font-size: 16px;
+  font-weight: 600;
 }
 </style>
