@@ -8,60 +8,31 @@
     </div>
 
     <!-- Map Container -->
-    <div
-      class="map-container"
-      :class="{ small: props.size === 'small' }"
-    >
+    <div class="map-container" :class="{ small: props.size === 'small' }">
 
       <!-- SVG Map -->
-      <img
-        src="@/assets/images/germany.svg"
-        class="map"
-        alt="Deutschland Karte"
-      />
+      <img src="@/assets/images/germany.svg" class="map" alt="Deutschland Karte" />
 
       <!-- Event Pins -->
-      <EventMarker
-        v-for="event in props.events"
-        :key="event.id"
-        :event="event"
-        :isMobile="isMobile"
+      <EventMarker v-for="event in props.events" :key="event.id" :event="event" :isMobile="isMobile"
+        @select="handleSelect" />
 
-        @select="handleSelect"
-      />
-
-        <!-- BACKDROP -->
+      <!-- BACKDROP -->
       <!-- BACKDROP (nur Desktop) -->
-      <div
-        v-if="selectedEvent && !isMobile"
-        class="backdrop"
-        @click="handleOutsideClick"
-      ></div>
+      <div v-if="selectedEvent && !isMobile" class="backdrop" @click="handleOutsideClick"></div>
 
-      <div
-        v-if="selectedEvent && !isMobile"
-        class="sidebar-wrapper"
-        @click.stop
-      >
-        <EventSidebar
-          :selected-event="selectedEvent"
-          @goToList="scrollToList"
-        />
+      <div v-if="selectedEvent && !isMobile && sidebarPosition" class="sidebar-wrapper" :style="{
+        left: sidebarPosition.x,
+        top: sidebarPosition.y
+      }" @click.stop>
+        <EventSidebar :selected-event="selectedEvent" @goToList="scrollToList" />
       </div>
 
-      <EventMobileSheet
-        v-if="selectedEvent && isMobile"
-        :event="selectedEvent"
-        @close="store.clearSelectedEvent()"
-        @goToList="handleMobileGoToList"
-      />
+      <EventMobileSheet v-if="selectedEvent && isMobile" :event="selectedEvent" @close="store.clearSelectedEvent()"
+        @goToList="handleMobileGoToList" />
 
-            <!-- Verbindungslinie -->
-      <div
-        v-if="selectedEvent && !isMobile"
-        class="connection-line"
-        :style="lineStyle"
-      ></div>
+      <!-- Verbindungslinie -->
+      <div v-if="selectedEvent && !isMobile" class="connection-line" :style="lineStyle"></div>
 
     </div>
 
@@ -74,6 +45,7 @@ import EventMarker from './EventMarker.vue'
 import EventSidebar from './EventSidebar.vue'
 import EventMobileSheet from './EventMobileSheet.vue'
 import { useEventsStore } from '@/stores/useEventsStore'
+import { getEventPosition } from '@/utils/cityCoordinates'
 
 const props = defineProps({
   events: {
@@ -102,6 +74,16 @@ const scrollToList = () => {
 
 const selectedEvent = computed(() => store.selectedEvent)
 
+// Berechne Sidebar-Position direkt aus dem Event
+const sidebarPosition = computed(() => {
+  if (!selectedEvent.value) return null
+
+  const posStyle = getEventPosition(selectedEvent.value.city)
+  return {
+    x: posStyle.left,
+    y: `calc(${posStyle.top} + 40px)`
+  }
+})
 
 const isMobile = ref(false)
 
@@ -129,7 +111,8 @@ onUnmounted(() => {
   )
 })
 
-const handleSelect = (event) => {
+const handleSelect = (data) => {
+  const event = data.event || data
   store.setSelectedEvent(event.id)
 }
 
@@ -159,7 +142,7 @@ const handleMobileGoToList = () => {
 }
 
 .map-header p {
-  color: rgba(255,255,255,0.9);
+  color: rgba(255, 255, 255, 0.9);
   margin-top: 12px;
 }
 
@@ -220,52 +203,63 @@ const handleMobileGoToList = () => {
   left: 50%;
   width: 30px;
   height: 30px;
-  background: rgba(15,59,102,0.3);
+  background: rgba(15, 59, 102, 0.3);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   animation: pulse 1.8s infinite;
 }
 
 @keyframes pulse {
-  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
-  100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 0;
+  }
 }
 
-/* Sidebar ganz oben */
-.sidebar {
+/* Sidebar Wrapper - dynamische Positionierung */
+.sidebar-wrapper {
   position: absolute;
-
-  width: 200px;
-
-  background: linear-gradient(
-  to bottom,
-  rgba(255,255,255,0.96),
-  rgba(255,255,255,0.88)
-  );
   z-index: 40;
+  transform: translateX(-50%);
+  max-width: 90%;
+  animation: slideIn 0.3s ease-out;
+}
 
-/*  backdrop-filter: blur(4px); */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
 
-  padding: 28px;
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
 
-  border-radius: 26px;
-
+/* Sidebar - verbesserte Optik */
+.sidebar {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.98),
+      rgba(255, 255, 255, 0.92));
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 32px;
+  min-width: 300px;
   box-shadow:
-    0 25px 60px rgba(0,0,0,0.12);
-
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 0 1px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   z-index: 20;
-
   will-change: transform;
-
-  transform:
-    translateY(-50%)
-    translateZ(0);
-
-  animation:
-    sidebarFade 0.35s ease;
-
+  transform: translateZ(0);
+  animation: sidebarFade 0.35s ease;
   transition: opacity 0.2s ease, transform 0.2s ease;
-
   backface-visibility: hidden;
 }
 
@@ -275,11 +269,9 @@ const handleMobileGoToList = () => {
   height: 2px;
 
   background:
-    linear-gradient(
-      to right,
+    linear-gradient(to right,
       rgba(194, 199, 205, 0.9),
-      rgba(15,59,102,0.15)
-    );
+      rgba(15, 59, 102, 0.15));
 
   z-index: 15;
 
@@ -314,17 +306,13 @@ const handleMobileGoToList = () => {
   from {
     opacity: 0;
     transform:
-      translateY(-50%)
-      translateX(30px)
-      translateZ(0);
+      translateY(-50%) translateX(30px) translateZ(0);
   }
 
   to {
     opacity: 1;
     transform:
-      translateY(-50%)
-      translateX(0)
-      translateZ(0);
+      translateY(-50%) translateX(0) translateZ(0);
   }
 }
 
@@ -339,5 +327,4 @@ const handleMobileGoToList = () => {
     opacity: 1;
   }
 }
-
 </style>

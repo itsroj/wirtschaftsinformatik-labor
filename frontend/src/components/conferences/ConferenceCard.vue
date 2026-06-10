@@ -61,7 +61,7 @@
 
             <span class="meta-item">
               <Users :size="16" />
-              {{ props.event.participants }} Teilnehmende
+              {{ props.event.participants }} {{ languageStore.t('konferenzen.card.participants') }}
             </span>
 
           </div>
@@ -76,7 +76,7 @@
 
             <span v-if="latestApplicationDate" class="meta-item">
               <Clock :size="16" />
-              {{ `Anmeldeschluss: ${latestApplicationDate}` }}
+              {{ `${languageStore.t('konferenzen.card.applicationDeadline')}: ${latestApplicationDate}` }}
             </span>
 
           </div>
@@ -91,12 +91,12 @@
             </p>
 
             <p class="first-conference">
-              Erste Konferenz: {{ props.event.firstConference }}
+              {{ languageStore.t('konferenzen.card.firstConference') }}: {{ props.event.firstConference }}
             </p>
 
             <!-- CLOSE BUTTON -->
             <button class="close-btn" @click.stop="toggleCard">
-              Einklappen
+              {{ languageStore.t('konferenzen.card.collapse') }}
             </button>
 
           </div>
@@ -111,7 +111,7 @@
       <!-- Website -->
       <a :href="props.event.website" target="_blank">
         <button class="website-btn" @click.stop>
-          Website
+          {{ languageStore.t('konferenzen.card.website') }}
         </button>
       </a>
 
@@ -131,8 +131,10 @@
 import { ref, computed } from 'vue'
 import { MapPin, Users, Calendar, Clock} from '@lucide/vue'
 import SocialIcons from '@/components/icons/SocialIcons.vue'
+import { useLanguageStore } from '@/stores/useLanguageStore'
 
 const isOpen = ref(false)
+const languageStore = useLanguageStore()
 
 const props = defineProps({
   event: Object

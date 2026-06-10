@@ -1,9 +1,5 @@
 <template>
-    <div
-      class="marker"
-      :style="positionStyle"
-      @click.stop="handleClick"
-    >
+  <div class="marker" :style="positionStyle" @click.stop="handleClick">
 
     <!-- Punkt -->
     <div class="dot"></div>

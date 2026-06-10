@@ -5,12 +5,12 @@
     <div class="legend">
       <div class="legend-item">
         <span class="dot conference"></span>
-        Konferenz
+        {{ languageStore.t('konferenzen.calendar.legend.conference') }}
       </div>
 
       <div class="legend-item">
         <span class="dot application"></span>
-        Bewerbungsfrist
+        {{ languageStore.t('konferenzen.calendar.legend.application') }}
       </div>
     </div>
 
@@ -24,6 +24,7 @@
 import { computed } from 'vue'
 
 import { useEventsStore } from '@/stores/useEventsStore'
+import { useLanguageStore } from '@/stores/useLanguageStore'
 
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -33,8 +34,8 @@ const props = defineProps({
   events: { type: Array, default: () => [] }
 })
 
-
 const store = useEventsStore()
+const languageStore = useLanguageStore()
 
 /**
  * CALENDAR EVENTS
@@ -70,7 +71,7 @@ const calendarEvents = computed(() => {
         if (conf.applicationDate) {
           items.push({
             id: `${event.id}-application-${conf.id}`,
-            title: `${event.title} Anmeldeschluss`,
+            title: `${event.title} ${languageStore.t('konferenzen.calendar.legend.application')}`,
             start: conf.applicationDate,
 
             allDay: true,
@@ -129,7 +130,7 @@ const calendarEvents = computed(() => {
  */
 const calendarOptions = computed(() => ({
   plugins: [dayGridPlugin],
-  locale: deLocale,
+  locale: languageStore.currentLanguage.value === 'de' ? deLocale : 'en',
   initialView: 'dayGridMonth',
 
   displayEventTime: false,

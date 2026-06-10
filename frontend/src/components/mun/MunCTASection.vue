@@ -9,11 +9,11 @@
     <div class="buttons">
 
       <RouterLink to="/konferenzen" class="cta-button">
-        Konferenzen finden
+        {{ languageStore.t('munCTA.findConferences') }}
       </RouterLink>
 
       <RouterLink to="/teilnahme" class="cta-button">
-        Teilnahme
+        {{ languageStore.t('munCTA.participation') }}
       </RouterLink>
 
     </div>
@@ -23,6 +23,9 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
+import { useLanguageStore } from '@/stores/useLanguageStore'
+
+const languageStore = useLanguageStore()
 </script>
 
 <style scoped>
@@ -78,18 +81,36 @@ import { RouterLink } from 'vue-router'
 
 .cta-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 22px rgba(0,0,0,0.15);
+
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.2);
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
 
   .cta-section {
-    width: 100%;
-    min-height: 320px;
+    flex: 1;
   }
 
   .cta-section img {
+    width: 80%;
+  }
+}
+
+@media (max-width: 700px) {
+
+  .cta-section img {
     width: 100%;
+  }
+
+  .buttons {
+    gap: 18px;
+  }
+
+  .cta-button {
+    padding: 14px 24px;
+
+    font-size: 0.95rem;
   }
 }
 

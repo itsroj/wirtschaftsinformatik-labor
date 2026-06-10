@@ -3,7 +3,7 @@
   <section class="info-card">
 
     <h2>
-      Weitere Informationen
+      {{ languageStore.t('munInfoLinks.title') }}
     </h2>
 
     <br>
@@ -16,7 +16,7 @@
           target="_blank"
           rel="noopener noreferrer"
         >
-          Artikel „Model United Nations“ bei Wikipedia
+          {{ languageStore.t('munInfoLinks.wikipedia') }}
         </a>
       </li>
 
@@ -26,9 +26,9 @@
           target="_blank"
           rel="noopener noreferrer"
         >
-          MUN-Galerie des Vereins „Deutsche MUN e.V.“
+          {{ languageStore.t('munInfoLinks.dmunGallery') }}
         </a>
-        – mit Fotos und Filmen von mehreren Schüler-MUNs
+        {{ languageStore.t('munInfoLinks.dmunGalleryDescription') }}
       </li>
 
       <li>
@@ -37,9 +37,9 @@
           target="_blank"
           rel="noopener noreferrer"
         >
-          Junges UNO-Netzwerk Deutschland e.V.
+          {{ languageStore.t('munInfoLinks.jungesUnoNetzwerk') }}
         </a>
-        – ein Verein, in dessen Rahmen u.a. die deutschen MUNs zusammenarbeiten
+        {{ languageStore.t('munInfoLinks.jungesUnoNetzwerkDescription') }}
       </li>
 
     </ul>
@@ -47,6 +47,12 @@
   </section>
 
 </template>
+
+<script setup>
+import { useLanguageStore } from '@/stores/useLanguageStore'
+
+const languageStore = useLanguageStore()
+</script>
 
 <style scoped>
 
@@ -79,30 +85,43 @@ ul {
   display: flex;
   flex-direction: column;
 
-  gap: 22px;
+  gap: 28px;
 
-  padding-left: 20px;
+  list-style: none;
 
-  line-height: 1.6;
+  padding: 0;
+
+  margin: 0;
 }
 
 li {
-  font-weight: 700;
+  line-height: 1.65;
+
+  color: #2d2d2d;
 }
 
-.info-card li a {
-  color: #0f3b66;
+a {
+  color: #1b1b1b;
+
+  font-weight: 600;
+
   text-decoration: none;
 
-  border-bottom: 1px solid rgba(15, 59, 102, 0.4);
-  font-weight: 800;
+  border-bottom: 2px solid #1b1b1b;
 
-  transition: all 0.2s ease;
+  transition:
+    opacity 0.2s ease;
 }
 
-.info-card li a:hover {
+a:hover {
   opacity: 0.7;
-  border-bottom-color: rgba(15, 59, 102, 0.9);
+}
+
+@media (max-width: 1100px) {
+
+  .info-card {
+    flex: 1;
+  }
 }
 
 </style>

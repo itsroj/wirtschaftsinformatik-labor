@@ -49,46 +49,46 @@
             name: 'teilnahme',
             hash: '#infos'
           }">
-            Infos zur Teilnahme
+            {{ languageStore.t('footer.infos') }}
           </RouterLink>
 
           <RouterLink :to="{
             name: 'teilnahme',
             hash: '#internationale-muns'
           }">
-            Internationale MUNs
+            {{ languageStore.t('footer.international') }}
           </RouterLink>
 
           <RouterLink :to="{
             name: 'teilnahme',
             hash: '#mini-muns'
           }">
-            Mini MUNs
+            {{ languageStore.t('footer.miniMunsLabel') }}
           </RouterLink>
         </div>
 
         <div class="footer-column">
-          <h4>Service</h4>
+          <h4>{{ languageStore.t('footer.service') }}</h4>
 
           <RouterLink :to="{
             name: 'service',
             hash: '#kontakt'
           }">
-            Kontakt
+            {{ languageStore.t('footer.contact') }}
           </RouterLink>
 
           <RouterLink :to="{
             name: 'service',
             hash: '#impressum'
           }">
-            Impressum
+            {{ languageStore.t('footer.imprint') }}
           </RouterLink>
 
           <RouterLink :to="{
             name: 'service',
             hash: '#datenschutz'
           }">
-            Datenschutz
+            {{ languageStore.t('footer.dataProtection') }}
           </RouterLink>
         </div>
       </div>

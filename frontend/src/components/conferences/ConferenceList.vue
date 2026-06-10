@@ -2,7 +2,7 @@
   <section class="conference-list">
 
     <h2>
-      Konferenzen in Deutschland
+      {{ languageStore.t('konferenzen.title') }}
     </h2>
 
     <div class="list">
@@ -23,12 +23,14 @@
 import ConferenceCard from './ConferenceCard.vue'
 import { watch, nextTick } from 'vue'
 import { useEventsStore } from '@/stores/useEventsStore'
+import { useLanguageStore } from '@/stores/useLanguageStore'
 
 defineProps({
   events: Array
 })
 
 const store = useEventsStore()
+const languageStore = useLanguageStore()
 
 watch(() => store.scrollRequestId, async () => {
   const id = store.selectedEventId

@@ -1,10 +1,5 @@
 <template>
-  <div
-    class="popup"
-    @touchstart="onTouchStart"
-    @touchmove="onTouchMove"
-    @touchend="onTouchEnd"
-  >
+  <div class="popup" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
 
     <!-- HANDLE gehört INS SHEET -->
     <div class="handle"></div>
@@ -17,7 +12,7 @@
     </div>
 
     <button @click="$emit('closeAndGoToList')">
-      Zur Konferenz
+      {{ languageStore.t('map.goToConference') }}
     </button>
 
   </div>
@@ -25,7 +20,10 @@
 
 <script setup>
 import { formatEventDate } from '@/utils/eventPresenter'
+import { useLanguageStore } from '@/stores/useLanguageStore'
 import { ref } from 'vue'
+
+const languageStore = useLanguageStore()
 
 defineProps({
   event: Object
@@ -73,7 +71,7 @@ const onTouchEnd = () => {
 
   padding: 16px 20px 24px;
 
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
 
   z-index: 9999;
 
