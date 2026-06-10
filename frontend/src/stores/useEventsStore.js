@@ -8,6 +8,7 @@ export const useEventsStore = defineStore('events', {
     selectedTypes: [],
     selectedLanguages: [],
     search: '',
+    showPastEvents: false,
 
     selectedEventId: null,
     scrollRequestId: 0,
@@ -38,6 +39,29 @@ export const useEventsStore = defineStore('events', {
       }
 
       return state.events.filter(event => {
+
+        const currentDate = new Date()
+        currentDate.setHours(0, 0, 0, 0)
+
+        // Effektives Enddatum: neueste Conference.endDate > Conference.date > Event.endDate
+        const latestConference = event.conferences && event.conferences.length > 0
+          ? event.conferences[0]
+          : null
+        const effectiveEndDateStr =
+          latestConference?.endDate ||
+          latestConference?.date ||
+          event.endDate ||
+          null
+        const effectiveEndDate = effectiveEndDateStr ? new Date(effectiveEndDateStr) : null
+        if (effectiveEndDate) effectiveEndDate.setHours(23, 59, 59, 999)
+
+        if (state.showPastEvents) {
+          // Zeige NUR vergangene Events
+          if (!effectiveEndDate || effectiveEndDate >= currentDate) return false
+        } else {
+          // Zeige NUR aktuelle und zukünftige Events
+          if (effectiveEndDate && effectiveEndDate < currentDate) return false
+        }
 
         const matchesSearch =
           !search ||

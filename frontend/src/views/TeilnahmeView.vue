@@ -51,7 +51,7 @@ import mun12 from '@/assets/images/mun12.jpg'
 
 // Image arrays for blocks
 const imagesBlock1 = [mun7, mun8, mun9]
-const imagesBlock2 = [mun10, mun11, mun12, mun5, mun6]
+const imagesBlock2 = [mun10, mun11, mun12, mun5]
 const imagesBlock3 = [mun3, mun4]
 </script>
 

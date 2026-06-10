@@ -102,6 +102,20 @@
 
     <div class="section">
 
+      <h3>{{ languageStore.t('konferenzen.filters.pastEvents') }}</h3>
+
+      <div class="filter-group">
+
+        <button @click="$emit('toggle-past-events')" :class="{ active: showPastEvents }">
+          {{ languageStore.t('konferenzen.filters.showPastEvents') }}
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="section">
+
       <h3>{{ languageStore.t('konferenzen.filters.view') }}</h3>
 
       <div class="view-toggle">
@@ -132,7 +146,8 @@ const props = defineProps({
   selectedTypes: Array,
   selectedLanguages: Array,
   sortConfig: Object,
-  viewMode: String
+  viewMode: String,
+  showPastEvents: Boolean
 })
 
 defineEmits([
@@ -140,7 +155,8 @@ defineEmits([
   'toggle-type',
   'toggle-language',
   'sort',
-  'change-view'
+  'change-view',
+  'toggle-past-events'
 ])
 
 const isActiveSort = (key, direction) => {

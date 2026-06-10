@@ -3,6 +3,7 @@ import multer from 'multer';
 import {
   getEvents,
   getEventById,
+  checkTitle,
   createEvent,
   updateEvent,
   deleteEvent,
@@ -40,6 +41,12 @@ const router = express.Router();
  * Query-Parameter: city, type, sortBy
  */
 router.get('/', getEvents);
+
+/**
+ * GET /api/events/check-title?title=...&excludeId=...
+ * Prüft ob ein Kurzname bereits existiert
+ */
+router.get('/check-title', checkTitle);
 
 /**
  * GET /api/events/:id

@@ -8,7 +8,8 @@
 
       <div class="text">
 
-        <div v-for="(t, i) in text" :key="i" v-html="t" class="text-item"></div>
+        <div v-for="(t, i) in text" :key="i" v-html="t" class="text-item"
+          :class="{ 'is-link': t.includes('link-card'), 'is-text': !t.includes('link-card') }"></div>
 
       </div>
 
@@ -73,7 +74,7 @@ h2 {
 .text {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
 
   line-height: 1.6;
   color: #2d2d2d;
@@ -112,9 +113,13 @@ h2 {
 }
 
 .text-item {
-  margin-bottom: 18px;
   line-height: 1.6;
   color: #2d2d2d;
+}
+
+/* Spacing between first block (links) and second block (text) */
+.text-item.is-link+.text-item.is-text {
+  margin-top: 28px;
 }
 
 /* 👇 wichtig: deep selector */

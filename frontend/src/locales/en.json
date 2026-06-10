@@ -47,7 +47,9 @@
       "students": "Students",
       "miniMun": "Mini MUNs",
       "calendar": "Calendar",
-      "map": "Map"
+      "map": "Map",
+      "pastEvents": "Time Period",
+      "showPastEvents": "Show past events"
     },
     "card": {
       "firstConference": "First Conference",

@@ -12,8 +12,10 @@
         <!-- FILTER -->
         <ConferenceFilters :search="eventsStore.search" :selectedTypes="eventsStore.selectedTypes"
           :selectedLanguages="eventsStore.selectedLanguages" :sortConfig="sortConfig" :viewMode="viewMode"
+          :showPastEvents="eventsStore.showPastEvents"
           @update-search="eventsStore.search = $event" @toggle-type="eventsStore.toggleType"
-          @toggle-language="eventsStore.toggleLanguage" @sort="setSort" @change-view="viewMode = $event" />
+          @toggle-language="eventsStore.toggleLanguage" @sort="setSort" @change-view="viewMode = $event"
+          @toggle-past-events="eventsStore.showPastEvents = !eventsStore.showPastEvents" />
 
         <!-- CALENDAR & MAP -->
         <ConferenceCalendarSection v-if="viewMode === 'calendar'" :events="filteredEvents" />

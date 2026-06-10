@@ -23,6 +23,8 @@
           <div class="form-group">
             <label>Kurzname</label>
             <input v-model="form.title" type="text" placeholder="z.B. BERMUN" required :disabled="loading" />
+            <span v-if="titleWarning" class="field-warning">⚠️ Dieser Kurzname existiert bereits in der
+              Datenbank.</span>
           </div>
           <div class="form-group">
             <label>Ausgeschriebener Name</label>
@@ -121,7 +123,7 @@
 
         <div class="form-actions">
           <button type="button" class="cancel" @click="reset" :disabled="loading">Zurücksetzen</button>
-          <button type="submit" :disabled="loading">
+          <button type="submit" :disabled="loading || titleWarning">
             {{ loading ? 'Wird gespeichert...' : (istBearbeiten ? 'Änderungen speichern' : 'Konferenz speichern') }}
           </button>
         </div>
@@ -132,7 +134,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
@@ -141,6 +143,7 @@ const success = ref('')
 const error = ref('')
 const loading = ref(false)
 const logoPreview = ref(null)
+const titleWarning = ref(false)
 
 const istBearbeiten = computed(() => !!route.params.id)
 
@@ -167,6 +170,25 @@ const form = ref({
   instagramLink: '',
   facebookLink: '',
   logo: null
+})
+
+let titleCheckTimer = null
+watch(() => form.value.title, (newTitle) => {
+  titleWarning.value = false
+  clearTimeout(titleCheckTimer)
+  if (!newTitle || !newTitle.trim()) return
+  titleCheckTimer = setTimeout(async () => {
+    try {
+      const excludeId = route.params.id ? `&excludeId=${route.params.id}` : ''
+      const res = await fetch(
+        `http://localhost:5000/api/events/check-title?title=${encodeURIComponent(newTitle.trim())}${excludeId}`
+      )
+      const data = await res.json()
+      titleWarning.value = data.exists
+    } catch {
+      // Im Fehlerfall kein Hinweis anzeigen
+    }
+  }, 500)
 })
 
 function getToken() {
@@ -517,6 +539,14 @@ button[type="submit"]:disabled {
   padding: 0.75rem 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
+}
+
+.field-warning {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  color: #d97706;
+  font-weight: 500;
 }
 
 .logo-preview {

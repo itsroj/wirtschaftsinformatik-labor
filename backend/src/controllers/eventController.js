@@ -12,6 +12,33 @@ const supabase = createClient(
 );
 
 /**
+ * GET /api/events/check-title?title=...&excludeId=...
+ * Prüft ob ein Kurzname (title) bereits in der Datenbank existiert.
+ * excludeId: optional, wird beim Bearbeiten genutzt um das eigene Event auszuschließen
+ */
+export const checkTitle = async (req, res) => {
+  try {
+    const { title, excludeId } = req.query;
+    if (!title || !title.trim()) {
+      return res.json({ exists: false });
+    }
+
+    const where = {
+      title: { equals: title.trim(), mode: 'insensitive' }
+    };
+    if (excludeId) {
+      where.id = { not: parseInt(excludeId) };
+    }
+
+    const existing = await prisma.event.findFirst({ where, select: { id: true } });
+    res.json({ exists: !!existing });
+  } catch (error) {
+    console.error('Fehler beim Prüfen des Kurznamens:', error.message);
+    res.status(500).json({ error: 'Fehler beim Prüfen des Kurznamens' });
+  }
+};
+
+/**
  * GET /api/events
  * Alle Events abrufen mit ihren Conferences
  * Optional Filter: city, type
