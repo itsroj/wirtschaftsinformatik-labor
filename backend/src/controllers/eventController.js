@@ -251,6 +251,99 @@ export const updateEvent = async (req, res) => {
 };
 
 /**
+ * POST /api/events/:eventId/conferences
+ * Neue Konferenz für ein Event erstellen
+ */
+export const createConference = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const { date, endDate, applicationDate } = req.body;
+
+    if (!date) {
+      return res.status(400).json({ error: 'Startdatum ist erforderlich' });
+    }
+
+    const event = await prisma.event.findUnique({ where: { id: parseInt(eventId) } });
+    if (!event) {
+      return res.status(404).json({ error: 'Event nicht gefunden' });
+    }
+
+    const conference = await prisma.conference.create({
+      data: {
+        eventId: parseInt(eventId),
+        date: new Date(date),
+        endDate: endDate ? new Date(endDate) : null,
+        applicationDate: applicationDate ? new Date(applicationDate) : null
+      }
+    });
+
+    res.status(201).json(conference);
+  } catch (error) {
+    console.error('Fehler beim Erstellen der Konferenz:', error.message);
+    res.status(500).json({ error: 'Fehler beim Erstellen der Konferenz', details: error.message });
+  }
+};
+
+/**
+ * PUT /api/events/:eventId/conferences/:conferenceId
+ * Konferenz aktualisieren
+ */
+export const updateConference = async (req, res) => {
+  try {
+    const { eventId, conferenceId } = req.params;
+    const { date, endDate, applicationDate } = req.body;
+
+    if (!date) {
+      return res.status(400).json({ error: 'Startdatum ist erforderlich' });
+    }
+
+    const conference = await prisma.conference.findFirst({
+      where: { id: parseInt(conferenceId), eventId: parseInt(eventId) }
+    });
+    if (!conference) {
+      return res.status(404).json({ error: 'Konferenz nicht gefunden' });
+    }
+
+    const updated = await prisma.conference.update({
+      where: { id: parseInt(conferenceId) },
+      data: {
+        date: new Date(date),
+        endDate: endDate ? new Date(endDate) : null,
+        applicationDate: applicationDate ? new Date(applicationDate) : null
+      }
+    });
+
+    res.json(updated);
+  } catch (error) {
+    console.error('Fehler beim Aktualisieren der Konferenz:', error.message);
+    res.status(500).json({ error: 'Fehler beim Aktualisieren der Konferenz', details: error.message });
+  }
+};
+
+/**
+ * DELETE /api/events/:eventId/conferences/:conferenceId
+ * Konferenz löschen
+ */
+export const deleteConference = async (req, res) => {
+  try {
+    const { eventId, conferenceId } = req.params;
+
+    const conference = await prisma.conference.findFirst({
+      where: { id: parseInt(conferenceId), eventId: parseInt(eventId) }
+    });
+    if (!conference) {
+      return res.status(404).json({ error: 'Konferenz nicht gefunden' });
+    }
+
+    await prisma.conference.delete({ where: { id: parseInt(conferenceId) } });
+    res.json({ message: 'Konferenz erfolgreich gelöscht', deletedId: parseInt(conferenceId) });
+  } catch (error) {
+    console.error('Fehler beim Löschen der Konferenz:', error.message);
+    res.status(500).json({ error: 'Fehler beim Löschen der Konferenz', details: error.message });
+  }
+};
+
+/**
  * DELETE /api/events/:id
  * Event löschen (Admin only - Authentifizierung durch Max)
  */

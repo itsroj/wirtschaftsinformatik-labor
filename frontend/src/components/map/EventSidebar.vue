@@ -62,21 +62,37 @@ const props = defineProps({
 // Events, die diese Komponente nach außen senden kann
 defineEmits(['goToList'])
 
+// Nächste bevorstehende Konferenz oder aktuell laufende; Fallback auf neueste
+const getNextConference = (event) => {
+  const confs = event?.conferences
+  if (!confs || confs.length === 0) return null
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  // Alle zukünftigen/laufenden, aufsteigend sortiert → ersten nehmen
+  const upcoming = confs
+    .filter(c => {
+      const end = c.endDate || c.date
+      return end && new Date(end) >= today
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+
+  if (upcoming.length > 0) return upcoming[0]
+
+  // Fallback: neueste vergangene
+  return [...confs].sort((a, b) => new Date(b.date) - new Date(a.date))[0]
+}
+
 // Liest das Datum aus der Event-Datenstruktur.
-// Die Datenbank speichert Konferenzdaten unter event.conferences[0].date (neue Struktur),
-// ältere Einträge haben event.date direkt (Fallback).
 const getEventDate = () => {
   if (!props.selectedEvent) return ''
 
   const lang = languageStore.currentLanguage
+  const conf = getNextConference(props.selectedEvent)
 
-  if (props.selectedEvent?.conferences?.[0]?.date) {
-    return formatEventDate(props.selectedEvent.conferences[0].date, lang)
-  }
-
-  if (props.selectedEvent?.date) {
-    return formatEventDate(props.selectedEvent.date, lang)
-  }
+  if (conf?.date) return formatEventDate(conf.date, lang)
+  if (props.selectedEvent?.date) return formatEventDate(props.selectedEvent.date, lang)
 
   return ''
 }

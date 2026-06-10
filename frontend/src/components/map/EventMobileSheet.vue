@@ -76,21 +76,37 @@ const onTouchEnd = () => {
   dragging.value = false
 }
 
+// Nächste bevorstehende Konferenz oder aktuell laufende; Fallback auf neueste
+const getNextConference = (event) => {
+  const confs = event?.conferences
+  if (!confs || confs.length === 0) return null
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const upcoming = confs
+    .filter(c => {
+      const end = c.endDate || c.date
+      return end && new Date(end) >= today
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+
+  if (upcoming.length > 0) return upcoming[0]
+
+  return [...confs].sort((a, b) => new Date(b.date) - new Date(a.date))[0]
+}
+
 // Liest das Datum aus der Event-Datenstruktur.
-// Neue Struktur: event.conferences[0].date
+// Neue Struktur: nächste bevorstehende Conference
 // Alte Struktur (Fallback): event.date
 const getEventDate = () => {
   if (!props.event) return ''
 
   const lang = languageStore.currentLanguage
+  const conf = getNextConference(props.event)
 
-  if (props.event?.conferences?.[0]?.date) {
-    return formatEventDate(props.event.conferences[0].date, lang)
-  }
-
-  if (props.event?.date) {
-    return formatEventDate(props.event.date, lang)
-  }
+  if (conf?.date) return formatEventDate(conf.date, lang)
+  if (props.event?.date) return formatEventDate(props.event.date, lang)
 
   return ''
 }

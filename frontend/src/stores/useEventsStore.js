@@ -40,27 +40,35 @@ export const useEventsStore = defineStore('events', {
 
       return state.events.filter(event => {
 
-        const currentDate = new Date()
-        currentDate.setHours(0, 0, 0, 0)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
 
-        // Effektives Enddatum: neueste Conference.endDate > Conference.date > Event.endDate
-        const latestConference = event.conferences && event.conferences.length > 0
-          ? event.conferences[0]
-          : null
-        const effectiveEndDateStr =
-          latestConference?.endDate ||
-          latestConference?.date ||
-          event.endDate ||
-          null
-        const effectiveEndDate = effectiveEndDateStr ? new Date(effectiveEndDateStr) : null
-        if (effectiveEndDate) effectiveEndDate.setHours(23, 59, 59, 999)
+        // Ermittle für jede Conference ob sie in der Vergangenheit liegt
+        const conferences = event.conferences && event.conferences.length > 0
+          ? event.conferences
+          : [{
+              date: event.date,
+              endDate: event.endDate,
+              applicationDate: event.applicationDate
+            }]
+
+        const isConferencePast = (conf) => {
+          const endStr = conf.endDate || conf.date
+          if (!endStr) return false
+          const end = new Date(endStr)
+          end.setHours(23, 59, 59, 999)
+          return end < today
+        }
+
+        const allPast = conferences.every(isConferencePast)
+        const hasFuture = conferences.some(c => !isConferencePast(c))
 
         if (state.showPastEvents) {
-          // Zeige NUR vergangene Events
-          if (!effectiveEndDate || effectiveEndDate >= currentDate) return false
+          // Zeige NUR Events, bei denen ALLE Konferenzen in der Vergangenheit liegen
+          if (!allPast) return false
         } else {
-          // Zeige NUR aktuelle und zukünftige Events
-          if (effectiveEndDate && effectiveEndDate < currentDate) return false
+          // Zeige NUR Events mit mindestens einer zukünftigen/laufenden Konferenz
+          if (!hasFuture) return false
         }
 
         const matchesSearch =

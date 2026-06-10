@@ -63,19 +63,19 @@
 
           </div>
 
-          <!-- ROW 2 -->
-          <div class="meta-row">
-            <!-- Zeige erste Conference oder Event-Daten als Fallback -->
-            <span class="meta-item">
-              <Calendar :size="16" />
-              {{ latestConferenceDisplay }}
-            </span>
-
-            <span v-if="latestApplicationDate" class="meta-item">
-              <Clock :size="16" />
-              {{ `${languageStore.t('konferenzen.card.applicationDeadline')}: ${latestApplicationDate}` }}
-            </span>
-
+          <!-- KONFERENZTERMINE -->
+          <div class="conference-dates">
+            <div v-for="conf in visibleConferences" :key="conf.id || conf.date" class="conf-entry">
+              <span class="meta-item">
+                <Calendar :size="15" />
+                {{ formatConfDate(conf) }}
+              </span>
+              <span v-if="conf.applicationDate" class="meta-item deadline">
+                <Clock :size="15" />
+                {{ languageStore.t('konferenzen.card.applicationDeadline') }}: {{ formatDateOrNull(conf.applicationDate)
+                }}
+              </span>
+            </div>
           </div>
 
         </div>
@@ -153,14 +153,12 @@ const localizedDescription = computed(() => {
 })
 
 const latestConference = computed(() => {
-  // Versuche neueste Conference zu finden
   if (props.event?.conferences && props.event.conferences.length > 0) {
     const sorted = [...props.event.conferences].sort((a, b) =>
       new Date(b.date) - new Date(a.date)
     )
     return sorted[0]
   }
-  // Fallback zu Event-Daten für alte Events
   return {
     date: props.event?.date,
     endDate: props.event?.endDate,
@@ -168,19 +166,30 @@ const latestConference = computed(() => {
   }
 })
 
-const latestConferenceDisplay = computed(() => {
-  const conf = latestConference.value
-  const start = formatDateOrNull(conf.date)
-  const end = formatDateOrNull(conf.endDate)
-  return start && end ? `${start} – ${end}` : start || '—'
-})
+// Sichtbare Konferenzen: vergangene ausblenden, wenn es eine zukünftige gibt
+const visibleConferences = computed(() => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
-const latestApplicationDate = computed(() => {
-  const appDate = latestConference.value?.applicationDate
-  return appDate ? formatDateOrNull(appDate) : null
-})
+  const confs = props.event?.conferences && props.event.conferences.length > 0
+    ? [...props.event.conferences]
+    : [{ date: props.event?.date, endDate: props.event?.endDate, applicationDate: props.event?.applicationDate }]
 
-const hasApplicationDate = computed(() => !!latestApplicationDate.value)
+  const isPast = (conf) => {
+    const endStr = conf.endDate || conf.date
+    if (!endStr) return false
+    const d = new Date(endStr)
+    d.setHours(23, 59, 59, 999)
+    return d < today
+  }
+
+  const hasFuture = confs.some(c => !isPast(c))
+
+  // Neueste zuerst; vergangene ausblenden, wenn es einen zukünftigen gibt
+  return confs
+    .filter(c => !(hasFuture && isPast(c)))
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+})
 
 const toggleCard = () => {
   isOpen.value = !isOpen.value
@@ -188,9 +197,14 @@ const toggleCard = () => {
 
 const formatDateOrNull = (dateString) => {
   if (!dateString) return ''
-
   const locale = languageStore.currentLanguage === 'en' ? 'en-GB' : 'de-DE'
   return new Date(dateString).toLocaleDateString(locale)
+}
+
+const formatConfDate = (conf) => {
+  const start = formatDateOrNull(conf.date)
+  const end = formatDateOrNull(conf.endDate)
+  return start && end ? `${start} – ${end}` : start || '—'
 }
 
 /* FORMAT LANGUAGE */
@@ -369,6 +383,29 @@ h3 {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.conference-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.conf-entry {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(15, 59, 102, 0.04);
+  font-size: 0.95rem;
+}
+
+.conf-entry .deadline {
+  color: #6b7280;
+  font-size: 0.88rem;
 }
 
 /* RIGHT */

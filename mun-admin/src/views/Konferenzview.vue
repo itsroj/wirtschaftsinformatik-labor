@@ -52,21 +52,6 @@
 
         <div class="form-row">
           <div class="form-group">
-            <label>Startdatum</label>
-            <input v-model="form.date" type="date" required :disabled="loading" />
-          </div>
-          <div class="form-group">
-            <label>Enddatum</label>
-            <input v-model="form.endDate" type="date" required :disabled="loading" />
-          </div>
-          <div class="form-group">
-            <label>Anmeldefrist</label>
-            <input v-model="form.applicationDate" type="date" required :disabled="loading" />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
             <label>Teilnehmerzahl</label>
             <input v-model="form.participants" type="number" min="1" placeholder="z.B. 200" required
               :disabled="loading" />
@@ -129,6 +114,90 @@
         </div>
 
       </form>
+
+      <!-- KONFERENZDATEN -->
+      <section class="conferences-section">
+        <div class="section-header">
+          <h2>Konferenzdaten</h2>
+          <button type="button" class="add-conf-btn" @click="showNewConf = true" v-if="!showNewConf">
+            + Neuen Termin hinzufügen
+          </button>
+        </div>
+
+        <div v-if="confSuccess" class="success conf-msg">{{ confSuccess }}</div>
+        <div v-if="confError" class="error conf-msg">{{ confError }}</div>
+
+        <div class="conference-list">
+
+          <!-- Neue Konferenz Eingabe -->
+          <div v-if="showNewConf" class="conference-row new-row">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Startdatum</label>
+                <input v-model="newConf.date" type="date" />
+              </div>
+              <div class="form-group">
+                <label>Enddatum</label>
+                <input v-model="newConf.endDate" type="date" />
+              </div>
+              <div class="form-group">
+                <label>Anmeldefrist</label>
+                <input v-model="newConf.applicationDate" type="date" />
+              </div>
+            </div>
+            <div class="conf-row-actions">
+              <button type="button" @click="addConference" :disabled="confLoading">Speichern</button>
+              <button type="button" class="cancel" @click="showNewConf = false">Abbrechen</button>
+            </div>
+          </div>
+
+          <!-- Bestehende Konferenzen -->
+          <div v-for="conf in conferences" :key="conf.id" class="conference-row">
+            <template v-if="editingConfId === conf.id">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Startdatum</label>
+                  <input v-model="editingConf.date" type="date" />
+                </div>
+                <div class="form-group">
+                  <label>Enddatum</label>
+                  <input v-model="editingConf.endDate" type="date" />
+                </div>
+                <div class="form-group">
+                  <label>Anmeldefrist</label>
+                  <input v-model="editingConf.applicationDate" type="date" />
+                </div>
+              </div>
+              <div class="conf-row-actions">
+                <button type="button" @click="saveConference(conf.id)" :disabled="confLoading">Speichern</button>
+                <button type="button" class="cancel" @click="editingConfId = null">Abbrechen</button>
+              </div>
+            </template>
+            <template v-else>
+              <div class="conf-display">
+                <div class="conf-dates">
+                  <span class="conf-label">Termin:</span>
+                  <span>{{ formatDate(conf.date) }}{{ conf.endDate ? ' – ' + formatDate(conf.endDate) : '' }}</span>
+                </div>
+                <div class="conf-dates" v-if="conf.applicationDate">
+                  <span class="conf-label">Anmeldeschluss:</span>
+                  <span>{{ formatDate(conf.applicationDate) }}</span>
+                </div>
+              </div>
+              <div class="conf-row-actions">
+                <button type="button" class="edit-btn" @click="startEditConference(conf)">Bearbeiten</button>
+                <button type="button" class="delete-btn" @click="deleteConference(conf.id)">Löschen</button>
+              </div>
+            </template>
+          </div>
+
+          <div v-if="conferences.length === 0 && !showNewConf" class="no-conferences">
+            {{ istBearbeiten ? 'Noch keine Konferenzdaten vorhanden.' : 'Füge unten Termine für dieses Event hinzu.' }}
+          </div>
+
+        </div>
+      </section>
+
     </main>
   </div>
 </template>
@@ -145,6 +214,16 @@ const loading = ref(false)
 const logoPreview = ref(null)
 const titleWarning = ref(false)
 
+// Konferenz-Verwaltung
+const conferences = ref([])
+const confLoading = ref(false)
+const confSuccess = ref('')
+const confError = ref('')
+const showNewConf = ref(false)
+const newConf = ref({ date: '', endDate: '', applicationDate: '' })
+const editingConfId = ref(null)
+const editingConf = ref({ date: '', endDate: '', applicationDate: '' })
+
 const istBearbeiten = computed(() => !!route.params.id)
 
 const beschreibungsText = computed(() => {
@@ -159,9 +238,6 @@ const form = ref({
   description_de: '',
   description_en: '',
   city: '',
-  date: '',
-  endDate: '',
-  applicationDate: '',
   participants: '',
   firstConference: '',
   language: 'de',
@@ -171,6 +247,8 @@ const form = ref({
   facebookLink: '',
   logo: null
 })
+
+let tempIdCounter = -1
 
 let titleCheckTimer = null
 watch(() => form.value.title, (newTitle) => {
@@ -205,23 +283,18 @@ onMounted(async () => {
       })
       if (!response.ok) throw new Error()
       const data = await response.json()
-      // Hole neueste Conference oder nutze Event-Daten
-      let latestConf = null
-      if (data.conferences && data.conferences.length > 0) {
-        const sorted = [...data.conferences].sort((a, b) =>
-          new Date(b.date) - new Date(a.date)
-        )
-        latestConf = sorted[0]
-      }
+      conferences.value = [...(data.conferences || [])].sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      )
       form.value = {
         title: data.title || '',
         longTitle: data.longTitle || '',
         description_de: data.description_de || '',
         description_en: data.description_en || '',
         city: data.city || '',
-        date: latestConf?.date ? latestConf.date.substring(0, 10) : (data.date ? data.date.substring(0, 10) : ''),
-        endDate: latestConf?.endDate ? latestConf.endDate.substring(0, 10) : (data.endDate ? data.endDate.substring(0, 10) : ''),
-        applicationDate: latestConf?.applicationDate ? latestConf.applicationDate.substring(0, 10) : (data.applicationDate ? data.applicationDate.substring(0, 10) : ''),
+        date: '',
+        endDate: '',
+        applicationDate: '',
         participants: data.participants || '',
         firstConference: data.firstConference || '',
         language: data.language || 'de',
@@ -257,9 +330,6 @@ async function submit() {
       description_de: form.value.description_de,
       description_en: form.value.description_en,
       city: form.value.city,
-      date: form.value.date,
-      endDate: form.value.endDate,
-      applicationDate: form.value.applicationDate,
       participants: form.value.participants,
       instagramLink: form.value.instagramLink,
       facebookLink: form.value.facebookLink,
@@ -293,6 +363,19 @@ async function submit() {
 
     // Hole die Event-ID (bei Erstellen aus response, bei Bearbeiten aus params)
     const eventId = data.id || route.params.id
+
+    // Bei Erstellen: alle lokalen Konferenzen jetzt zum Backend senden
+    if (!istBearbeiten.value && conferences.value.length > 0) {
+      for (const conf of conferences.value) {
+        try {
+          await fetch(`http://localhost:5000/api/events/${eventId}/conferences`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+            body: JSON.stringify({ date: conf.date, endDate: conf.endDate || null, applicationDate: conf.applicationDate || null })
+          })
+        } catch { /* nicht kritisch */ }
+      }
+    }
 
     // Wenn Logo vorhanden, lade es zu Supabase Storage hoch
     if (form.value.logo) {
@@ -343,9 +426,6 @@ function reset() {
     description_de: '',
     description_en: '',
     city: '',
-    date: '',
-    endDate: '',
-    applicationDate: '',
     participants: '',
     firstConference: '',
     language: 'de',
@@ -353,12 +433,130 @@ function reset() {
     website: '',
     logo: null
   }
+  conferences.value = []
   logoPreview.value = null
 }
 
 function logout() {
   localStorage.removeItem('admin_token')
   router.push('/login')
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—'
+  return new Date(dateStr).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+function startEditConference(conf) {
+  editingConfId.value = conf.id
+  editingConf.value = {
+    date: conf.date ? conf.date.substring(0, 10) : '',
+    endDate: conf.endDate ? conf.endDate.substring(0, 10) : '',
+    applicationDate: conf.applicationDate ? conf.applicationDate.substring(0, 10) : ''
+  }
+}
+
+async function addConference() {
+  if (!newConf.value.date) {
+    confError.value = 'Bitte Startdatum angeben.'
+    return
+  }
+  confError.value = ''
+
+  if (!istBearbeiten.value) {
+    // Erstellen-Modus: lokal speichern
+    conferences.value.push({ id: tempIdCounter--, ...newConf.value })
+    conferences.value.sort((a, b) => new Date(b.date) - new Date(a.date))
+    newConf.value = { date: '', endDate: '', applicationDate: '' }
+    showNewConf.value = false
+    return
+  }
+
+  confLoading.value = true
+  try {
+    const res = await fetch(`http://localhost:5000/api/events/${route.params.id}/conferences`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+      body: JSON.stringify(newConf.value)
+    })
+    const data = await res.json()
+    if (!res.ok) { confError.value = data.error || 'Fehler beim Speichern.'; return }
+    conferences.value.unshift(data)
+    conferences.value.sort((a, b) => new Date(b.date) - new Date(a.date))
+    newConf.value = { date: '', endDate: '', applicationDate: '' }
+    showNewConf.value = false
+    confSuccess.value = 'Termin hinzugefügt.'
+    setTimeout(() => { confSuccess.value = '' }, 2500)
+  } catch {
+    confError.value = 'Server nicht erreichbar.'
+  } finally {
+    confLoading.value = false
+  }
+}
+
+async function saveConference(confId) {
+  if (!editingConf.value.date) {
+    confError.value = 'Bitte Startdatum angeben.'
+    return
+  }
+  confError.value = ''
+
+  if (!istBearbeiten.value) {
+    // Erstellen-Modus: lokal aktualisieren
+    const idx = conferences.value.findIndex(c => c.id === confId)
+    if (idx !== -1) conferences.value[idx] = { id: confId, ...editingConf.value }
+    conferences.value.sort((a, b) => new Date(b.date) - new Date(a.date))
+    editingConfId.value = null
+    return
+  }
+
+  confLoading.value = true
+  try {
+    const res = await fetch(`http://localhost:5000/api/events/${route.params.id}/conferences/${confId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+      body: JSON.stringify(editingConf.value)
+    })
+    const data = await res.json()
+    if (!res.ok) { confError.value = data.error || 'Fehler beim Speichern.'; return }
+    const idx = conferences.value.findIndex(c => c.id === confId)
+    if (idx !== -1) conferences.value[idx] = data
+    conferences.value.sort((a, b) => new Date(b.date) - new Date(a.date))
+    editingConfId.value = null
+    confSuccess.value = 'Termin gespeichert.'
+    setTimeout(() => { confSuccess.value = '' }, 2500)
+  } catch {
+    confError.value = 'Server nicht erreichbar.'
+  } finally {
+    confLoading.value = false
+  }
+}
+
+async function deleteConference(confId) {
+  if (!confirm('Diesen Termin wirklich löschen?')) return
+  confError.value = ''
+
+  if (!istBearbeiten.value) {
+    // Erstellen-Modus: lokal entfernen
+    conferences.value = conferences.value.filter(c => c.id !== confId)
+    return
+  }
+
+  confLoading.value = true
+  try {
+    const res = await fetch(`http://localhost:5000/api/events/${route.params.id}/conferences/${confId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    })
+    if (!res.ok) { const d = await res.json(); confError.value = d.error || 'Fehler beim Löschen.'; return }
+    conferences.value = conferences.value.filter(c => c.id !== confId)
+    confSuccess.value = 'Termin gelöscht.'
+    setTimeout(() => { confSuccess.value = '' }, 2500)
+  } catch {
+    confError.value = 'Server nicht erreichbar.'
+  } finally {
+    confLoading.value = false
+  }
 }
 </script>
 
@@ -557,5 +755,127 @@ button[type="submit"]:disabled {
   max-height: 100px;
   border-radius: 8px;
   border: 1px solid #ddd;
+}
+
+/* ---- Konferenzdaten-Sektion ---- */
+
+.conferences-section {
+  margin-top: 2rem;
+  max-width: 700px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #0f3b66;
+}
+
+.add-conf-btn {
+  padding: 0.5rem 1rem;
+  background: #0f3b66;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.add-conf-btn:hover {
+  background: #092a4a;
+}
+
+.conf-msg {
+  margin-bottom: 0.75rem;
+}
+
+.conference-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.conference-row {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.new-row {
+  border-color: #2677b5;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.conf-display {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.conf-dates {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.conf-label {
+  font-weight: 600;
+  color: #6b7280;
+  min-width: 120px;
+}
+
+.conf-row-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.edit-btn {
+  padding: 0.45rem 0.9rem;
+  background: #e0f0ff;
+  color: #2677b5;
+  border: 1px solid #b3d6f5;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background: #c0e0ff;
+}
+
+.delete-btn {
+  padding: 0.45rem 0.9rem;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #fecaca;
+}
+
+.no-conferences {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  padding: 1rem 0;
+  text-align: center;
 }
 </style>

@@ -7,7 +7,10 @@ import {
   createEvent,
   updateEvent,
   deleteEvent,
-  uploadEventImage
+  uploadEventImage,
+  createConference,
+  updateConference,
+  deleteConference
 } from '../controllers/eventController.js';
 
 // Multer Konfiguration für File-Upload (In-Memory)
@@ -91,5 +94,12 @@ router.delete('/:id', deleteEvent);
  */
 router.post('/:id/upload-image', upload.single('image'), uploadEventImage);
 // router.post('/:id/upload-image', authenticateToken, upload.single('image'), uploadEventImage);
+
+/**
+ * Conference CRUD
+ */
+router.post('/:eventId/conferences', createConference);
+router.put('/:eventId/conferences/:conferenceId', updateConference);
+router.delete('/:eventId/conferences/:conferenceId', deleteConference);
 
 export default router;
