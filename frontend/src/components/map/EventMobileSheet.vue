@@ -1,17 +1,24 @@
 <template>
+  <!--
+    EventMobileSheet: Mobilansicht für ein ausgewähltes Event.
+    Erscheint als Sheet (Schublade) von unten auf dem Bildschirm.
+    Der Nutzer kann es nach unten wischen (Swipe-Geste) um es zu schließen.
+    Wird von DeutschlandMap.vue angezeigt, wenn isMobile = true ist.
+  -->
   <div class="popup" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
 
-    <!-- HANDLE gehört INS SHEET -->
+    <!-- Visueller Griff-Balken oben am Sheet (zeigt, dass es verschiebbar ist) -->
     <div class="handle"></div>
 
-    <h3>{{ event.title }}</h3>
-    <p>{{ event.city }}</p>
+    <h3>{{ props.event.title }}</h3>
+    <p>{{ props.event.city }}</p>
 
     <div class="meta">
-      {{ formatEventDate(event.date) }}
+      {{ getEventDate() }}
     </div>
 
-    <button @click="$emit('closeAndGoToList')">
+    <!-- Button: sendet "goToList" nach oben → DeutschlandMap scrollt zur Liste -->
+    <button @click="$emit('goToList')">
       {{ languageStore.t('map.goToConference') }}
     </button>
 
@@ -23,14 +30,22 @@ import { formatEventDate } from '@/utils/eventPresenter'
 import { useLanguageStore } from '@/stores/useLanguageStore'
 import { ref } from 'vue'
 
+// Übersetzungs-Store (DE/EN)
 const languageStore = useLanguageStore()
 
-defineProps({
+// Props: Das angeklickte Event-Objekt
+const props = defineProps({
   event: Object
 })
 
-const emit = defineEmits(['close', 'closeAndGoToList'])
+// Events, die diese Komponente nach außen senden kann:
+// - "close": Sheet schließen (beim Swipe nach unten)
+// - "goToList": zur Konferenz-Karte in der Liste scrollen
+const emit = defineEmits(['close', 'goToList'])
 
+// --- Swipe-Logik ---
+// Wir merken uns die Start-Position des Fingers und berechnen die Bewegung.
+// Wenn der Nutzer mehr als 80px nach unten wischt, wird das Sheet geschlossen.
 const startY = ref(0)
 const currentY = ref(0)
 const dragging = ref(false)
@@ -42,11 +57,10 @@ const onTouchStart = (e) => {
 
 const onTouchMove = (e) => {
   if (!dragging.value) return
-
   currentY.value = e.touches[0].clientY
   const diff = currentY.value - startY.value
 
-  // nur nach unten swipe
+  // Nur nach unten wischen schließt das Sheet
   if (diff > 80) {
     emit('close')
     dragging.value = false
@@ -57,6 +71,22 @@ const onTouchEnd = () => {
   dragging.value = false
 }
 
+// Liest das Datum aus der Event-Datenstruktur.
+// Neue Struktur: event.conferences[0].date
+// Alte Struktur (Fallback): event.date
+const getEventDate = () => {
+  if (!props.event) return ''
+
+  if (props.event?.conferences?.[0]?.date) {
+    return formatEventDate(props.event.conferences[0].date)
+  }
+
+  if (props.event?.date) {
+    return formatEventDate(props.event.date)
+  }
+
+  return ''
+}
 </script>
 
 <style scoped>

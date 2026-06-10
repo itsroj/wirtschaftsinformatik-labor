@@ -108,11 +108,18 @@ const setSort = ({ key, direction }) => {
   sortConfig.value = { key, direction }
 }
 
-onMounted(() => {
-  eventsStore.fetchEvents()
+onMounted(async () => {
+  await eventsStore.fetchEvents()
 
   if (route.query.search) {
     eventsStore.search = route.query.search
+  }
+
+  // Wenn ?highlight=id in der URL steht (Navigation von der Homepage),
+  // das Event auswählen und zur Karte scrollen
+  if (route.query.highlight) {
+    const id = Number(route.query.highlight)
+    eventsStore.setSelectedEvent(id, { scroll: true })
   }
 })
 

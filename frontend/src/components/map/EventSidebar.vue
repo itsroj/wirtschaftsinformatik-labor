@@ -1,34 +1,43 @@
 <template>
+  <!--
+    Sidebar: Detailansicht eines angeklickten Events (nur Desktop).
+    Wird von DeutschlandMap.vue als Kind-Komponente gerendert.
+    Props: selectedEvent – das aktuell ausgewählte Event-Objekt
+    Emits: goToList – wenn der Nutzer auf "Zur Konferenz" klickt
+  -->
   <aside class="sidebar">
 
-    <div v-if="selectedEvent">
+    <!-- Inhalt nur anzeigen, wenn wirklich ein Event übergeben wurde -->
+    <div v-if="props.selectedEvent">
 
+      <!-- Stadtname als farbiges Badge -->
       <div class="badge">
-        {{ selectedEvent.city }}
+        {{ props.selectedEvent.city }}
       </div>
 
+      <!-- Titel der Konferenz -->
       <h3>
-        {{ selectedEvent.title }}
+        {{ props.selectedEvent.title }}
       </h3>
 
+      <!-- Datum und Teilnehmerzahl -->
       <div class="info">
-
         <div>
-          📅 {{ formatEventDate(selectedEvent.date) }}
+          📅 {{ getEventDate() }}
         </div>
-
         <div>
-          👥 {{ selectedEvent.participants }} {{ languageStore.t('map.participants') }}
+          👥 {{ props.selectedEvent.participants }} {{ languageStore.t('map.participants') }}
         </div>
-
       </div>
 
+      <!-- Button: scrollt zur Konferenz-Karte in der Liste -->
       <button @click="$emit('goToList')">
         {{ languageStore.t('map.goToConference') }}
       </button>
 
     </div>
 
+    <!-- Platzhalter, wenn kein Event ausgewählt ist -->
     <div v-else class="placeholder">
       {{ languageStore.t('map.selectEvent') }}
     </div>
@@ -40,14 +49,35 @@
 import { formatEventDate } from '@/utils/eventPresenter'
 import { useLanguageStore } from '@/stores/useLanguageStore'
 
+// Übersetzungs-Store (DE/EN)
 const languageStore = useLanguageStore()
 
-defineProps({
+// Props: das aktuell ausgewählte Event
+// In Vue 3 muss defineProps() in einer Variable gespeichert werden,
+// damit man im <script> mit props.xyz darauf zugreifen kann
+const props = defineProps({
   selectedEvent: Object
 })
 
+// Events, die diese Komponente nach außen senden kann
 defineEmits(['goToList'])
 
+// Liest das Datum aus der Event-Datenstruktur.
+// Die Datenbank speichert Konferenzdaten unter event.conferences[0].date (neue Struktur),
+// ältere Einträge haben event.date direkt (Fallback).
+const getEventDate = () => {
+  if (!props.selectedEvent) return ''
+
+  if (props.selectedEvent?.conferences?.[0]?.date) {
+    return formatEventDate(props.selectedEvent.conferences[0].date)
+  }
+
+  if (props.selectedEvent?.date) {
+    return formatEventDate(props.selectedEvent.date)
+  }
+
+  return ''
+}
 </script>
 
 <style scoped>

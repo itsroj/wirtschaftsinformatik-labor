@@ -1,38 +1,53 @@
 <template>
   <section class="map-wrapper">
 
-    <!-- Header -->
+    <!-- Optionaler Header – aktuell ausgeblendet -->
     <div class="map-header">
       <!-- <h2>Interaktive MUN-Karte</h2>
       <p>Alle Konferenzen in Deutschland</p> -->
     </div>
 
-    <!-- Map Container -->
+    <!--
+      map-container ist "position: relative", damit die Pins und Sidebar
+      mit "position: absolute" relativ zur Karte positioniert werden können.
+      Die CSS-Klasse "small" wird hinzugefügt, wenn size="small" übergeben wird.
+    -->
     <div class="map-container" :class="{ small: props.size === 'small' }">
 
-      <!-- SVG Map -->
+      <!-- Das Kartenbild als Hintergrund -->
       <img src="@/assets/images/germany.svg" class="map" alt="Deutschland Karte" />
 
-      <!-- Event Pins -->
+      <!--
+        Für jedes Event in der Liste wird ein EventMarker-Pin auf der Karte gerendert.
+        :key hilft Vue, die Elemente effizient zu verwalten.
+        Wenn ein Pin angeklickt wird, feuert er das "select"-Event → handleSelect()
+      -->
       <EventMarker v-for="event in props.events" :key="event.id" :event="event" :isMobile="isMobile"
         @select="handleSelect" />
 
-      <!-- BACKDROP -->
-      <!-- BACKDROP (nur Desktop) -->
+      <!--
+        Backdrop (nur Desktop): unsichtbare Fläche über der gesamten Karte.
+        Wenn der Nutzer außerhalb der Sidebar klickt, schließt sich diese.
+      -->
       <div v-if="selectedEvent && !isMobile" class="backdrop" @click="handleOutsideClick"></div>
 
-      <div v-if="selectedEvent && !isMobile && sidebarPosition" class="sidebar-wrapper" :style="{
-        left: sidebarPosition.x,
-        top: sidebarPosition.y
-      }" @click.stop>
+      <!--
+        Sidebar (nur Desktop): erscheint, wenn ein Event ausgewählt ist UND
+        die Position berechnet wurde. Position wird dynamisch per :style gesetzt.
+        @click.stop verhindert, dass ein Klick IN der Sidebar den Backdrop auslöst.
+      -->
+      <div v-if="selectedEvent && sidebarPosition && !isMobile" class="sidebar-wrapper"
+        :style="{ left: sidebarPosition.x, top: sidebarPosition.y }" @click.stop>
         <EventSidebar :selected-event="selectedEvent" @goToList="scrollToList" />
       </div>
 
+      <!--
+        Mobile Sheet: Auf kleinen Bildschirmen wird statt der Sidebar
+        ein Sheet von unten eingeblendet (wie eine App-Schublade).
+        @close → Event schließen, @goToList → zur Konferenz-Liste scrollen
+      -->
       <EventMobileSheet v-if="selectedEvent && isMobile" :event="selectedEvent" @close="store.clearSelectedEvent()"
         @goToList="handleMobileGoToList" />
-
-      <!-- Verbindungslinie -->
-      <div v-if="selectedEvent && !isMobile" class="connection-line" :style="lineStyle"></div>
 
     </div>
 
@@ -41,12 +56,16 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import EventMarker from './EventMarker.vue'
 import EventSidebar from './EventSidebar.vue'
 import EventMobileSheet from './EventMobileSheet.vue'
 import { useEventsStore } from '@/stores/useEventsStore'
 import { getEventPosition } from '@/utils/cityCoordinates'
 
+// Props, die von der Elternkomponente übergeben werden:
+// - events: Liste aller Events, die auf der Karte angezeigt werden sollen
+// - size: "large" (Standard) oder "small" für die Kartengröße
 const props = defineProps({
   events: {
     type: Array,
@@ -58,68 +77,85 @@ const props = defineProps({
   }
 })
 
+// Pinia-Store: verwaltet zentral das aktuell ausgewählte Event
 const store = useEventsStore()
+const router = useRouter()
+const route = useRoute()
 
+// Das aktuell ausgewählte Event – wird aus dem Store geholt (reaktiv)
+const selectedEvent = computed(() => store.selectedEvent)
+
+// Position der Sidebar auf der Karte (x = links, y = oben)
+// null = Sidebar wird nicht angezeigt
+const sidebarPosition = ref(null)
+
+// true wenn Bildschirmbreite ≤ 900px (Mobilansicht)
+const isMobile = ref(false)
+
+// Wird aufgerufen, wenn der Nutzer neben die Sidebar klickt (Backdrop-Klick)
 const handleOutsideClick = () => {
+  sidebarPosition.value = null
   store.clearSelectedEvent()
 }
 
+// Navigiert zur Konferenz-Karte in der Liste.
+// Wenn wir bereits auf der Konferenzen-Seite sind → direkt scrollen.
+// Wenn wir auf einer anderen Seite sind (z.B. Homepage) → zu /konferenzen
+// navigieren und ?highlight=id als Query-Parameter mitgeben.
+// KonferenzenView liest diesen Parameter nach dem Event-Laden aus und scrollt.
 const scrollToList = () => {
   const id = store.selectedEventId
   if (!id) return
 
-  document.getElementById(`event-${id}`)
-    ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  if (route.name === 'konferenzen') {
+    // Bereits auf der Konferenzen-Seite: scrollRequestId erhöhen → Watcher reagiert
+    store.setSelectedEvent(id, { scroll: true })
+  } else {
+    // Andere Seite (z.B. Homepage): mit highlight-Parameter navigieren
+    router.push({ name: 'konferenzen', query: { highlight: id } })
+  }
 }
 
-const selectedEvent = computed(() => store.selectedEvent)
-
-// Berechne Sidebar-Position direkt aus dem Event
-const sidebarPosition = computed(() => {
-  if (!selectedEvent.value) return null
-
-  const posStyle = getEventPosition(selectedEvent.value.city)
-  return {
-    x: posStyle.left,
-    y: `calc(${posStyle.top} + 40px)`
-  }
-})
-
-const isMobile = ref(false)
-
-
+// Prüft beim Laden und bei jedem Resize, ob wir im Mobilmodus sind
 const checkScreenSize = () => {
   isMobile.value = window.innerWidth <= 900
 }
 
-
-onMounted(() => {
-
-  checkScreenSize()
-
-  window.addEventListener(
-    'resize',
-    checkScreenSize
-  )
-})
-
-onUnmounted(() => {
-
-  window.removeEventListener(
-    'resize',
-    checkScreenSize
-  )
-})
-
+// Wird aufgerufen, wenn ein Pin auf der Karte angeklickt wird.
+// 1. Berechnet die Sidebar-Position aus dem Stadtname
+// 2. Speichert das ausgewählte Event im Store
 const handleSelect = (data) => {
+  // data kann direkt ein Event-Objekt sein oder { event: ... } enthalten
   const event = data.event || data
+
+  if (event && event.city) {
+    // getEventPosition gibt CSS-Werte zurück, z.B. { left: "45%", top: "30%" }
+    const posStyle = getEventPosition(event.city)
+    sidebarPosition.value = {
+      x: posStyle.left,
+      y: `calc(${posStyle.top} + 50px)` // etwas nach unten versetzt
+    }
+  }
+
+  // Event im Store speichern → selectedEvent computed wird automatisch aktualisiert
   store.setSelectedEvent(event.id)
 }
 
+// Mobile: Zur Liste scrollen und dann das Sheet schließen
 const handleMobileGoToList = () => {
   scrollToList()
   store.clearSelectedEvent()
 }
+
+onMounted(() => {
+  checkScreenSize()
+  window.addEventListener('resize', checkScreenSize)
+})
+
+onUnmounted(() => {
+  // Event-Listener aufräumen, damit kein Memory-Leak entsteht
+  window.removeEventListener('resize', checkScreenSize)
+})
 </script>
 
 <style>
@@ -227,19 +263,6 @@ const handleMobileGoToList = () => {
   z-index: 40;
   transform: translateX(-50%);
   max-width: 90%;
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
 }
 
 /* Sidebar - verbesserte Optik */
