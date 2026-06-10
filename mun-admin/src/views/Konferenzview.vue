@@ -218,6 +218,11 @@ onMounted(async () => {
 function handleLogo(event) {
   const file = event.target.files[0]
   if (file) {
+    if (file.size > 5 * 1024 * 1024) {
+      error.value = 'Das Logo darf maximal 5 MB groß sein.'
+      event.target.value = ''
+      return
+    }
     form.value.logo = file
     logoPreview.value = URL.createObjectURL(file)
   }

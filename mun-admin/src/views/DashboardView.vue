@@ -349,6 +349,8 @@ nav a.active { color: #66bdf5; }
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.06);
   overflow: hidden;
+  max-height: 600px;
+  overflow-y: auto;
 }
 .table-header {
   display: flex;
