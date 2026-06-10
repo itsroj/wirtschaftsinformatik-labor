@@ -12,7 +12,7 @@
 
     <main class="content">
       <h1>{{ istBearbeiten ? 'Konferenz bearbeiten' : 'Neue Konferenz eintragen' }}</h1>
-      <p>{{ istBearbeiten ? 'Ändere die Daten und speichere.' : 'Fülle das Formular aus um eine neue MUN-Konferenz hinzuzufügen.' }}</p>
+      <p>{{ beschreibungsText }}</p>
 
       <div v-if="success" class="success">{{ success }}</div>
       <div v-if="error" class="error">{{ error }}</div>
@@ -26,13 +26,21 @@
           </div>
           <div class="form-group">
             <label>Ausgeschriebener Name</label>
-            <input v-model="form.longTitle" type="text" placeholder="z.B. Berlin Model United Nations 2025" required :disabled="loading" />
+            <input v-model="form.longTitle" type="text" placeholder="z.B. Berlin Model United Nations 2025" required
+              :disabled="loading" />
           </div>
         </div>
 
         <div class="form-group">
-          <label>Beschreibung</label>
-          <textarea v-model="form.description" rows="4" placeholder="Kurze Beschreibung der Konferenz..." :disabled="loading"></textarea>
+          <label>Beschreibung (Deutsch)</label>
+          <textarea v-model="form.description_de" rows="4" placeholder="Kurze deutsche Beschreibung der Konferenz..."
+            :disabled="loading"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Description (English)</label>
+          <textarea v-model="form.description_en" rows="4" placeholder="Short English description of the conference..."
+            :disabled="loading"></textarea>
         </div>
 
         <div class="form-group">
@@ -58,11 +66,13 @@
         <div class="form-row">
           <div class="form-group">
             <label>Teilnehmerzahl</label>
-            <input v-model="form.participants" type="number" min="1" placeholder="z.B. 200" required :disabled="loading" />
+            <input v-model="form.participants" type="number" min="1" placeholder="z.B. 200" required
+              :disabled="loading" />
           </div>
           <div class="form-group">
             <label>Erste Konferenz (Jahr)</label>
-            <input v-model="form.firstConference" type="number" min="1900" max="2100" placeholder="z.B. 2015" required :disabled="loading" />
+            <input v-model="form.firstConference" type="number" min="1900" max="2100" placeholder="z.B. 2015" required
+              :disabled="loading" />
           </div>
         </div>
 
@@ -85,9 +95,20 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Website</label>
-          <input v-model="form.website" type="url" placeholder="https://..." :disabled="loading" />
+        <div class="form-row">
+          <div class="form-group">
+            <label>Website</label>
+            <input v-model="form.website" type="url" placeholder="https://..." :disabled="loading" />
+          </div>
+          <div class="form-group">
+            <label>Instagram</label>
+            <input v-model="form.instagramLink" type="url" placeholder="https://instagram.com/..."
+              :disabled="loading" />
+          </div>
+          <div class="form-group">
+            <label>Facebook</label>
+            <input v-model="form.facebookLink" type="url" placeholder="https://facebook.com/..." :disabled="loading" />
+          </div>
         </div>
 
         <div class="form-group">
@@ -123,10 +144,17 @@ const logoPreview = ref(null)
 
 const istBearbeiten = computed(() => !!route.params.id)
 
+const beschreibungsText = computed(() => {
+  return istBearbeiten.value
+    ? 'Ändere die Daten und speichere.'
+    : 'Fülle das Formular aus, um eine neue MUN-Konferenz hinzuzufügen.'
+})
+
 const form = ref({
   title: '',
   longTitle: '',
-  description: '',
+  description_de: '',
+  description_en: '',
   city: '',
   date: '',
   endDate: '',
@@ -136,6 +164,8 @@ const form = ref({
   language: 'de',
   type: 'schueler',
   website: '',
+  instagramLink: '',
+  facebookLink: '',
   logo: null
 })
 
@@ -153,17 +183,28 @@ onMounted(async () => {
       })
       if (!response.ok) throw new Error()
       const data = await response.json()
+      // Hole neueste Conference oder nutze Event-Daten
+      let latestConf = null
+      if (data.conferences && data.conferences.length > 0) {
+        const sorted = [...data.conferences].sort((a, b) =>
+          new Date(b.date) - new Date(a.date)
+        )
+        latestConf = sorted[0]
+      }
       form.value = {
         title: data.title || '',
         longTitle: data.longTitle || '',
-        description: data.description || '',
+        description_de: data.description_de || '',
+        description_en: data.description_en || '',
         city: data.city || '',
-        date: data.date ? data.date.substring(0, 10) : '',
-        endDate: data.endDate ? data.endDate.substring(0, 10) : '',
-        applicationDate: data.applicationDate ? data.applicationDate.substring(0, 10) : '',
+        date: latestConf?.date ? latestConf.date.substring(0, 10) : (data.date ? data.date.substring(0, 10) : ''),
+        endDate: latestConf?.endDate ? latestConf.endDate.substring(0, 10) : (data.endDate ? data.endDate.substring(0, 10) : ''),
+        applicationDate: latestConf?.applicationDate ? latestConf.applicationDate.substring(0, 10) : (data.applicationDate ? data.applicationDate.substring(0, 10) : ''),
         participants: data.participants || '',
         firstConference: data.firstConference || '',
         language: data.language || 'de',
+        instagramLink: data.instagramLink || '',
+        facebookLink: data.facebookLink || '',
         type: data.type || 'schueler',
         website: data.website || '',
         logo: null
@@ -177,6 +218,11 @@ onMounted(async () => {
 function handleLogo(event) {
   const file = event.target.files[0]
   if (file) {
+    if (file.size > 5 * 1024 * 1024) {
+      error.value = 'Das Logo darf maximal 5 MB groß sein.'
+      event.target.value = ''
+      return
+    }
     form.value.logo = file
     logoPreview.value = URL.createObjectURL(file)
   }
@@ -191,12 +237,15 @@ async function submit() {
     const payload = {
       title: form.value.title,
       longTitle: form.value.longTitle,
-      description: form.value.description,
+      description_de: form.value.description_de,
+      description_en: form.value.description_en,
       city: form.value.city,
       date: form.value.date,
       endDate: form.value.endDate,
       applicationDate: form.value.applicationDate,
       participants: form.value.participants,
+      instagramLink: form.value.instagramLink,
+      facebookLink: form.value.facebookLink,
       firstConference: form.value.firstConference,
       language: form.value.language,
       type: form.value.type,
@@ -225,9 +274,38 @@ async function submit() {
       return
     }
 
+    // Hole die Event-ID (bei Erstellen aus response, bei Bearbeiten aus params)
+    const eventId = data.id || route.params.id
+
+    // Wenn Logo vorhanden, lade es zu Supabase Storage hoch
+    if (form.value.logo) {
+      const formData = new FormData()
+      formData.append('image', form.value.logo)
+
+      const uploadResponse = await fetch(
+        `http://localhost:5000/api/events/${eventId}/upload-image`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${getToken()}`
+          },
+          body: formData
+        }
+      )
+
+      const uploadData = await uploadResponse.json()
+
+      if (!uploadResponse.ok) {
+        console.error('Fehler beim Bild-Upload:', uploadData.error)
+        // Bild-Upload Fehler ist nicht kritisch, Event wurde trotzdem erstellt
+        error.value = '⚠️ Konferenz erstellt, aber Bild konnte nicht hochgeladen werden.'
+        return
+      }
+    }
+
     success.value = istBearbeiten.value
-      ? '✅ Konferenz wurde erfolgreich bearbeitet!'
-      : '✅ Konferenz wurde erfolgreich erstellt!'
+      ? '✅ Konferenz und Bild wurden erfolgreich bearbeitet!'
+      : '✅ Konferenz und Bild wurden erfolgreich erstellt!'
 
     setTimeout(() => {
       success.value = ''
@@ -245,7 +323,8 @@ function reset() {
   form.value = {
     title: '',
     longTitle: '',
-    description: '',
+    description_de: '',
+    description_en: '',
     city: '',
     date: '',
     endDate: '',
@@ -271,6 +350,7 @@ function logout() {
   display: flex;
   min-height: 100vh;
 }
+
 .sidebar {
   width: 240px;
   background: #0f3b66;
@@ -280,16 +360,19 @@ function logout() {
   flex-direction: column;
   gap: 2rem;
 }
+
 .sidebar h2 {
   margin: 0;
   font-size: 1.4rem;
   color: #66bdf5;
 }
+
 nav {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
+
 nav a {
   color: #cbd5e1;
   text-decoration: none;
@@ -297,13 +380,17 @@ nav a {
   border-radius: 8px;
   cursor: pointer;
 }
-nav a:hover, nav a.active {
+
+nav a:hover,
+nav a.active {
   background: #ffffff15;
   color: white;
 }
+
 nav a.active {
   color: #66bdf5;
 }
+
 .logout {
   margin-top: auto;
   padding: 0.75rem;
@@ -313,47 +400,58 @@ nav a.active {
   border-radius: 8px;
   cursor: pointer;
 }
+
 .content {
   flex: 1;
   padding: 2.5rem;
   background: #f0f2f5;
 }
+
 h1 {
   margin: 0 0 0.5rem;
   color: #0f3b66;
 }
+
 p {
   color: #666;
   margin: 0 0 2rem;
 }
+
 .form {
   background: white;
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   max-width: 700px;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
 }
+
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
 }
+
 .form-row {
   display: flex;
   gap: 1rem;
 }
+
 .form-row .form-group {
   flex: 1;
 }
+
 label {
   font-size: 0.9rem;
   font-weight: 600;
   color: #374151;
 }
-input, select, textarea {
+
+input,
+select,
+textarea {
   padding: 0.75rem 1rem;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -361,18 +459,26 @@ input, select, textarea {
   outline: none;
   font-family: inherit;
 }
-input:focus, select:focus, textarea:focus {
+
+input:focus,
+select:focus,
+textarea:focus {
   border-color: #2677b5;
 }
-input:disabled, select:disabled, textarea:disabled {
+
+input:disabled,
+select:disabled,
+textarea:disabled {
   background: #f9f9f9;
   color: #aaa;
 }
+
 .form-actions {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
 }
+
 button[type="submit"] {
   padding: 0.75rem 1.5rem;
   background: #0f3b66;
@@ -382,13 +488,16 @@ button[type="submit"] {
   font-size: 1rem;
   cursor: pointer;
 }
+
 button[type="submit"]:hover:not(:disabled) {
   background: #092a4a;
 }
+
 button[type="submit"]:disabled {
   background: #66bdf5;
   cursor: not-allowed;
 }
+
 .cancel {
   padding: 0.75rem 1.5rem;
   background: white;
@@ -398,6 +507,7 @@ button[type="submit"]:disabled {
   font-size: 1rem;
   cursor: pointer;
 }
+
 .success {
   background: #dcfce7;
   color: #16a34a;
@@ -405,6 +515,7 @@ button[type="submit"]:disabled {
   border-radius: 8px;
   margin-bottom: 1rem;
 }
+
 .error {
   background: #fee2e2;
   color: #dc2626;
@@ -412,9 +523,11 @@ button[type="submit"]:disabled {
   border-radius: 8px;
   margin-bottom: 1rem;
 }
+
 .logo-preview {
   margin-top: 0.5rem;
 }
+
 .logo-preview img {
   max-height: 100px;
   border-radius: 8px;
