@@ -23,13 +23,13 @@ const router = createRouter({
     {
       path: '/konferenzen/neu',
       name: 'konferenzen-neu',
-      component: () => import('../views/Konferenzview.vue'),
+      component: () => import('../views/KonferenzView.vue'),
       meta: { requiresAuth: true }
     },
     {
       path: '/konferenzen/bearbeiten/:id',
       name: 'konferenzen-bearbeiten',
-      component: () => import('../views/Konferenzview.vue'),
+      component: () => import('../views/KonferenzView.vue'),
       meta: { requiresAuth: true }
     },
     {
