@@ -1,14 +1,18 @@
 import { PrismaClient } from '@prisma/client';
 import { createClient } from '@supabase/supabase-js';
-import fs from 'fs/promises';
-import path from 'path';
+import ws from 'ws';
 
 const prisma = new PrismaClient();
 
 // Supabase Client für Storage
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  {
+    realtime: {
+      transport: ws
+    }
+  }
 );
 
 /**
@@ -24,7 +28,6 @@ export const getEvents = async (req, res) => {
     if (city) where.city = city;
     if (type) where.type = type;
 
-    // Include conferences to get all the conference dates
     const events = await prisma.event.findMany({
       where,
       include: { 
@@ -74,7 +77,7 @@ export const getEventById = async (req, res) => {
 
 /**
  * POST /api/events
- * Neues Event erstellen (Admin only - Authentifizierung durch Max)
+ * Neues Event erstellen
  */
 export const createEvent = async (req, res) => {
   try {
@@ -97,14 +100,12 @@ export const createEvent = async (req, res) => {
       facebookLink
     } = req.body;
 
-    // Validierung erforderlicher Felder
     if (!title || !longTitle || !city) {
       return res.status(400).json({
         error: 'Erforderliche Felder fehlen: title, longTitle, city'
       });
     }
 
-    // Erstelle Event und ggf. Conference
     const eventData = {
       title,
       longTitle,
@@ -121,7 +122,6 @@ export const createEvent = async (req, res) => {
       facebookLink: facebookLink || null
     };
     
-    // Falls date vorhanden, erstelle Conference im selben Call
     if (date) {
       eventData.conferences = {
         create: {
@@ -151,14 +151,13 @@ export const createEvent = async (req, res) => {
 
 /**
  * PUT /api/events/:id
- * Event aktualisieren (Admin only - Authentifizierung durch Max)
+ * Event aktualisieren
  */
 export const updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
 
-    // Prüfe ob Event existiert
     const event = await prisma.event.findUnique({
       where: { id: parseInt(id) }
     });
@@ -167,14 +166,12 @@ export const updateEvent = async (req, res) => {
       return res.status(404).json({ error: 'Event nicht gefunden' });
     }
 
-    // Konvertiere Datum-Strings zu Date-Objekten
     if (updateData.date) updateData.date = new Date(updateData.date);
     if (updateData.endDate) updateData.endDate = new Date(updateData.endDate);
     if (updateData.applicationDate) updateData.applicationDate = new Date(updateData.applicationDate);
     if (updateData.firstConference) updateData.firstConference = parseInt(updateData.firstConference);
     if (updateData.participants) updateData.participants = parseInt(updateData.participants);
 
-    // Falls Konferenz-Daten gesendet werden, erstelle eine neue Conference
     const { date, endDate, applicationDate, ...eventData } = updateData;
     
     const updatedEvent = await prisma.event.update({
@@ -183,7 +180,6 @@ export const updateEvent = async (req, res) => {
       include: { conferences: { orderBy: { date: 'desc' } } }
     });
     
-    // Erstelle oder aktualisiere Conference wenn date-Daten vorhanden
     if (date) {
       await prisma.conference.upsert({
         where: {
@@ -205,7 +201,6 @@ export const updateEvent = async (req, res) => {
       });
     }
 
-    // Hole aktualisiertes Event mit Conferences
     const finalEvent = await prisma.event.findUnique({
       where: { id: parseInt(id) },
       include: { conferences: { orderBy: { date: 'desc' } } }
@@ -225,7 +220,7 @@ export const updateEvent = async (req, res) => {
 
 /**
  * DELETE /api/events/:id
- * Event löschen (Admin only - Authentifizierung durch Max)
+ * Event löschen
  */
 export const deleteEvent = async (req, res) => {
   try {
@@ -256,13 +251,11 @@ export const deleteEvent = async (req, res) => {
 /**
  * POST /api/events/:id/upload-image
  * Event-Bild zu Supabase Storage hochladen
- * Falls bereits ein Bild existiert, wird das alte gelöscht und ersetzt
  */
 export const uploadEventImage = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Prüfe ob Event existiert
     const event = await prisma.event.findUnique({
       where: { id: parseInt(id) }
     });
@@ -271,23 +264,19 @@ export const uploadEventImage = async (req, res) => {
       return res.status(404).json({ error: 'Event nicht gefunden' });
     }
 
-    // Prüfe ob Datei vorhanden
     if (!req.file) {
       return res.status(400).json({ error: 'Keine Datei hochgeladen' });
     }
 
-    // Lösche altes Bild, falls vorhanden
     if (event.logo) {
       try {
-        // Versuche robuste Extraktion des Objekt-Pfads in der Bucket
         let oldObjectPath = null;
         try {
           const u = new URL(event.logo);
           const marker = '/storage/v1/object/public/';
           const idx = u.pathname.indexOf(marker);
           if (idx !== -1) {
-            const key = u.pathname.substring(idx + marker.length); // e.g. 'event-images/...' or 'some/path'
-            // Wenn der key mit dem Bucket-Namen beginnt, entferne diesen Teil
+            const key = u.pathname.substring(idx + marker.length);
             if (key.startsWith('event-images/')) {
               oldObjectPath = key.substring('event-images/'.length);
             } else {
@@ -295,7 +284,6 @@ export const uploadEventImage = async (req, res) => {
             }
           }
         } catch (e) {
-          // Fallback: suche nach dem letzten '/event-images/' Teil in der URL
           const lastIdx = event.logo.lastIndexOf('/event-images/');
           if (lastIdx !== -1) {
             oldObjectPath = event.logo.substring(lastIdx + '/event-images/'.length);
@@ -308,27 +296,21 @@ export const uploadEventImage = async (req, res) => {
             .remove([oldObjectPath]);
 
           if (deleteErr) {
-            console.warn('⚠️ Supabase remove() returned error when deleting old image:', deleteErr.message || deleteErr);
+            console.warn('⚠️ Fehler beim Löschen des alten Bildes:', deleteErr.message || deleteErr);
           } else {
             console.log(`✅ Altes Bild gelöscht: ${oldObjectPath}`);
           }
         }
       } catch (deleteError) {
-        console.warn('⚠️ Fehler beim Löschen des alten Bildes (allgemein):', deleteError.message || deleteError);
-        // Nicht kritisch - Upload fortsetzen
+        console.warn('⚠️ Fehler beim Löschen des alten Bildes:', deleteError.message || deleteError);
       }
     }
 
-    // Erstelle eindeutigen Dateinamen für neues Bild
     const timestamp = Date.now();
     const fileName = `event-${id}-${timestamp}-${req.file.originalname}`;
-    // Wir speichern das Objekt *innerhalb* des Buckets ohne doppeltes Präfix
     const filePath = fileName;
-
-    // Lese Datei-Buffer
     const fileBuffer = req.file.buffer;
 
-    // Uploade zu Supabase Storage
     const { data, error: uploadError } = await supabase.storage
       .from('event-images')
       .upload(filePath, fileBuffer, {
@@ -338,24 +320,18 @@ export const uploadEventImage = async (req, res) => {
 
     if (uploadError) {
       console.error('❌ Supabase Upload Error:', uploadError);
-      console.error('   Message:', uploadError.message);
-      console.error('   Status:', uploadError.status);
-      console.error('   File Path:', filePath);
-      console.error('   File Size:', fileBuffer.length, 'bytes');
       return res.status(500).json({ 
         error: 'Fehler beim Upload zu Supabase Storage',
         details: uploadError.message
       });
     }
 
-    // Erstelle öffentliche URL
     const { data: publicUrlData } = supabase.storage
       .from('event-images')
       .getPublicUrl(filePath);
 
     const publicUrl = publicUrlData.publicUrl;
 
-    // Aktualisiere Event mit neuer Image-URL
     const updatedEvent = await prisma.event.update({
       where: { id: parseInt(id) },
       data: { logo: publicUrl },

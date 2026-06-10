@@ -1,101 +1,80 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('Starte Datenseeding...');
-  // Admin-User erstellen
-  const bcrypt = await import('bcryptjs');
-  const hashedPassword = await bcrypt.default.hash('admin123', 10);
-  const admin = await prisma.admin.create({
-    data: {
-      email: 'admin@dmun.de',
-      password: hashedPassword,
-      name: 'DMUN Admin'
-    }
-  });
-  console.log('✅ Admin erstellt:', admin.email);
-  
-  // Event 1: MUNoH mit Conference
-  const event1 = await prisma.event.create({
-    data: {
-      title: 'MUNoH',
-      longTitle: 'Model United Nations of Hamburg',
-      description: 'Model United Nations of Hamburg (MUNOH) ist eine der größten MUN-Konferenzen in Deutschland.',
-      city: 'Hamburg',
-      firstConference: 2009,
-      participants: 250,
-      language: 'english',
-      type: 'pupil',
-      logo: '@/assets/images/events/munoh.png',
-      website: 'https://munoh.de/',
-      instagramLink: 'https://www.instagram.com/',
-      facebookLink: 'https://www.facebook.com/',
-      conferences: {
-        create: {
-          date: new Date('2026-09-23'),
-          endDate: new Date('2026-09-27'),
-          applicationDate: new Date('2026-09-17')
-        }
-      }
-    },
-    include: { conferences: true }
-  });
-  console.log('✅ Event erstellt:', event1.title);
 
-  // Event 2: DMUN mit Conference
-  const event2 = await prisma.event.create({
-    data: {
-      title: 'DMUN',
-      longTitle: 'German Model United Nations',
-      description: 'Die größte MUN-Konferenz in Deutschland.',
-      city: 'Berlin',
-      firstConference: 2010,
-      participants: 500,
-      language: 'english',
-      type: 'student',
-      logo: '@/assets/images/events/dmun.png',
-      website: 'https://www.dmun.de/',
-      instagramLink: 'https://www.instagram.com/',
-      facebookLink: null,
-      conferences: {
-        create: {
-          date: new Date('2026-05-15'),
-          endDate: new Date('2026-05-17'),
-          applicationDate: new Date('2026-04-01')
-        }
+  const adminCount = await prisma.admin.count();
+  if (adminCount === 0) {
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const admin = await prisma.admin.create({
+      data: {
+        email: 'admin@dmun.de',
+        password: hashedPassword,
+        name: 'DMUN Admin'
       }
-    },
-    include: { conferences: true }
-  });
-  console.log('✅ Event erstellt:', event2.title);
+    });
+    console.log('✅ Admin erstellt:', admin.email);
+  } else {
+    console.log('ℹ️ Admin existiert bereits, überspringe...');
+  }
 
-  // Event 3: MUNM mit Conference
-  const event3 = await prisma.event.create({
-    data: {
-      title: 'MUNM',
-      longTitle: 'Model United Nations Munich',
-      description: 'MUN-Konferenz in München mit internationaler Teilnahme.',
-      city: 'Munich',
-      firstConference: 2015,
-      participants: 300,
-      language: 'english',
-      type: 'student',
-      logo: '@/assets/images/events/munm.png',
-      website: 'https://munmunich.de/',
-      instagramLink: null,
-      facebookLink: null,
-      conferences: {
-        create: {
-          date: new Date('2026-11-20'),
-          endDate: new Date('2026-11-22'),
-          applicationDate: new Date('2026-10-01')
-        }
+  const eventCount = await prisma.event.count();
+  if (eventCount === 0) {
+    await prisma.event.create({
+      data: {
+        title: 'MUNoH',
+        longTitle: 'Model United Nations of Hamburg',
+        description: 'Model United Nations of Hamburg (MUNOH) ist eine der größten MUN-Konferenzen in Deutschland.',
+        city: 'Hamburg',
+        date: new Date('2026-09-23'),
+        endDate: new Date('2026-09-27'),
+        applicationDate: new Date('2026-09-17'),
+        firstConference: 2009,
+        participants: 250,
+        language: 'english',
+        type: 'pupil',
+        website: 'https://munoh.de/',
       }
-    },
-    include: { conferences: true }
-  });
-  console.log('✅ Event erstellt:', event3.title);
+    });
+    await prisma.event.create({
+      data: {
+        title: 'DMUN',
+        longTitle: 'German Model United Nations',
+        description: 'Die größte MUN-Konferenz in Deutschland.',
+        city: 'Berlin',
+        date: new Date('2026-05-15'),
+        endDate: new Date('2026-05-17'),
+        applicationDate: new Date('2026-04-01'),
+        firstConference: 2010,
+        participants: 500,
+        language: 'english',
+        type: 'student',
+        website: 'https://www.dmun.de/',
+      }
+    });
+    await prisma.event.create({
+      data: {
+        title: 'MUNM',
+        longTitle: 'Model United Nations Munich',
+        description: 'MUN-Konferenz in München mit internationaler Teilnahme.',
+        city: 'Munich',
+        date: new Date('2026-11-20'),
+        endDate: new Date('2026-11-22'),
+        applicationDate: new Date('2026-10-01'),
+        firstConference: 2015,
+        participants: 300,
+        language: 'english',
+        type: 'student',
+        website: 'https://munmunich.de/',
+      }
+    });
+    console.log('✅ Events erstellt');
+  } else {
+    console.log('ℹ️ Events existieren bereits, überspringe...');
+  }
 
   console.log('✨ Seeding abgeschlossen!');
 }
