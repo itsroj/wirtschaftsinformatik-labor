@@ -1,21 +1,37 @@
+<!--
+  EinstellungenView.vue
+
+  Ermöglicht dem eingeloggten Admin das Ändern von E-Mail-Adresse
+  und Passwort. Beide Aktionen senden einen PUT-Request an
+  /api/auth/update mit dem jeweiligen Feld.
+  Passwort-Änderung erfordert zusätzlich das aktuelle Passwort
+  zur Verifikation (Backend prüft das serverseitig).
+-->
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+// API-Basis-URL aus Umgebungsvariable, Fallback für lokale Entwicklung
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const router = useRouter()
 
+/** Liest das JWT-Token aus dem localStorage. */
 function getToken() {
   return localStorage.getItem('admin_token')
 }
 
-// E-Mail
+// ---- E-Mail-Änderung ----
+
 const newEmail = ref('')
 const emailLoading = ref(false)
 const emailSuccess = ref('')
 const emailError = ref('')
 
+/**
+ * Sendet die neue E-Mail-Adresse ans Backend.
+ * Backend erwartet: { email }
+ */
 async function saveEmail() {
   emailError.value = ''
   emailSuccess.value = ''
@@ -39,6 +55,7 @@ async function saveEmail() {
     const data = await response.json()
 
     if (!response.ok) {
+      // Fehlermeldung direkt vom Backend übernehmen
       emailError.value = data.error || 'Fehler beim Speichern.'
       return
     }
@@ -52,21 +69,32 @@ async function saveEmail() {
   }
 }
 
-// Passwort
+// ---- Passwort-Änderung ----
+
 const currentPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
 const pwLoading = ref(false)
 const pwSuccess = ref('')
 const pwError = ref('')
+
+// Sichtbarkeits-Toggle für die drei Passwort-Felder
 const showCurrent = ref(false)
 const showNew = ref(false)
 const showConfirm = ref(false)
 
+/**
+ * Ändert das Passwort des eingeloggten Admins.
+ * Validiert clientseitig: alle Felder ausgefüllt, min. 8 Zeichen,
+ * neues Passwort und Bestätigung müssen übereinstimmen.
+ * Backend erwartet: { currentPassword, newPassword }
+ * Bei falschem aktuellem Passwort antwortet das Backend mit 401.
+ */
 async function savePassword() {
   pwError.value = ''
   pwSuccess.value = ''
 
+  // Alle Felder müssen ausgefüllt sein
   if (!currentPassword.value || !newPassword.value || !confirmPassword.value) {
     pwError.value = 'Bitte alle Felder ausfüllen.'
     return
@@ -78,6 +106,7 @@ async function savePassword() {
     return
   }
 
+  // Übereinstimmung prüfen
   if (newPassword.value !== confirmPassword.value) {
     pwError.value = 'Passwörter stimmen nicht überein.'
     return
@@ -100,12 +129,13 @@ async function savePassword() {
     const data = await response.json()
 
     if (!response.ok) {
-      // Backend gibt bei falschem Passwort 401 + spezifische Message zurück
+      // Backend gibt bei falschem Passwort 401 + spezifische Fehlermeldung zurück
       pwError.value = data.error || 'Fehler beim Speichern.'
       return
     }
 
     pwSuccess.value = '✅ Passwort wurde geändert!'
+    // Felder nach Erfolg leeren
     currentPassword.value = ''
     newPassword.value = ''
     confirmPassword.value = ''
@@ -116,8 +146,11 @@ async function savePassword() {
   }
 }
 
+/**
+ * Meldet den Nutzer ab.
+ * TODO (Backlog): Token serverseitig invalidieren via POST /api/auth/logout
+ */
 function logout() {
-  // TODO (Backlog): Token serverseitig invalidieren (POST /api/auth/logout)
   localStorage.removeItem('admin_token')
   router.push('/login')
 }
@@ -146,7 +179,12 @@ function logout() {
         <div v-if="emailError" class="error">{{ emailError }}</div>
         <div class="form-group">
           <label>Neue E-Mail</label>
-          <input v-model="newEmail" type="email" placeholder="neue@email.de" autocomplete="email" />
+          <input
+            v-model="newEmail"
+            type="email"
+            placeholder="neue@email.de"
+            autocomplete="email"
+          />
         </div>
         <button type="button" @click="saveEmail" :disabled="emailLoading">
           {{ emailLoading ? 'Wird gespeichert...' : 'E-Mail speichern' }}
@@ -158,6 +196,7 @@ function logout() {
         <h2>Passwort ändern</h2>
         <div v-if="pwSuccess" class="success">{{ pwSuccess }}</div>
         <div v-if="pwError" class="error">{{ pwError }}</div>
+
         <div class="form-group">
           <label>Aktuelles Passwort</label>
           <div class="pw-wrapper">
@@ -172,6 +211,8 @@ function logout() {
             </button>
           </div>
         </div>
+
+        <!-- Hinweis auf Mindestlänge direkt am Label -->
         <div class="form-group">
           <label>Neues Passwort <span class="hint">(min. 8 Zeichen)</span></label>
           <div class="pw-wrapper">
@@ -186,6 +227,7 @@ function logout() {
             </button>
           </div>
         </div>
+
         <div class="form-group">
           <label>Neues Passwort bestätigen</label>
           <div class="pw-wrapper">
@@ -200,6 +242,7 @@ function logout() {
             </button>
           </div>
         </div>
+
         <button type="button" @click="savePassword" :disabled="pwLoading">
           {{ pwLoading ? 'Wird gespeichert...' : 'Passwort speichern' }}
         </button>
