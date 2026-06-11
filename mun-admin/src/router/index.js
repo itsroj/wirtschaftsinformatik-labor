@@ -44,17 +44,29 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach((to, from) => {
-  const isLoggedIn = localStorage.getItem('admin_token')
+function isTokenValid() {
+  const token = localStorage.getItem('admin_token')
+  if (!token) return false
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    if (!payload.exp) return false
+    return payload.exp * 1000 > Date.now()
+  } catch {
+    // Token ist kein gültiges JWT-Format
+    localStorage.removeItem('admin_token')
+    return false
+  }
+}
 
-  // Eingeloggter User muss nicht zur Login-Seite
-  if (to.name === 'login' && isLoggedIn) {
+router.beforeEach((to, from) => {
+  const loggedIn = isTokenValid()
+
+  if (to.name === 'login' && loggedIn) {
     return '/dashboard'
   }
 
-  // TODO (Backlog): Token nur auf Vorhandensein geprüft, nicht auf Gültigkeit.
-  // Saubere Lösung: GET /api/auth/verify gegen Backend, bei 401 Token löschen + redirect.
-  if (to.meta.requiresAuth && !isLoggedIn) {
+  if (to.meta.requiresAuth && !loggedIn) {
+    localStorage.removeItem('admin_token')
     return '/login'
   }
 })
