@@ -1,6 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import LoginView from '../views/LoginView.vue'
-import DashboardView from '../views/DashboardView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,12 +10,12 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: LoginView
+      component: () => import('../views/LoginView.vue')
     },
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: DashboardView,
+      component: () => import('../views/DashboardView.vue'),
       meta: { requiresAuth: true }
     },
     {
@@ -33,16 +31,30 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
-  path: '/einstellungen',
-  name: 'einstellungen',
-  component: () => import('../views/EinstellungenView.vue'),
-  meta: { requiresAuth: true }
+      path: '/einstellungen',
+      name: 'einstellungen',
+      component: () => import('../views/EinstellungenView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      // Fallback: alle unbekannten Routen → Login
+      path: '/:pathMatch(.*)*',
+      redirect: '/login'
     }
   ]
 })
 
 router.beforeEach((to, from, next) => {
   const isLoggedIn = localStorage.getItem('admin_token')
+
+  // Eingeloggter User muss nicht zur Login-Seite
+  if (to.name === 'login' && isLoggedIn) {
+    next('/dashboard')
+    return
+  }
+
+  // TODO (Backlog): Token nur auf Vorhandensein geprüft, nicht auf Gültigkeit.
+  // Saubere Lösung: GET /api/auth/verify gegen Backend, bei 401 Token löschen + redirect.
   if (to.meta.requiresAuth && !isLoggedIn) {
     next('/login')
   } else {

@@ -1,139 +1,8 @@
-<template>
-  <div class="dashboard">
-    <aside class="sidebar">
-      <h2>MUN Admin</h2>
-      <nav>
-        <a @click="router.push('/dashboard')">Dashboard</a>
-        <a class="active">Konferenzen</a>
-        <a @click="router.push('/einstellungen')">Einstellungen</a>
-      </nav>
-      <button class="logout" @click="logout">Abmelden</button>
-    </aside>
-
-    <main class="content">
-      <h1>{{ istBearbeiten ? 'Konferenz bearbeiten' : 'Neue Konferenz eintragen' }}</h1>
-      <p>{{ beschreibungsText }}</p>
-
-      <div v-if="success" class="success">{{ success }}</div>
-      <div v-if="error" class="error">{{ error }}</div>
-
-      <form class="form" @submit.prevent="submit">
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Kurzname</label>
-            <input v-model="form.title" type="text" placeholder="z.B. BERMUN" required :disabled="loading" />
-          </div>
-          <div class="form-group">
-            <label>Ausgeschriebener Name</label>
-            <input v-model="form.longTitle" type="text" placeholder="z.B. Berlin Model United Nations 2025" required
-              :disabled="loading" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Beschreibung (Deutsch)</label>
-          <textarea v-model="form.description_de" rows="4" placeholder="Kurze deutsche Beschreibung der Konferenz..."
-            :disabled="loading"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Description (English)</label>
-          <textarea v-model="form.description_en" rows="4" placeholder="Short English description of the conference..."
-            :disabled="loading"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Stadt</label>
-          <input v-model="form.city" type="text" placeholder="z.B. Berlin, Deutschland" required :disabled="loading" />
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Startdatum</label>
-            <input v-model="form.date" type="date" required :disabled="loading" />
-          </div>
-          <div class="form-group">
-            <label>Enddatum</label>
-            <input v-model="form.endDate" type="date" required :disabled="loading" />
-          </div>
-          <div class="form-group">
-            <label>Anmeldefrist</label>
-            <input v-model="form.applicationDate" type="date" required :disabled="loading" />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Teilnehmerzahl</label>
-            <input v-model="form.participants" type="number" min="1" placeholder="z.B. 200" required
-              :disabled="loading" />
-          </div>
-          <div class="form-group">
-            <label>Erste Konferenz (Jahr)</label>
-            <input v-model="form.firstConference" type="number" min="1900" max="2100" placeholder="z.B. 2015" required
-              :disabled="loading" />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Sprache</label>
-            <select v-model="form.language" :disabled="loading">
-              <option value="de">Deutsch</option>
-              <option value="en">Englisch</option>
-              <option value="both">Deutsch & Englisch</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Typ</label>
-            <select v-model="form.type" :disabled="loading">
-              <option value="schueler">Schüler</option>
-              <option value="studenten">Studenten</option>
-              <option value="mini-mun">Mini-MUN</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Website</label>
-            <input v-model="form.website" type="url" placeholder="https://..." :disabled="loading" />
-          </div>
-          <div class="form-group">
-            <label>Instagram</label>
-            <input v-model="form.instagramLink" type="url" placeholder="https://instagram.com/..."
-              :disabled="loading" />
-          </div>
-          <div class="form-group">
-            <label>Facebook</label>
-            <input v-model="form.facebookLink" type="url" placeholder="https://facebook.com/..." :disabled="loading" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Logo</label>
-          <input type="file" accept=".png,.jpg,.jpeg" @change="handleLogo" :disabled="loading" />
-          <div v-if="logoPreview" class="logo-preview">
-            <img :src="logoPreview" alt="Logo Vorschau" />
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="cancel" @click="reset" :disabled="loading">Zurücksetzen</button>
-          <button type="submit" :disabled="loading">
-            {{ loading ? 'Wird gespeichert...' : (istBearbeiten ? 'Änderungen speichern' : 'Konferenz speichern') }}
-          </button>
-        </div>
-
-      </form>
-    </main>
-  </div>
-</template>
-
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const router = useRouter()
 const route = useRoute()
@@ -176,14 +45,15 @@ function getToken() {
 onMounted(async () => {
   if (istBearbeiten.value) {
     try {
-      const response = await fetch(`http://localhost:5000/api/events/${route.params.id}`, {
+      const response = await fetch(`${API_URL}/api/events/${route.params.id}`, {
         headers: {
           'Authorization': `Bearer ${getToken()}`
         }
       })
       if (!response.ok) throw new Error()
       const data = await response.json()
-      // Hole neueste Conference oder nutze Event-Daten
+
+      // Hole neueste Conference oder nutze Event-Daten direkt
       let latestConf = null
       if (data.conferences && data.conferences.length > 0) {
         const sorted = [...data.conferences].sort((a, b) =>
@@ -191,6 +61,7 @@ onMounted(async () => {
         )
         latestConf = sorted[0]
       }
+
       form.value = {
         title: data.title || '',
         longTitle: data.longTitle || '',
@@ -203,10 +74,10 @@ onMounted(async () => {
         participants: data.participants || '',
         firstConference: data.firstConference || '',
         language: data.language || 'de',
-        instagramLink: data.instagramLink || '',
-        facebookLink: data.facebookLink || '',
         type: data.type || 'schueler',
         website: data.website || '',
+        instagramLink: data.instagramLink || '',
+        facebookLink: data.facebookLink || '',
         logo: null
       }
     } catch {
@@ -223,14 +94,48 @@ function handleLogo(event) {
       event.target.value = ''
       return
     }
+    // Memory-Leak vermeiden: alte Object-URL freigeben bevor neue erstellt wird
+    if (logoPreview.value) {
+      URL.revokeObjectURL(logoPreview.value)
+    }
     form.value.logo = file
     logoPreview.value = URL.createObjectURL(file)
   }
 }
 
+function validieren() {
+  // Pflichtfelder prüfen (Beschreibungen, Website, Social Media und Logo sind optional)
+  if (!form.value.title.trim()) return 'Kurzname ist erforderlich.'
+  if (!form.value.longTitle.trim()) return 'Ausgeschriebener Name ist erforderlich.'
+  if (!form.value.city.trim()) return 'Stadt ist erforderlich.'
+  if (!form.value.date) return 'Startdatum ist erforderlich.'
+  if (!form.value.endDate) return 'Enddatum ist erforderlich.'
+  if (!form.value.applicationDate) return 'Anmeldefrist ist erforderlich.'
+  if (!form.value.participants) return 'Teilnehmerzahl ist erforderlich.'
+  if (!form.value.firstConference) return 'Erste Konferenz (Jahr) ist erforderlich.'
+
+  // Datums-Validierung
+  const start = new Date(form.value.date)
+  const end = new Date(form.value.endDate)
+  const application = new Date(form.value.applicationDate)
+
+  if (end < start) return 'Enddatum darf nicht vor dem Startdatum liegen.'
+  if (application > start) return 'Anmeldefrist muss vor oder am Startdatum liegen.'
+
+  return null
+}
+
 async function submit() {
   error.value = ''
   success.value = ''
+
+  // Validierung vor dem Request
+  const validierungsFehler = validieren()
+  if (validierungsFehler) {
+    error.value = validierungsFehler
+    return
+  }
+
   loading.value = true
 
   try {
@@ -244,17 +149,17 @@ async function submit() {
       endDate: form.value.endDate,
       applicationDate: form.value.applicationDate,
       participants: form.value.participants,
-      instagramLink: form.value.instagramLink,
-      facebookLink: form.value.facebookLink,
       firstConference: form.value.firstConference,
       language: form.value.language,
       type: form.value.type,
-      website: form.value.website
+      website: form.value.website,
+      instagramLink: form.value.instagramLink,
+      facebookLink: form.value.facebookLink
     }
 
     const url = istBearbeiten.value
-      ? `http://localhost:5000/api/events/${route.params.id}`
-      : 'http://localhost:5000/api/events'
+      ? `${API_URL}/api/events/${route.params.id}`
+      : `${API_URL}/api/events`
 
     const method = istBearbeiten.value ? 'PUT' : 'POST'
 
@@ -274,16 +179,16 @@ async function submit() {
       return
     }
 
-    // Hole die Event-ID (bei Erstellen aus response, bei Bearbeiten aus params)
+    // Bei Erstellen kommt die ID aus der Response, beim Bearbeiten aus den Params
     const eventId = data.id || route.params.id
 
-    // Wenn Logo vorhanden, lade es zu Supabase Storage hoch
+    // Logo hochladen falls vorhanden
     if (form.value.logo) {
       const formData = new FormData()
       formData.append('image', form.value.logo)
 
       const uploadResponse = await fetch(
-        `http://localhost:5000/api/events/${eventId}/upload-image`,
+        `${API_URL}/api/events/${eventId}/upload-image`,
         {
           method: 'POST',
           headers: {
@@ -296,16 +201,21 @@ async function submit() {
       const uploadData = await uploadResponse.json()
 
       if (!uploadResponse.ok) {
-        console.error('Fehler beim Bild-Upload:', uploadData.error)
-        // Bild-Upload Fehler ist nicht kritisch, Event wurde trotzdem erstellt
-        error.value = '⚠️ Konferenz erstellt, aber Bild konnte nicht hochgeladen werden.'
+        // Event wurde gespeichert, aber Bild-Upload schlug fehl
+        error.value = '⚠️ Konferenz gespeichert, aber Logo konnte nicht hochgeladen werden.'
         return
       }
-    }
 
-    success.value = istBearbeiten.value
-      ? '✅ Konferenz und Bild wurden erfolgreich bearbeitet!'
-      : '✅ Konferenz und Bild wurden erfolgreich erstellt!'
+      // Konferenz + Logo erfolgreich
+      success.value = istBearbeiten.value
+        ? '✅ Konferenz und Logo wurden erfolgreich aktualisiert!'
+        : '✅ Konferenz und Logo wurden erfolgreich erstellt!'
+    } else {
+      // Konferenz ohne Logo erfolgreich
+      success.value = istBearbeiten.value
+        ? '✅ Konferenz wurde erfolgreich aktualisiert!'
+        : '✅ Konferenz wurde erfolgreich erstellt!'
+    }
 
     setTimeout(() => {
       success.value = ''
@@ -334,16 +244,158 @@ function reset() {
     language: 'de',
     type: 'schueler',
     website: '',
+    instagramLink: '',
+    facebookLink: '',
     logo: null
+  }
+  // Object-URL freigeben beim Zurücksetzen
+  if (logoPreview.value) {
+    URL.revokeObjectURL(logoPreview.value)
   }
   logoPreview.value = null
 }
 
 function logout() {
+  // TODO (Backlog): Token serverseitig invalidieren (POST /api/auth/logout)
   localStorage.removeItem('admin_token')
   router.push('/login')
 }
 </script>
+
+<template>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <h2>MUN Admin</h2>
+      <nav>
+        <a @click="router.push('/dashboard')">Dashboard</a>
+        <a class="active">Konferenzen</a>
+        <a @click="router.push('/einstellungen')">Einstellungen</a>
+      </nav>
+      <button type="button" class="logout" @click="logout">Abmelden</button>
+    </aside>
+
+    <main class="content">
+      <h1>{{ istBearbeiten ? 'Konferenz bearbeiten' : 'Neue Konferenz eintragen' }}</h1>
+      <p>{{ beschreibungsText }}</p>
+
+      <div v-if="success" class="success">{{ success }}</div>
+      <div v-if="error" class="error">{{ error }}</div>
+
+      <form class="form" @submit.prevent="submit">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Kurzname *</label>
+            <input v-model="form.title" type="text" placeholder="z.B. BERMUN" required :disabled="loading" />
+          </div>
+          <div class="form-group">
+            <label>Ausgeschriebener Name *</label>
+            <input v-model="form.longTitle" type="text" placeholder="z.B. Berlin Model United Nations 2025" required
+              :disabled="loading" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Beschreibung (Deutsch)</label>
+          <textarea v-model="form.description_de" rows="4" placeholder="Kurze deutsche Beschreibung der Konferenz..."
+            :disabled="loading"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Description (English)</label>
+          <textarea v-model="form.description_en" rows="4" placeholder="Short English description of the conference..."
+            :disabled="loading"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Stadt *</label>
+          <input v-model="form.city" type="text" placeholder="z.B. Berlin, Deutschland" required :disabled="loading" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Startdatum *</label>
+            <input v-model="form.date" type="date" required :disabled="loading" />
+          </div>
+          <div class="form-group">
+            <label>Enddatum *</label>
+            <input v-model="form.endDate" type="date" required :disabled="loading" />
+          </div>
+          <div class="form-group">
+            <label>Anmeldefrist *</label>
+            <input v-model="form.applicationDate" type="date" required :disabled="loading" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Teilnehmerzahl *</label>
+            <input v-model="form.participants" type="number" min="1" placeholder="z.B. 200" required
+              :disabled="loading" />
+          </div>
+          <div class="form-group">
+            <label>Erste Konferenz (Jahr) *</label>
+            <input v-model="form.firstConference" type="number" min="1900" max="2100" placeholder="z.B. 2015" required
+              :disabled="loading" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Sprache *</label>
+            <select v-model="form.language" :disabled="loading">
+              <option value="de">Deutsch</option>
+              <option value="en">Englisch</option>
+              <option value="both">Deutsch & Englisch</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Typ *</label>
+            <select v-model="form.type" :disabled="loading">
+              <option value="schueler">Schüler</option>
+              <option value="studenten">Studenten</option>
+              <option value="mini-mun">Mini-MUN</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Website</label>
+            <input v-model="form.website" type="url" placeholder="https://..." :disabled="loading" />
+          </div>
+          <div class="form-group">
+            <label>Instagram</label>
+            <input v-model="form.instagramLink" type="url" placeholder="https://instagram.com/..."
+              :disabled="loading" />
+          </div>
+          <div class="form-group">
+            <label>Facebook</label>
+            <input v-model="form.facebookLink" type="url" placeholder="https://facebook.com/..." :disabled="loading" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Logo</label>
+          <input type="file" accept=".png,.jpg,.jpeg" @change="handleLogo" :disabled="loading" />
+          <div v-if="logoPreview" class="logo-preview">
+            <img :src="logoPreview" alt="Logo Vorschau" />
+          </div>
+        </div>
+
+        <p class="pflichtfeld-hinweis">* Pflichtfelder</p>
+
+        <div class="form-actions">
+          <button type="button" class="cancel" @click="reset" :disabled="loading">Zurücksetzen</button>
+          <button type="submit" :disabled="loading">
+            {{ loading ? 'Wird gespeichert...' : (istBearbeiten ? 'Änderungen speichern' : 'Konferenz speichern') }}
+          </button>
+        </div>
+
+      </form>
+    </main>
+  </div>
+</template>
 
 <style scoped>
 .dashboard {
@@ -471,6 +523,12 @@ select:disabled,
 textarea:disabled {
   background: #f9f9f9;
   color: #aaa;
+}
+
+.pflichtfeld-hinweis {
+  font-size: 0.8rem;
+  color: #999;
+  margin: 0;
 }
 
 .form-actions {

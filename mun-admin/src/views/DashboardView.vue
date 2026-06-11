@@ -1,3 +1,177 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
+const router = useRouter()
+const search = ref('')
+const deleteId = ref(null)
+const successMessage = ref('')
+const konferenzen = ref([])
+const loading = ref(true)
+const ladeError = ref('')
+// Standard-Sortierung: Name aufsteigend
+const sortKey = ref('title')
+const sortDir = ref('asc')
+
+function getToken() {
+  return localStorage.getItem('admin_token')
+}
+
+// Aktuelles Datum als Funktion, damit es nicht beim App-Start eingefroren wird
+function heute() {
+  return new Date()
+}
+
+async function ladeKonferenzen() {
+  loading.value = true
+  ladeError.value = ''
+  try {
+    const response = await fetch(`${API_URL}/api/events`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    })
+    if (!response.ok) throw new Error()
+    konferenzen.value = await response.json()
+  } catch {
+    ladeError.value = 'Konferenzen konnten nicht geladen werden. Ist das Backend gestartet?'
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => ladeKonferenzen())
+
+function getDateForStatus(event) {
+  if (event.conferences && event.conferences.length > 0) {
+    const sorted = [...event.conferences].sort((a, b) =>
+      new Date(b.date) - new Date(a.date)
+    )
+    return { date: sorted[0].date, endDate: sorted[0].endDate }
+  }
+  return { date: event.date, endDate: event.endDate }
+}
+
+function getStatus(k) {
+  const now = heute()
+  const { date, endDate } = getDateForStatus(k)
+  const start = new Date(date)
+  const end = new Date(endDate)
+  if (now >= start && now <= end) return 'aktiv'
+  if (start > now) return 'ausstehend'
+  return 'vergangen'
+}
+
+function getStatusLabel(k) {
+  const status = getStatus(k)
+  if (status === 'aktiv') return 'Aktiv'
+  if (status === 'ausstehend') return 'Ausstehend'
+  return 'Vergangen'
+}
+
+function formatDatum(datum) {
+  if (!datum) return '—'
+  return new Date(datum).toLocaleDateString('de-DE', {
+    day: '2-digit', month: 'short', year: 'numeric'
+  })
+}
+
+function getLatestConferenceDate(event) {
+  if (event.conferences && event.conferences.length > 0) {
+    const sorted = [...event.conferences].sort((a, b) =>
+      new Date(b.date) - new Date(a.date)
+    )
+    return formatDatum(sorted[0].date)
+  }
+  return formatDatum(event.date)
+}
+
+const aktiveKonferenzen = computed(() =>
+  konferenzen.value.filter(k => {
+    const now = heute()
+    const { date, endDate } = getDateForStatus(k)
+    const start = new Date(date)
+    const end = new Date(endDate)
+    return now >= start && now <= end
+  }).length
+)
+
+const ausstehendKonferenzen = computed(() =>
+  konferenzen.value.filter(k => {
+    const { date } = getDateForStatus(k)
+    return new Date(date) > heute()
+  }).length
+)
+
+function setSort(key) {
+  if (sortKey.value === key) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortKey.value = key
+    sortDir.value = 'asc'
+  }
+}
+
+function sortIcon(key) {
+  if (sortKey.value !== key) return '↕'
+  return sortDir.value === 'asc' ? '↑' : '↓'
+}
+
+const filtered = computed(() => {
+  let result = konferenzen.value.filter(k =>
+    k.title?.toLowerCase().includes(search.value.toLowerCase()) ||
+    k.city?.toLowerCase().includes(search.value.toLowerCase())
+  )
+  if (sortKey.value) {
+    result = [...result].sort((a, b) => {
+      // Datum-Sortierung: als Date-Objekte vergleichen
+      if (sortKey.value === 'date') {
+        const dateA = new Date(getDateForStatus(a).date || 0)
+        const dateB = new Date(getDateForStatus(b).date || 0)
+        return sortDir.value === 'asc' ? dateA - dateB : dateB - dateA
+      }
+      const valA = a[sortKey.value] || ''
+      const valB = b[sortKey.value] || ''
+      return sortDir.value === 'asc'
+        ? valA > valB ? 1 : -1
+        : valA < valB ? 1 : -1
+    })
+  }
+  return result
+})
+
+function bearbeiten(id) {
+  router.push(`/konferenzen/bearbeiten/${id}`)
+}
+
+function loeschen(id) {
+  deleteId.value = id
+}
+
+async function loeschenBestaetigen() {
+  try {
+    const response = await fetch(`${API_URL}/api/events/${deleteId.value}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    })
+    if (!response.ok) throw new Error()
+    konferenzen.value = konferenzen.value.filter(k => k.id !== deleteId.value)
+    successMessage.value = '🗑️ Konferenz wurde erfolgreich gelöscht!'
+    setTimeout(() => successMessage.value = '', 3000)
+  } catch {
+    ladeError.value = 'Löschen fehlgeschlagen. Bitte erneut versuchen.'
+  } finally {
+    deleteId.value = null
+  }
+}
+
+function logout() {
+  // TODO (Backlog): Token serverseitig invalidieren (POST /api/auth/logout)
+  localStorage.removeItem('admin_token')
+  router.push('/login')
+}
+</script>
+
 <template>
   <div class="dashboard">
     <aside class="sidebar">
@@ -7,7 +181,7 @@
         <a @click="router.push('/konferenzen/neu')">+ Neue Konferenz</a>
         <a @click="router.push('/einstellungen')">Einstellungen</a>
       </nav>
-      <button class="logout" @click="logout">Abmelden</button>
+      <button type="button" class="logout" @click="logout">Abmelden</button>
     </aside>
 
     <main class="content">
@@ -16,7 +190,7 @@
           <h1>Dashboard</h1>
           <p>Übersicht aller MUN-Konferenzen</p>
         </div>
-        <button class="btn-primary" @click="router.push('/konferenzen/neu')">+ Neue Konferenz</button>
+        <button type="button" class="btn-primary" @click="router.push('/konferenzen/neu')">+ Neue Konferenz</button>
       </div>
 
       <div class="stats">
@@ -80,8 +254,8 @@
               <td>{{ k.language?.toUpperCase() }}</td>
               <td><span :class="['badge', getStatus(k)]">{{ getStatusLabel(k) }}</span></td>
               <td>
-                <button class="btn-edit" @click="bearbeiten(k.id)">Bearbeiten</button>
-                <button class="btn-delete" @click="loeschen(k.id)">Löschen</button>
+                <button type="button" class="btn-edit" @click="bearbeiten(k.id)">Bearbeiten</button>
+                <button type="button" class="btn-delete" @click="loeschen(k.id)">Löschen</button>
               </td>
             </tr>
             <tr v-if="filtered.length === 0">
@@ -96,8 +270,8 @@
           <h3>Konferenz löschen?</h3>
           <p>Diese Aktion kann nicht rückgängig gemacht werden.</p>
           <div class="modal-actions">
-            <button class="cancel" @click="deleteId = null">Abbrechen</button>
-            <button class="btn-delete-confirm" @click="loeschenBestaetigen">Ja, löschen</button>
+            <button type="button" class="cancel" @click="deleteId = null">Abbrechen</button>
+            <button type="button" class="btn-delete-confirm" @click="loeschenBestaetigen">Ja, löschen</button>
           </div>
         </div>
       </div>
@@ -109,165 +283,6 @@
     </main>
   </div>
 </template>
-
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-const search = ref('')
-const deleteId = ref(null)
-const successMessage = ref('')
-const konferenzen = ref([])
-const loading = ref(true)
-const ladeError = ref('')
-const sortKey = ref('')
-const sortDir = ref('asc')
-
-function getToken() {
-  return localStorage.getItem('admin_token')
-}
-
-async function ladeKonferenzen() {
-  loading.value = true
-  ladeError.value = ''
-  try {
-    const response = await fetch('http://localhost:5000/api/events', {
-      headers: { 'Authorization': `Bearer ${getToken()}` }
-    })
-    if (!response.ok) throw new Error()
-    konferenzen.value = await response.json()
-  } catch {
-    ladeError.value = 'Konferenzen konnten nicht geladen werden. Ist das Backend gestartet?'
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(() => ladeKonferenzen())
-
-const heute = new Date()
-
-function getDateForStatus(event) {
-  if (event.conferences && event.conferences.length > 0) {
-    const sorted = [...event.conferences].sort((a, b) =>
-      new Date(b.date) - new Date(a.date)
-    )
-    return { date: sorted[0].date, endDate: sorted[0].endDate }
-  }
-  return { date: event.date, endDate: event.endDate }
-}
-
-function getStatus(k) {
-  const { date, endDate } = getDateForStatus(k)
-  const start = new Date(date)
-  const end = new Date(endDate)
-  if (heute >= start && heute <= end) return 'aktiv'
-  if (start > heute) return 'ausstehend'
-  return 'vergangen'
-}
-
-function getStatusLabel(k) {
-  const status = getStatus(k)
-  if (status === 'aktiv') return 'Aktiv'
-  if (status === 'ausstehend') return 'Ausstehend'
-  return 'Vergangen'
-}
-
-function formatDatum(datum) {
-  if (!datum) return '—'
-  return new Date(datum).toLocaleDateString('de-DE', {
-    day: '2-digit', month: 'short', year: 'numeric'
-  })
-}
-
-function getLatestConferenceDate(event) {
-  if (event.conferences && event.conferences.length > 0) {
-    const sorted = [...event.conferences].sort((a, b) =>
-      new Date(b.date) - new Date(a.date)
-    )
-    return formatDatum(sorted[0].date)
-  }
-  return formatDatum(event.date)
-}
-
-const aktiveKonferenzen = computed(() =>
-  konferenzen.value.filter(k => {
-    const { date, endDate } = getDateForStatus(k)
-    const start = new Date(date)
-    const end = new Date(endDate)
-    return heute >= start && heute <= end
-  }).length
-)
-
-const ausstehendKonferenzen = computed(() =>
-  konferenzen.value.filter(k => {
-    const { date } = getDateForStatus(k)
-    return new Date(date) > heute
-  }).length
-)
-
-function setSort(key) {
-  if (sortKey.value === key) {
-    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
-  } else {
-    sortKey.value = key
-    sortDir.value = 'asc'
-  }
-}
-
-function sortIcon(key) {
-  if (sortKey.value !== key) return '↕'
-  return sortDir.value === 'asc' ? '↑' : '↓'
-}
-
-const filtered = computed(() => {
-  let result = konferenzen.value.filter(k =>
-    k.title?.toLowerCase().includes(search.value.toLowerCase()) ||
-    k.city?.toLowerCase().includes(search.value.toLowerCase())
-  )
-  if (sortKey.value) {
-    result = [...result].sort((a, b) => {
-      const valA = a[sortKey.value] || ''
-      const valB = b[sortKey.value] || ''
-      return sortDir.value === 'asc'
-        ? valA > valB ? 1 : -1
-        : valA < valB ? 1 : -1
-    })
-  }
-  return result
-})
-
-function bearbeiten(id) {
-  router.push(`/konferenzen/bearbeiten/${id}`)
-}
-
-function loeschen(id) {
-  deleteId.value = id
-}
-
-async function loeschenBestaetigen() {
-  try {
-    const response = await fetch(`http://localhost:5000/api/events/${deleteId.value}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${getToken()}` }
-    })
-    if (!response.ok) throw new Error()
-    konferenzen.value = konferenzen.value.filter(k => k.id !== deleteId.value)
-    successMessage.value = '🗑️ Konferenz wurde erfolgreich gelöscht!'
-    setTimeout(() => successMessage.value = '', 3000)
-  } catch {
-    ladeError.value = 'Löschen fehlgeschlagen. Bitte erneut versuchen.'
-  } finally {
-    deleteId.value = null
-  }
-}
-
-function logout() {
-  localStorage.removeItem('admin_token')
-  router.push('/login')
-}
-</script>
 
 <style scoped>
 .dashboard { display: flex; min-height: 100vh; }

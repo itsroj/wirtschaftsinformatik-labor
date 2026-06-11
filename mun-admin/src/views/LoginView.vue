@@ -1,40 +1,8 @@
-<template>
-  <div class="login-container">
-    <div class="login-card">
-      <h1>MUN Admin</h1>
-      <p>Bitte melde dich an</p>
-
-      <div v-if="error" class="error">{{ error }}</div>
-
-      <input
-        v-model="email"
-        type="email"
-        placeholder="E-Mail"
-        :disabled="loading"
-        @keyup.enter="login"
-      />
-      <div class="password-wrapper">
-        <input
-          v-model="password"
-          :type="showPassword ? 'text' : 'password'"
-          placeholder="Passwort"
-          :disabled="loading"
-          @keyup.enter="login"
-        />
-        <button type="button" class="toggle-pw" @click="showPassword = !showPassword" tabindex="-1">
-          {{ showPassword ? '◉' : '○' }}
-        </button>
-      </div>
-      <button @click="login" :disabled="loading">
-        {{ loading ? 'Anmelden...' : 'Anmelden' }}
-      </button>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const router = useRouter()
 const email = ref('')
@@ -45,10 +13,17 @@ const showPassword = ref(false)
 
 async function login() {
   error.value = ''
+
+  // Einfache Validierung vor dem Request
+  if (!email.value || !password.value) {
+    error.value = 'Bitte E-Mail und Passwort eingeben.'
+    return
+  }
+
   loading.value = true
 
   try {
-    const response = await fetch('http://localhost:5000/api/auth/login', {
+    const response = await fetch(`${API_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -76,6 +51,42 @@ async function login() {
   }
 }
 </script>
+
+<template>
+  <div class="login-container">
+    <div class="login-card">
+      <h1>MUN Admin</h1>
+      <p>Bitte melde dich an</p>
+
+      <div v-if="error" class="error">{{ error }}</div>
+
+      <input
+        v-model="email"
+        type="email"
+        placeholder="E-Mail"
+        autocomplete="email"
+        :disabled="loading"
+        @keyup.enter="login"
+      />
+      <div class="password-wrapper">
+        <input
+          v-model="password"
+          :type="showPassword ? 'text' : 'password'"
+          placeholder="Passwort"
+          autocomplete="current-password"
+          :disabled="loading"
+          @keyup.enter="login"
+        />
+        <button type="button" class="toggle-pw" @click="showPassword = !showPassword" tabindex="-1">
+          {{ showPassword ? '◉' : '○' }}
+        </button>
+      </div>
+      <button type="button" @click="login" :disabled="loading">
+        {{ loading ? 'Anmelden...' : 'Anmelden' }}
+      </button>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .login-container {
