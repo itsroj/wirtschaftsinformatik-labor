@@ -106,19 +106,11 @@
           </div>
         </div>
 
-        <div class="form-actions">
-          <button type="button" class="cancel" @click="reset" :disabled="loading">Zurücksetzen</button>
-          <button type="submit" :disabled="loading || titleWarning">
-            {{ loading ? 'Wird gespeichert...' : (istBearbeiten ? 'Änderungen speichern' : 'Konferenz speichern') }}
-          </button>
-        </div>
+        <!-- KONFERENZDATEN -->
+        <div class="form-divider"></div>
 
-      </form>
-
-      <!-- KONFERENZDATEN -->
-      <section class="conferences-section">
         <div class="section-header">
-          <h2>Konferenzdaten</h2>
+          <h3 class="section-title">Konferenzdaten</h3>
           <button type="button" class="add-conf-btn" @click="showNewConf = true" v-if="!showNewConf">
             + Neuen Termin hinzufügen
           </button>
@@ -127,7 +119,7 @@
         <div v-if="confSuccess" class="success conf-msg">{{ confSuccess }}</div>
         <div v-if="confError" class="error conf-msg">{{ confError }}</div>
 
-        <div class="conference-list">
+        <div class="conference-list" style="max-height: 420px; overflow-y: auto;">
 
           <!-- Neue Konferenz Eingabe -->
           <div v-if="showNewConf" class="conference-row new-row">
@@ -173,7 +165,7 @@
                 <button type="button" class="cancel" @click="editingConfId = null">Abbrechen</button>
               </div>
             </template>
-<template v-else>
+            <template v-else>
               <div class="conf-display">
                 <div class="conf-dates">
                   <span class="conf-label">Termin:</span>
@@ -189,17 +181,27 @@
                 <button type="button" class="delete-btn" @click="deleteConference(conf.id)">Löschen</button>
               </div>
             </template>
-</div>
+          </div>
 
-<div v-if="conferences.length === 0 && !showNewConf" class="no-conferences">
-  {{ istBearbeiten ? 'Noch keine Konferenzdaten vorhanden.' : 'Füge unten Termine für dieses Event hinzu.' }}
-</div>
+          <div v-if="conferences.length === 0 && !showNewConf" class="no-conferences">
+            {{ istBearbeiten ? 'Noch keine Konferenzdaten vorhanden.' : 'Füge unten Termine für dieses Event hinzu.' }}
+          </div>
 
-</div>
-</section>
+        </div>
 
-</main>
-</div>
+        <div class="form-divider"></div>
+
+        <div class="form-actions">
+          <button type="button" class="cancel" @click="reset" :disabled="loading">Zurücksetzen</button>
+          <button type="submit" :disabled="loading || titleWarning">
+            {{ loading ? 'Wird gespeichert...' : (istBearbeiten ? 'Änderungen speichern' : 'Konferenz speichern') }}
+          </button>
+        </div>
+
+      </form>
+
+    </main>
+  </div>
 </template>
 
 <script setup>
@@ -690,7 +692,7 @@ p {
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-  max-width: 700px;
+  max-width: 760px;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -816,24 +818,26 @@ button[type="submit"]:disabled {
   border: 1px solid #ddd;
 }
 
-/* ---- Konferenzdaten-Sektion ---- */
+/* ---- Konferenzdaten-Sektion (innerhalb .form) ---- */
 
-.conferences-section {
-  margin-top: 2rem;
-  max-width: 700px;
+.form-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 0.25rem 0;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f3b66;
 }
 
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
-.section-header h2 {
-  margin: 0;
-  font-size: 1.1rem;
-  color: #0f3b66;
+  margin-bottom: 0.75rem;
 }
 
 .add-conf-btn {
