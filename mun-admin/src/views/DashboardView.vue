@@ -1,29 +1,47 @@
+<!--
+  DashboardView.vue
+
+  Hauptansicht des Admin-Bereichs nach dem Login.
+  Zeigt eine Übersicht aller MUN-Konferenzen mit Statistiken,
+  Suchfunktion, sortierbarer Tabelle sowie Bearbeiten- und
+  Löschen-Aktionen. Enthält außerdem die Logout-Funktion.
+-->
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
+// API-Basis-URL aus Umgebungsvariable, Fallback für lokale Entwicklung
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const router = useRouter()
+
+// Suchbegriff für die Tabellenfilterung
 const search = ref('')
+// ID der Konferenz, die gelöscht werden soll (steuert den Bestätigungs-Dialog)
 const deleteId = ref(null)
 const successMessage = ref('')
 const konferenzen = ref([])
 const loading = ref(true)
 const ladeError = ref('')
+
 // Standard-Sortierung: Name aufsteigend
 const sortKey = ref('title')
 const sortDir = ref('asc')
 
+/** Liest das JWT-Token aus dem localStorage. */
 function getToken() {
   return localStorage.getItem('admin_token')
 }
 
-// Aktuelles Datum als Funktion, damit es nicht beim App-Start eingefroren wird
+/**
+ * Gibt das aktuelle Datum zurück.
+ * Als Funktion statt const, damit der Wert nicht beim App-Start eingefroren wird.
+ */
 function heute() {
   return new Date()
 }
 
+/** Lädt alle Konferenzen vom Backend und speichert sie in `konferenzen`. */
 async function ladeKonferenzen() {
   loading.value = true
   ladeError.value = ''
@@ -42,6 +60,10 @@ async function ladeKonferenzen() {
 
 onMounted(() => ladeKonferenzen())
 
+/**
+ * Gibt Start- und Enddatum einer Konferenz zurück.
+ * Falls das Event Unter-Konferenzen hat, wird die neueste davon verwendet.
+ */
 function getDateForStatus(event) {
   if (event.conferences && event.conferences.length > 0) {
     const sorted = [...event.conferences].sort((a, b) =>
@@ -52,6 +74,10 @@ function getDateForStatus(event) {
   return { date: event.date, endDate: event.endDate }
 }
 
+/**
+ * Berechnet den Status einer Konferenz anhand des aktuellen Datums.
+ * Mögliche Werte: 'aktiv', 'ausstehend', 'vergangen'
+ */
 function getStatus(k) {
   const now = heute()
   const { date, endDate } = getDateForStatus(k)
@@ -62,6 +88,7 @@ function getStatus(k) {
   return 'vergangen'
 }
 
+/** Gibt das lokalisierte Status-Label zurück (für die Badge-Anzeige). */
 function getStatusLabel(k) {
   const status = getStatus(k)
   if (status === 'aktiv') return 'Aktiv'
@@ -69,6 +96,7 @@ function getStatusLabel(k) {
   return 'Vergangen'
 }
 
+/** Formatiert ein Datum als deutsches Kurzformat (z.B. "12. Jun. 2025"). */
 function formatDatum(datum) {
   if (!datum) return '—'
   return new Date(datum).toLocaleDateString('de-DE', {
@@ -76,6 +104,10 @@ function formatDatum(datum) {
   })
 }
 
+/**
+ * Gibt das (neueste) Konferenzdatum als formatierten String zurück.
+ * Bei Events mit Unter-Konferenzen wird die neueste verwendet.
+ */
 function getLatestConferenceDate(event) {
   if (event.conferences && event.conferences.length > 0) {
     const sorted = [...event.conferences].sort((a, b) =>
@@ -86,6 +118,7 @@ function getLatestConferenceDate(event) {
   return formatDatum(event.date)
 }
 
+// Berechnete Anzahl aktiver bzw. ausstehender Konferenzen für die Stat-Cards
 const aktiveKonferenzen = computed(() =>
   konferenzen.value.filter(k => {
     const now = heute()
@@ -103,6 +136,10 @@ const ausstehendKonferenzen = computed(() =>
   }).length
 )
 
+/**
+ * Setzt den Sortierschlüssel oder wechselt die Sortierrichtung,
+ * falls die Spalte bereits aktiv ist.
+ */
 function setSort(key) {
   if (sortKey.value === key) {
     sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
@@ -112,11 +149,16 @@ function setSort(key) {
   }
 }
 
+/** Gibt das passende Pfeil-Icon für den aktuellen Sortierstatus zurück. */
 function sortIcon(key) {
   if (sortKey.value !== key) return '↕'
   return sortDir.value === 'asc' ? '↑' : '↓'
 }
 
+/**
+ * Gefilterte und sortierte Konferenzliste für die Tabelle.
+ * Suche läuft über Titel und Stadt, Datum-Sortierung nutzt echte Date-Objekte.
+ */
 const filtered = computed(() => {
   let result = konferenzen.value.filter(k =>
     k.title?.toLowerCase().includes(search.value.toLowerCase()) ||
@@ -124,7 +166,7 @@ const filtered = computed(() => {
   )
   if (sortKey.value) {
     result = [...result].sort((a, b) => {
-      // Datum-Sortierung: als Date-Objekte vergleichen
+      // Datum-Sortierung: als Date-Objekte vergleichen, kein String-Vergleich
       if (sortKey.value === 'date') {
         const dateA = new Date(getDateForStatus(a).date || 0)
         const dateB = new Date(getDateForStatus(b).date || 0)
@@ -140,14 +182,17 @@ const filtered = computed(() => {
   return result
 })
 
+/** Navigiert zur Bearbeitungsansicht der gewählten Konferenz. */
 function bearbeiten(id) {
   router.push(`/konferenzen/bearbeiten/${id}`)
 }
 
+/** Setzt die deleteId, um den Bestätigungs-Dialog zu öffnen. */
 function loeschen(id) {
   deleteId.value = id
 }
 
+/** Führt den Lösch-Request aus und aktualisiert die lokale Liste. */
 async function loeschenBestaetigen() {
   try {
     const response = await fetch(`${API_URL}/api/events/${deleteId.value}`, {
@@ -155,6 +200,7 @@ async function loeschenBestaetigen() {
       headers: { 'Authorization': `Bearer ${getToken()}` }
     })
     if (!response.ok) throw new Error()
+    // Gelöschte Konferenz lokal aus der Liste entfernen (kein erneuter API-Call nötig)
     konferenzen.value = konferenzen.value.filter(k => k.id !== deleteId.value)
     successMessage.value = '🗑️ Konferenz wurde erfolgreich gelöscht!'
     setTimeout(() => successMessage.value = '', 3000)
@@ -165,8 +211,11 @@ async function loeschenBestaetigen() {
   }
 }
 
+/**
+ * Meldet den Nutzer ab, indem das Token aus dem localStorage entfernt wird.
+ * TODO (Backlog): Token serverseitig invalidieren via POST /api/auth/logout
+ */
 function logout() {
-  // TODO (Backlog): Token serverseitig invalidieren (POST /api/auth/logout)
   localStorage.removeItem('admin_token')
   router.push('/login')
 }
@@ -193,6 +242,7 @@ function logout() {
         <button type="button" class="btn-primary" @click="router.push('/konferenzen/neu')">+ Neue Konferenz</button>
       </div>
 
+      <!-- Statistik-Karten -->
       <div class="stats">
         <div class="stat-card">
           <span class="icon">🌍</span>
@@ -217,6 +267,7 @@ function logout() {
         </div>
       </div>
 
+      <!-- Fehlerhinweis beim Laden oder Löschen -->
       <div v-if="ladeError" class="error-banner">{{ ladeError }}</div>
 
       <div class="table-card">
@@ -227,6 +278,7 @@ function logout() {
 
         <div v-if="loading" class="loading">Konferenzen werden geladen...</div>
 
+        <!-- Konferenz-Tabelle mit klickbaren Spaltenköpfen zum Sortieren -->
         <table v-else>
           <thead>
             <tr>
@@ -265,6 +317,7 @@ function logout() {
         </table>
       </div>
 
+      <!-- Bestätigungs-Dialog vor dem Löschen -->
       <div v-if="deleteId" class="modal-overlay">
         <div class="modal">
           <h3>Konferenz löschen?</h3>
@@ -276,10 +329,10 @@ function logout() {
         </div>
       </div>
 
+      <!-- Erfolgs-Toast (erscheint nach erfolgreichem Löschen) -->
       <div v-if="successMessage" class="success-toast">
         {{ successMessage }}
       </div>
-
     </main>
   </div>
 </template>

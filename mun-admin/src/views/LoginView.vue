@@ -1,20 +1,40 @@
+<!--
+  LoginView.vue
+
+  Einziger öffentlicher Zugangspunkt der Admin-Anwendung.
+  Nimmt E-Mail und Passwort entgegen, sendet sie an POST /api/auth/login
+  und speichert das zurückgegebene JWT-Token im localStorage.
+  Der Router-Guard in router/index.js leitet eingeloggte Nutzer
+  automatisch zum Dashboard weiter, sodass diese Seite nicht erneut
+  erreichbar ist solange das Token gültig ist.
+-->
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+// API-Basis-URL aus Umgebungsvariable, Fallback für lokale Entwicklung
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const router = useRouter()
+
+// Formulardaten
 const email = ref('')
 const password = ref('')
+
+// UI-Zustände
 const error = ref('')
 const loading = ref(false)
 const showPassword = ref(false)
 
+/**
+ * Sendet die Login-Anfrage an das Backend.
+ * Bei Erfolg wird das JWT-Token im localStorage gespeichert
+ * und der Nutzer zum Dashboard weitergeleitet.
+ */
 async function login() {
   error.value = ''
 
-  // Einfache Validierung vor dem Request
+  // Einfache Client-Validierung vor dem Request
   if (!email.value || !password.value) {
     error.value = 'Bitte E-Mail und Passwort eingeben.'
     return
@@ -37,14 +57,17 @@ async function login() {
     const data = await response.json()
 
     if (!response.ok) {
+      // Fehlermeldung vom Backend direkt anzeigen, sonst Fallback
       error.value = data.message || 'E-Mail oder Passwort falsch.'
       return
     }
 
+    // Token sichern und weiterleiten
     localStorage.setItem('admin_token', data.token)
     router.push('/dashboard')
 
   } catch (err) {
+    // Netzwerkfehler oder Server nicht erreichbar
     error.value = 'Server nicht erreichbar. Bitte später erneut versuchen.'
   } finally {
     loading.value = false
@@ -58,6 +81,7 @@ async function login() {
       <h1>MUN Admin</h1>
       <p>Bitte melde dich an</p>
 
+      <!-- Fehlermeldung (Client-Validierung oder Backend-Fehler) -->
       <div v-if="error" class="error">{{ error }}</div>
 
       <input
@@ -68,6 +92,8 @@ async function login() {
         :disabled="loading"
         @keyup.enter="login"
       />
+
+      <!-- Passwort-Feld mit Sichtbarkeits-Toggle -->
       <div class="password-wrapper">
         <input
           v-model="password"
@@ -81,6 +107,7 @@ async function login() {
           {{ showPassword ? '◉' : '○' }}
         </button>
       </div>
+
       <button type="button" @click="login" :disabled="loading">
         {{ loading ? 'Anmelden...' : 'Anmelden' }}
       </button>
