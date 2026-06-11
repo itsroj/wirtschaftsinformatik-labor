@@ -339,9 +339,7 @@ onUnmounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.6);
   z-index: 20;
   will-change: transform;
-  transform: translateZ(0);
-  animation: sidebarFade 0.35s ease;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  animation: sidebarFade 0.35s ease both;
   backface-visibility: hidden;
 }
 
