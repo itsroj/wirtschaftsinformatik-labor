@@ -39,7 +39,7 @@ const router = useRouter()
 const languageStore = useLanguageStore()
 
 const infoText = computed(() => {
-  return languageStore.currentLanguage.value === 'de'
+  return languageStore.currentLanguage === 'de'
     ? 'Model-United-Nations-Konferenzen (MUNs) sind Planspiele, bei denen die Teilnehmer in die Rolle von Delegierten bei den Vereinten Nationen schlüpfen. In simulierten Gremien wie dem Sicherheitsrat oder der Generalversammlung debattieren die Delegierten über weltpolitische Themen, handeln Kompromisse aus und verabschieden Resolutionen.'
     : 'Model United Nations (MUN) conferences are simulation games in which participants take on the role of delegates at the United Nations. In simulated bodies such as the Security Council or the General Assembly, delegates debate global political issues, negotiate compromises, and adopt resolutions.'
 })

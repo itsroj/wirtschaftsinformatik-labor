@@ -44,6 +44,9 @@ defineProps({
   reverse: Boolean
 })
 
+import { useThemeStore } from '@/stores/useThemeStore'
+const themeStore = useThemeStore()
+
 </script>
 
 <style scoped>
@@ -155,7 +158,7 @@ h2 {
   background: rgba(79, 169, 227, 0.08);
   border: 1px solid rgba(79, 169, 227, 0.18);
 
-  color: #0e0e0e;
+  color: v-bind('themeStore.isDark ? "#dde9f5" : "#0e0e0e"');
   font-weight: 500;
   font-size: 0.92rem;
 
@@ -168,6 +171,8 @@ h2 {
   background: rgba(79, 169, 227, 0.22);
   transform: translateY(-1px);
 }
+
+/* Dark Mode: handled via v-bind in :deep(.link-card a) */
 
 @media (max-width: 1200px) {
   .block {

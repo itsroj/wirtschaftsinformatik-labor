@@ -11,7 +11,7 @@
 
         <div class="footer-logo">
 
-          <img src="@/assets/images/logo.png">
+          <img :src="logoSrc">
 
           <SocialIcons facebook="https://www.facebook.com/deutschemodelunitednations/?locale=de_DE"
             instagram="https://www.instagram.com/munsh_dmun/" x="https://x.com/DMUN_eV" />
@@ -99,10 +99,16 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
+import { computed } from 'vue'
 import SocialIcons from '@/components/icons/SocialIcons.vue'
 import { useLanguageStore } from '@/stores/useLanguageStore'
+import { useThemeStore } from '@/stores/useThemeStore'
+import logoLight from '@/assets/images/logo.png'
+import logoDark from '@/assets/images/logo_weiss.png'
 
 const languageStore = useLanguageStore()
+const themeStore = useThemeStore()
+const logoSrc = computed(() => themeStore.isDark ? logoDark : logoLight)
 </script>
 
 <style scoped>

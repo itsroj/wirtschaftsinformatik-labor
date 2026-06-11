@@ -208,6 +208,10 @@ html.dark .filters h3 {
   color: #dde9f5;
 }
 
+html.dark .filters .sort-row span {
+  color: #8bafc9;
+}
+
 html.dark .filters input[type="text"] {
   background: rgba(255, 255, 255, 0.06);
   color: #dde9f5;
@@ -345,6 +349,32 @@ html.dark .contact-link {
 
 html.dark .contact-details h3 {
   color: #dde9f5;
+}
+
+/* ── HeroSection Suchfeld ── */
+html.dark .search-box {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+html.dark .search-box input {
+  background: transparent;
+  color: #dde9f5;
+}
+
+html.dark .search-box input::placeholder {
+  color: #5a7a96;
+}
+
+html.dark .search-box button {
+  background: #1a5494;
+}
+
+html.dark .search-box button:hover {
+  background: #2677b5;
+}
+
+html.dark .search-icon {
+  color: #c5d8ee;
 }
 
 /* ── Map Sidebar (EventSidebar) ── */

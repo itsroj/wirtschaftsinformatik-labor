@@ -176,6 +176,7 @@ p {
   color: white;
 
   cursor: pointer;
+  flex-shrink: 0;
 
   transition: background 0.2s ease;
 }

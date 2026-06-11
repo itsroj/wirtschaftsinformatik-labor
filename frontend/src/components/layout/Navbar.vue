@@ -6,7 +6,7 @@
 
       <!-- Logo -->
       <div class="logo">
-        <img src="@/assets/images/logo.png" alt="DMUN Logo">
+        <img :src="logoSrc" alt="DMUN Logo">
       </div>
 
       <!-- Desktop Navigation -->
@@ -111,14 +111,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useLanguageStore } from '@/stores/useLanguageStore'
 import { useThemeStore } from '@/stores/useThemeStore'
+import logoLight from '@/assets/images/logo.png'
+import logoDark from '@/assets/images/logo_weiss.png'
 
 const languageStore = useLanguageStore()
 const themeStore = useThemeStore()
 const isMenuOpen = ref(false)
+
+const logoSrc = computed(() => themeStore.isDark ? logoDark : logoLight)
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
