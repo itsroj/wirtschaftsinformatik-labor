@@ -173,7 +173,7 @@
                 <button type="button" class="cancel" @click="editingConfId = null">Abbrechen</button>
               </div>
             </template>
-            <template v-else>
+<template v-else>
               <div class="conf-display">
                 <div class="conf-dates">
                   <span class="conf-label">Termin:</span>
@@ -189,17 +189,17 @@
                 <button type="button" class="delete-btn" @click="deleteConference(conf.id)">Löschen</button>
               </div>
             </template>
-          </div>
+</div>
 
-          <div v-if="conferences.length === 0 && !showNewConf" class="no-conferences">
-            {{ istBearbeiten ? 'Noch keine Konferenzdaten vorhanden.' : 'Füge unten Termine für dieses Event hinzu.' }}
-          </div>
+<div v-if="conferences.length === 0 && !showNewConf" class="no-conferences">
+  {{ istBearbeiten ? 'Noch keine Konferenzdaten vorhanden.' : 'Füge unten Termine für dieses Event hinzu.' }}
+</div>
 
-        </div>
-      </section>
+</div>
+</section>
 
-    </main>
-  </div>
+</main>
+</div>
 </template>
 
 <script setup>
@@ -612,141 +612,6 @@ async function deleteConference(confId) {
   }
 }
 </script>
-
-<template>
-  <div class="dashboard">
-    <aside class="sidebar">
-      <h2>MUN Admin</h2>
-      <nav>
-        <a @click="router.push('/dashboard')">Dashboard</a>
-        <a class="active">Konferenzen</a>
-        <a @click="router.push('/einstellungen')">Einstellungen</a>
-      </nav>
-      <button type="button" class="logout" @click="logout">Abmelden</button>
-    </aside>
-
-    <main class="content">
-      <h1>{{ istBearbeiten ? 'Konferenz bearbeiten' : 'Neue Konferenz eintragen' }}</h1>
-      <p>{{ beschreibungsText }}</p>
-
-      <div v-if="success" class="success">{{ success }}</div>
-      <div v-if="error" class="error">{{ error }}</div>
-
-      <form class="form" @submit.prevent="submit">
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Kurzname *</label>
-            <input v-model="form.title" type="text" placeholder="z.B. BERMUN" required :disabled="loading" />
-          </div>
-          <div class="form-group">
-            <label>Ausgeschriebener Name *</label>
-            <input v-model="form.longTitle" type="text" placeholder="z.B. Berlin Model United Nations 2025" required
-              :disabled="loading" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Beschreibung (Deutsch)</label>
-          <textarea v-model="form.description_de" rows="4" placeholder="Kurze deutsche Beschreibung der Konferenz..."
-            :disabled="loading"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Description (English)</label>
-          <textarea v-model="form.description_en" rows="4" placeholder="Short English description of the conference..."
-            :disabled="loading"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Stadt *</label>
-          <input v-model="form.city" type="text" placeholder="z.B. Berlin, Deutschland" required :disabled="loading" />
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Startdatum *</label>
-            <input v-model="form.date" type="date" required :disabled="loading" />
-          </div>
-          <div class="form-group">
-            <label>Enddatum *</label>
-            <input v-model="form.endDate" type="date" required :disabled="loading" />
-          </div>
-          <div class="form-group">
-            <label>Anmeldefrist *</label>
-            <input v-model="form.applicationDate" type="date" required :disabled="loading" />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Teilnehmerzahl *</label>
-            <input v-model="form.participants" type="number" min="1" placeholder="z.B. 200" required
-              :disabled="loading" />
-          </div>
-          <div class="form-group">
-            <label>Erste Konferenz (Jahr) *</label>
-            <input v-model="form.firstConference" type="number" min="1900" max="2100" placeholder="z.B. 2015" required
-              :disabled="loading" />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Sprache *</label>
-            <select v-model="form.language" :disabled="loading">
-              <option value="de">Deutsch</option>
-              <option value="en">Englisch</option>
-              <option value="both">Deutsch & Englisch</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Typ *</label>
-            <select v-model="form.type" :disabled="loading">
-              <option value="schueler">Schüler</option>
-              <option value="studenten">Studenten</option>
-              <option value="mini-mun">Mini-MUN</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Website</label>
-            <input v-model="form.website" type="url" placeholder="https://..." :disabled="loading" />
-          </div>
-          <div class="form-group">
-            <label>Instagram</label>
-            <input v-model="form.instagramLink" type="url" placeholder="https://instagram.com/..."
-              :disabled="loading" />
-          </div>
-          <div class="form-group">
-            <label>Facebook</label>
-            <input v-model="form.facebookLink" type="url" placeholder="https://facebook.com/..." :disabled="loading" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Logo</label>
-          <input type="file" accept=".png,.jpg,.jpeg" @change="handleLogo" :disabled="loading" />
-          <div v-if="logoPreview" class="logo-preview">
-            <img :src="logoPreview" alt="Logo Vorschau" />
-          </div>
-        </div>
-
-        <p class="pflichtfeld-hinweis">* Pflichtfelder</p>
-
-        <div class="form-actions">
-          <button type="button" class="cancel" @click="reset" :disabled="loading">Zurücksetzen</button>
-          <button type="submit" :disabled="loading">
-            {{ loading ? 'Wird gespeichert...' : (istBearbeiten ? 'Änderungen speichern' : 'Konferenz speichern') }}
-          </button>
-        </div>
-
-      </form>
-    </main>
-  </div>
-</template>
 
 <style scoped>
 .dashboard {

@@ -49,8 +49,7 @@ router.beforeEach((to, from) => {
 
   // Eingeloggter User muss nicht zur Login-Seite
   if (to.name === 'login' && isLoggedIn) {
-    next('/dashboard')
-    return
+    return '/dashboard'
   }
 
   // TODO (Backlog): Token nur auf Vorhandensein geprüft, nicht auf Gültigkeit.
