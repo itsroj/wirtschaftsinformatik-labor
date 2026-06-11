@@ -41,6 +41,27 @@
           {{ languageStore.currentLanguage === 'de' ? '🇩🇪' : '🇬🇧' }}
         </button>
 
+        <!-- Dark Mode -->
+        <button class="theme-button" @click="themeStore.toggleDark()"
+          :title="themeStore.isDark ? 'Light Mode' : 'Dark Mode'">
+          <svg v-if="themeStore.isDark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4" />
+            <line x1="12" y1="2" x2="12" y2="6" />
+            <line x1="12" y1="18" x2="12" y2="22" />
+            <line x1="2" y1="12" x2="6" y2="12" />
+            <line x1="18" y1="12" x2="22" y2="12" />
+            <line x1="4.22" y1="4.22" x2="7.05" y2="7.05" />
+            <line x1="16.95" y1="16.95" x2="19.78" y2="19.78" />
+            <line x1="4.22" y1="19.78" x2="7.05" y2="16.95" />
+            <line x1="16.95" y1="7.05" x2="19.78" y2="4.22" />
+          </svg>
+          <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+
         <!-- Mobile Menü -->
         <button class="menu-button" @click="toggleMenu" :aria-expanded="isMenuOpen" aria-label="Navigation öffnen">
 
@@ -93,8 +114,10 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useLanguageStore } from '@/stores/useLanguageStore'
+import { useThemeStore } from '@/stores/useThemeStore'
 
 const languageStore = useLanguageStore()
+const themeStore = useThemeStore()
 const isMenuOpen = ref(false)
 
 const toggleMenu = () => {
@@ -225,6 +248,36 @@ const closeMenu = () => {
 
   box-shadow:
     0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* DARK MODE BUTTON */
+.theme-button {
+  width: 46px;
+  height: 46px;
+
+  border-radius: 12px;
+  border: none;
+  background: white;
+  color: #1b1b1b;
+
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.theme-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.theme-button svg {
+  width: 20px;
+  height: 20px;
 }
 
 /* MOBILE BUTTON */

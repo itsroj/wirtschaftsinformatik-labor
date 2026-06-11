@@ -18,12 +18,24 @@
       <img src="@/assets/images/germany.svg" class="map" alt="Deutschland Karte" />
 
       <!--
-        Für jedes Event in der Liste wird ein EventMarker-Pin auf der Karte gerendert.
-        :key hilft Vue, die Elemente effizient zu verwalten.
-        Wenn ein Pin angeklickt wird, feuert er das "select"-Event → handleSelect()
+        Pro Stadt wird ein Marker gerendert.
+        Bei mehreren Events in einer Stadt zeigt der Marker ein Zahlen-Badge.
+        Klick auf diesen Pin klappt die Sub-Pins auf.
+        Ist die Stadt aufgeklappt, werden stattdessen die einzelnen Sub-Pins angezeigt,
+        von denen jeder direkt das passende Event verlinkt.
       -->
-      <EventMarker v-for="event in props.events" :key="event.id" :event="event" :isMobile="isMobile"
-        @select="handleSelect" />
+      <template v-for="(cityEvents, city) in cityGroups" :key="city">
+
+        <!-- Haupt-Pin: sichtbar solange die Stadt NICHT aufgeklappt ist -->
+        <EventMarker v-if="expandedCity !== city" :event="cityEvents[0]" :count="cityEvents.length" :isMobile="isMobile"
+          @select="() => handleCityClick(city, cityEvents)" />
+
+        <!-- Sub-Pins: erscheinen nebeneinander wenn die Stadt aufgeklappt ist -->
+        <EventMarker v-if="expandedCity === city" v-for="(event, idx) in cityEvents" :key="event.id" :event="event"
+          :isMobile="isMobile" :isSubMarker="true" :offsetX="getSubPinOffsets(cityEvents.length)[idx]"
+          @select="handleSelect" />
+
+      </template>
 
       <!--
         Backdrop (nur Desktop): unsichtbare Fläche über der gesamten Karte.
@@ -61,7 +73,7 @@ import EventMarker from './EventMarker.vue'
 import EventSidebar from './EventSidebar.vue'
 import EventMobileSheet from './EventMobileSheet.vue'
 import { useEventsStore } from '@/stores/useEventsStore'
-import { getEventPosition } from '@/utils/cityCoordinates'
+import { getEventPosition, cityCoordinates } from '@/utils/cityCoordinates'
 
 // Props, die von der Elternkomponente übergeben werden:
 // - events: Liste aller Events, die auf der Karte angezeigt werden sollen
@@ -92,9 +104,31 @@ const sidebarPosition = ref(null)
 // true wenn Bildschirmbreite ≤ 900px (Mobilansicht)
 const isMobile = ref(false)
 
+// Welche Stadt ist gerade aufgeklappt (zeigt Sub-Pins für alle Events)
+const expandedCity = ref(null)
+
+// Events gruppiert nach Stadt – unbekannte Städte werden herausgefiltert
+// (verhindert "Stadt nicht gefunden"-Warnungen für Testdaten / Tippfehler)
+const cityGroups = computed(() => {
+  const groups = {}
+  for (const event of props.events) {
+    if (!event.city || !cityCoordinates[event.city]) continue
+    if (!groups[event.city]) groups[event.city] = []
+    groups[event.city].push(event)
+  }
+  return groups
+})
+
+// Berechnet gleichmäßige horizontale Pixel-Abstände für N Sub-Pins
+const getSubPinOffsets = (count) => {
+  const spacing = 28 // px zwischen Sub-Pins
+  return Array.from({ length: count }, (_, i) => (i - (count - 1) / 2) * spacing)
+}
+
 // Wird aufgerufen, wenn der Nutzer neben die Sidebar klickt (Backdrop-Klick)
 const handleOutsideClick = () => {
   sidebarPosition.value = null
+  expandedCity.value = null
   store.clearSelectedEvent()
 }
 
@@ -141,10 +175,35 @@ const handleSelect = (data) => {
   store.setSelectedEvent(event.id)
 }
 
+// Wird aufgerufen, wenn ein Stadt-Pin (ggf. mit mehreren Events) geklickt wird.
+// Bei einer Stadt mit einem Event: direkt auswählen.
+// Bei mehreren Events: Stadt aufklappen (Sub-Pins anzeigen) oder wieder einklappen.
+const handleCityClick = (city, cityEvents) => {
+  if (cityEvents.length === 1) {
+    expandedCity.value = null
+    handleSelect(cityEvents[0])
+  } else {
+    if (expandedCity.value === city) {
+      // Bereits aufgeklappt → einklappen
+      expandedCity.value = null
+      sidebarPosition.value = null
+      store.clearSelectedEvent()
+    } else {
+      // Aufklappen: vorherige Auswahl verwerfen
+      expandedCity.value = city
+      sidebarPosition.value = null
+      store.clearSelectedEvent()
+    }
+  }
+}
+
 // Mobile: Zur Liste scrollen und dann das Sheet schließen
 const handleMobileGoToList = () => {
   scrollToList()
-  store.clearSelectedEvent()
+  // Kleine Verzögerung, damit der Watcher in ConferenceList Zeit hat zu reagieren bevor wir selectedEventId löschen
+  setTimeout(() => {
+    store.clearSelectedEvent()
+  }, 100)
 }
 
 onMounted(() => {
@@ -280,9 +339,7 @@ onUnmounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.6);
   z-index: 20;
   will-change: transform;
-  transform: translateZ(0);
-  animation: sidebarFade 0.35s ease;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  animation: sidebarFade 0.35s ease both;
   backface-visibility: hidden;
 }
 

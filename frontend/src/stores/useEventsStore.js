@@ -73,7 +73,9 @@ export const useEventsStore = defineStore('events', {
 
         const matchesSearch =
           !search ||
-          event.title.toLowerCase().includes(search)
+          (event.title || '').toLowerCase().includes(search) ||
+          (event.longTitle || '').toLowerCase().includes(search) ||
+          (event.city || '').toLowerCase().includes(search)
 
         const matchesType =
           state.selectedTypes.length === 0 ||

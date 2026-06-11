@@ -4,14 +4,20 @@
     Wird von DeutschlandMap.vue für jedes Event mit v-for gerendert.
     - Die Position wird automatisch aus dem Stadtnamen berechnet
     - @click.stop verhindert, dass der Klick zum Backdrop durchläuft
+    - isSubMarker: kleinerer Pin ohne Puls, für erweiterte Stadt-Gruppe
+    - count: zeigt Zahlen-Badge bei mehreren Events in einer Stadt
+    - offsetX: horizontale Pixel-Verschiebung für Sub-Pins nebeneinander
   -->
-  <div class="marker" :style="positionStyle" @click.stop="handleClick">
+  <div class="marker" :class="{ 'sub-marker': isSubMarker }" :style="markerStyle" @click.stop="handleClick">
 
     <!-- Der sichtbare Punkt des Pins -->
     <div class="dot"></div>
 
-    <!-- Animierter Puls-Ring um den Punkt -->
+    <!-- Animierter Puls-Ring -->
     <div class="pulse"></div>
+
+    <!-- Zahlen-Badge: erscheint wenn mehrere Events in dieser Stadt -->
+    <div v-if="count > 1" class="count-badge">{{ count }}</div>
 
   </div>
 </template>
@@ -20,8 +26,6 @@
 import { computed } from 'vue'
 import { getEventPosition } from '@/utils/cityCoordinates'
 
-// Props: Das Event-Objekt mit allen Daten (Pflichtfeld)
-// isMobile wird übergeben, hat aber aktuell keinen eigenen Effekt im Marker selbst
 const props = defineProps({
   event: {
     type: Object,
@@ -30,20 +34,35 @@ const props = defineProps({
   isMobile: {
     type: Boolean,
     default: false
+  },
+  // Anzahl der Events in dieser Stadt (für Badge-Anzeige)
+  count: {
+    type: Number,
+    default: 1
+  },
+  // true = Sub-Pin (kleiner, kein Puls, andere Farbe)
+  isSubMarker: {
+    type: Boolean,
+    default: false
+  },
+  // Horizontale Pixel-Verschiebung für nebeneinander stehende Sub-Pins
+  offsetX: {
+    type: Number,
+    default: 0
   }
 })
 
-// "select" wird nach oben an DeutschlandMap.vue gesendet, wenn der Pin geklickt wird
 const emit = defineEmits(['select'])
 
-// Berechnet die CSS-Position (left/top in %) aus dem Stadtnamen des Events.
-// getEventPosition schaut in einer Koordinaten-Tabelle nach und rechnet
-// die geografischen Koordinaten in Prozentwerte um.
-const positionStyle = computed(() => {
-  return getEventPosition(props.event.city)
+// Kombiniert die geografische Position mit dem optionalen horizontalen Offset
+const markerStyle = computed(() => {
+  const pos = getEventPosition(props.event.city)
+  const transform = props.offsetX !== 0
+    ? `translate(calc(-50% + ${props.offsetX}px), -50%)`
+    : 'translate(-50%, -50%)'
+  return { ...pos, transform }
 })
 
-// Wenn der Pin angeklickt wird, senden wir das gesamte Event-Objekt nach oben
 const handleClick = () => {
   emit('select', props.event)
 }
@@ -57,6 +76,11 @@ const handleClick = () => {
   z-index: 5;
 }
 
+/* Sub-Pin: höherer z-index damit er über dem Haupt-Pin liegt */
+.sub-marker {
+  z-index: 15;
+}
+
 /* 🔵 Mittelpunkt */
 .dot {
   width: 14px;
@@ -66,6 +90,13 @@ const handleClick = () => {
   z-index: 2;
 
   transition: transform 0.2s ease;
+}
+
+/* Sub-Pin Dot: gleiche Größe und Farbe wie normale Pins */
+.sub-marker .dot {
+  width: 14px;
+  height: 14px;
+  background: #c1c4c7;
 }
 
 /* Hover Effekt */
@@ -103,5 +134,25 @@ const handleClick = () => {
     transform: translate(-50%, -50%) scale(2.5);
     opacity: 0;
   }
+}
+
+/* Zahlen-Badge rechts oben am Pin */
+.count-badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  background: #2677b5;
+  color: white;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  pointer-events: none;
 }
 </style>

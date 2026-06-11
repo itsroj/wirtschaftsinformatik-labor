@@ -12,9 +12,9 @@
         <!-- FILTER -->
         <ConferenceFilters :search="eventsStore.search" :selectedTypes="eventsStore.selectedTypes"
           :selectedLanguages="eventsStore.selectedLanguages" :sortConfig="sortConfig" :viewMode="viewMode"
-          :showPastEvents="eventsStore.showPastEvents"
-          @update-search="eventsStore.search = $event" @toggle-type="eventsStore.toggleType"
-          @toggle-language="eventsStore.toggleLanguage" @sort="setSort" @change-view="viewMode = $event"
+          :showPastEvents="eventsStore.showPastEvents" @update-search="eventsStore.search = $event"
+          @toggle-type="eventsStore.toggleType" @toggle-language="eventsStore.toggleLanguage" @sort="setSort"
+          @change-view="viewMode = $event"
           @toggle-past-events="eventsStore.showPastEvents = !eventsStore.showPastEvents" />
 
         <!-- CALENDAR & MAP -->
@@ -107,7 +107,12 @@ const filteredEvents = computed(() => {
 })
 
 const setSort = ({ key, direction }) => {
-  sortConfig.value = { key, direction }
+  // Ist der gleiche Button bereits aktiv, dann Sort zurücksetzen (Toggle)
+  if (sortConfig.value.key === key && sortConfig.value.direction === direction) {
+    sortConfig.value = { key: null, direction: null }
+  } else {
+    sortConfig.value = { key, direction }
+  }
 }
 
 onMounted(async () => {
