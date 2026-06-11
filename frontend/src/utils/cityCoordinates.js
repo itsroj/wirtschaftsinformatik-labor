@@ -74,9 +74,10 @@ export const cityCoordinates = {
 }
 
 /**
- * Konvertiert geografische Koordinaten zu SVG-Position in %
- * @param {string} city - Stadtname
- * @returns {object} { top: "XX%", left: "XX%" }
+ * Konvertiert den Stadtnamen eines Events in eine CSS-Position (top/left in %)
+ * relativ zur Deutschland-SVG-Karte.
+ * Rechnet Lat/Lng anhand der geografischen Grenzen Deutschlands in Prozentwerte um.
+ * Unbekannte Städte: gibt Kartenmitte zurück und loggt eine Warnung.
  */
 export const getEventPosition = (city) => {
   const coords = cityCoordinates[city]

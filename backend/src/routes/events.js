@@ -14,6 +14,8 @@ import {
 } from '../controllers/eventController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
+// Multer konfiguriert den Datei-Upload: Dateien werden im Arbeitsspeicher gehalten (kein Disk-Speicher),
+// max. 10 MB, nur Bilddateien erlaubt (geprüft über MIME-Typ)
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -30,30 +32,24 @@ const upload = multer({
 
 const router = express.Router();
 
-// PUBLIC ROUTES
+// Öffentliche Routen – kein Login erforderlich
 router.get('/', getEvents);
 
-/**
- * GET /api/events/check-title?title=...&excludeId=...
- * Prüft ob ein Kurzname bereits existiert
- */
+// Prüft ob ein Kurzname schon vergeben ist (genutzt im Admin-Formular für Echtzeit-Validierung)
 router.get('/check-title', checkTitle);
 
-/**
- * GET /api/events/:id
- * Einzelnes Event abrufen
- */
+// Einzelnes Event mit allen Terminen abrufen
 router.get('/:id', getEventById);
 
-// ADMIN ROUTES - geschützt mit Auth
+// Geschützte Admin-Routen – JWT-Authentifizierung erforderlich
 router.post('/', authenticateToken, createEvent);
 router.put('/:id', authenticateToken, updateEvent);
 router.delete('/:id', authenticateToken, deleteEvent);
+
+// Logo-Upload: Datei wird per multipart/form-data empfangen, zu Supabase Storage hochgeladen
 router.post('/:id/upload-image', authenticateToken, upload.single('image'), uploadEventImage);
 
-/**
- * Conference CRUD
- */
+// Konferenzdaten (Termine) eines Events verwalten – alle ebenfalls geschützt
 router.post('/:eventId/conferences', authenticateToken, createConference);
 router.put('/:eventId/conferences/:conferenceId', authenticateToken, updateConference);
 router.delete('/:eventId/conferences/:conferenceId', authenticateToken, deleteConference);

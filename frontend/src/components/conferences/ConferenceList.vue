@@ -34,6 +34,8 @@ defineProps({
 const store = useEventsStore()
 const languageStore = useLanguageStore()
 
+// Reagiert auf scrollRequestId im Store: scrollt sanft zum Event-Element und
+// hebt es kurz visuell hervor (highlight-Klasse für 1,5 Sekunden)
 watch(() => store.scrollRequestId, async () => {
   const id = store.selectedEventId
   if (!id) return

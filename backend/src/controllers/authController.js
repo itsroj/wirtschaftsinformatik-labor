@@ -4,6 +4,12 @@ import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 
+/**
+ * POST /api/auth/login
+ * Meldet einen Admin-Nutzer an.
+ * Empfängt E-Mail + Passwort, sucht den Admin in der DB, vergleicht das gehashte Passwort (bcrypt)
+ * und gibt bei Erfolg ein JWT zurück, das die Session für 24h authorisiert.
+ */
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -45,10 +51,19 @@ export const login = async (req, res) => {
   }
 };
 
+/**
+ * POST /api/auth/logout
+ * Abmeldung – gibt eine Erfolgsantwort zurück. Das JWT selbst wird client-seitig gelöscht.
+ */
 export const logout = async (req, res) => {
   res.json({ message: 'Erfolgreich abgemeldet' });
 };
 
+/**
+ * GET /api/auth/me
+ * Gibt die Daten des aktuell eingeloggten Admins zurück (ID, E-Mail, Name).
+ * Nutzt req.userId, das von der Auth-Middleware aus dem JWT extrahiert wurde.
+ */
 export const getCurrentUser = async (req, res) => {
   try {
     const user = await prisma.admin.findUnique({
@@ -67,6 +82,12 @@ export const getCurrentUser = async (req, res) => {
   }
 };
 
+/**
+ * PUT /api/auth/update
+ * Aktualisiert E-Mail und/oder Passwort des eingeloggten Admins.
+ * Passwort-Änderung: altes Passwort wird erst per bcrypt geprüft, neues wird gehasht gespeichert.
+ * Felder die nicht übergeben werden, bleiben unverändert.
+ */
 export const updateAdmin = async (req, res) => {
   try {
     const { email, currentPassword, newPassword } = req.body;

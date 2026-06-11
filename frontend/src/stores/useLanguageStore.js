@@ -11,13 +11,13 @@ const translations = {
 }
 
 export const useLanguageStore = defineStore('language', () => {
-  // Sprache aus localStorage oder Deutsch als Standard
+  // Aktive Sprache ('de' oder 'en'), wird in localStorage persistiert
   const currentLanguage = ref(
     localStorage.getItem('appLanguage') || 'de'
   )
 
   /**
-   * Wechsle zwischen Sprachen
+   * Wechselt zwischen Deutsch und Englisch und speichert die Wahl in localStorage
    */
   const toggleLanguage = () => {
     currentLanguage.value = currentLanguage.value === 'de' ? 'en' : 'de'
@@ -35,8 +35,8 @@ export const useLanguageStore = defineStore('language', () => {
   }
 
   /**
-   * Übersetzung abrufen
-   * z.B. t('navbar.home') => "Startseite" oder "Home"
+   * Übersetzungsschlüssel per Dot-Notation auflösen (z.B. 'navbar.home' → 'Startseite').
+   * Fällt auf Deutsch zurück wenn ein Schlüssel in der gewählten Sprache fehlt.
    */
   const t = (key) => {
     const keys = key.split('.')

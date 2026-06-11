@@ -66,6 +66,8 @@ const eventsStore = useEventsStore()
 // Sortierungskonfiguration
 const sortConfig = ref({ key: null, direction: null })
 
+// URL-Query-Parameter ?type=... wird beim Laden direkt als aktiver Typ-Filter gesetzt
+// (wird z.B. vom Footer genutzt um auf eine vorgefilterte Ansicht zu verlinken)
 watch(
   () => route.query,
   (q) => {
@@ -75,6 +77,7 @@ watch(
   { immediate: true }
 )
 
+// Kombiniert die gefilterten Events aus dem Store mit der lokalen Sortierung (Datum/Teilnehmerzahl)
 const filteredEvents = computed(() => {
   let events = eventsStore.filteredEvents
 
@@ -106,6 +109,7 @@ const filteredEvents = computed(() => {
   return events
 })
 
+// Sortier-Toggle: gleicher Button nochmal klicken setzt die Sortierung zurück
 const setSort = ({ key, direction }) => {
   // Ist der gleiche Button bereits aktiv, dann Sort zurücksetzen (Toggle)
   if (sortConfig.value.key === key && sortConfig.value.direction === direction) {
@@ -116,6 +120,7 @@ const setSort = ({ key, direction }) => {
 }
 
 onMounted(async () => {
+  // Events vom Backend laden; URL-Parameter für Suche und Highlight danach auswerten
   await eventsStore.fetchEvents()
 
   if (route.query.search) {

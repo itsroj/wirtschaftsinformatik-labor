@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 
+// Zentraler Store für alle MUN-Events.
+// Hält den gesamten Event-Datensatz, Filter-Zustände und das aktuell ausgewählte Event.
 export const useEventsStore = defineStore('events', {
   state: () => ({
     events: [],
@@ -16,6 +18,9 @@ export const useEventsStore = defineStore('events', {
   }),
 
   getters: {
+    // Gibt die gefilterte und nach Aktualität eingeschränkte Event-Liste zurück.
+    // Wendet Suche (Titel, langer Name, Stadt), Typ-, Sprach- und Zeitfilter an.
+    // showPastEvents-Flag steuert ob vergangene oder zukünftige Events gezeigt werden.
     filteredEvents: (state) => {
       const search = (state.search || '').toLowerCase()
 
@@ -92,6 +97,7 @@ export const useEventsStore = defineStore('events', {
       })
     },
 
+    // Gibt das vollständige Event-Objekt zur aktuell ausgewählten ID zurück (für Sidebar/Sheet)
     selectedEvent(state) {
       return state.events.find(e => e.id === state.selectedEventId) || null
     }
@@ -99,6 +105,7 @@ export const useEventsStore = defineStore('events', {
 
   actions: {
 
+    // Ruft alle Events inkl. Konferenzdaten vom Backend ab und speichert sie im Store
     async fetchEvents() {
       this.loading = true
       try {
@@ -125,6 +132,8 @@ export const useEventsStore = defineStore('events', {
       }
     },
 
+    // Wählt ein Event aus. scroll: true erhöht scrollRequestId → ConferenceList scrollt zum Eintrag.
+    // highlightRequestId wird immer erhöht → Map/Sidebar reagiert für Hervorhebung.
     setSelectedEvent(id, { scroll = false } = {}) {
         this.selectedEventId = id
         this.selectedEventLocked = true
@@ -142,6 +151,7 @@ export const useEventsStore = defineStore('events', {
       this.search = value
     },
 
+    // Hebt die Auswahl auf und informiert alle Subscriber (Map, Sidebar)
     clearSelectedEvent() {
         this.selectedEventId = null
         this.selectedEventLocked = false

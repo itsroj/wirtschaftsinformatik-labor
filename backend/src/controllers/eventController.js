@@ -17,8 +17,9 @@ const supabase = createClient(
 
 /**
  * GET /api/events/check-title?title=...&excludeId=...
- * Prüft ob ein Kurzname (title) bereits in der Datenbank existiert.
- * excludeId: optional, wird beim Bearbeiten genutzt um das eigene Event auszuschließen
+ * Prüft ob ein Kurzname (title) bereits in der Datenbank existiert (Duplikat-Schutz).
+ * excludeId: beim Bearbeiten übergeben, damit das eigene Event nicht als Konflikt zählt.
+ * Gibt { exists: true/false } zurück.
  */
 export const checkTitle = async (req, res) => {
   try {
@@ -44,8 +45,8 @@ export const checkTitle = async (req, res) => {
 
 /**
  * GET /api/events
- * Alle Events abrufen mit ihren Conferences
- * Optional Filter: city, type
+ * Gibt alle Events inkl. ihrer Konferenzdaten (Termine) zurück, absteigend nach Datum sortiert.
+ * Optionale Query-Filter: city (Stadt), type (Typ: schueler/studenten/mini-mun).
  */
 export const getEvents = async (req, res) => {
   try {
@@ -76,7 +77,8 @@ export const getEvents = async (req, res) => {
 
 /**
  * GET /api/events/:id
- * Einzelnes Event abrufen mit seinen Conferences
+ * Gibt ein einzelnes Event mit allen zugehörigen Konferenzterminen zurück.
+ * Gibt 404 zurück wenn kein Event mit der übergebenen ID existiert.
  */
 export const getEventById = async (req, res) => {
   try {
@@ -104,7 +106,9 @@ export const getEventById = async (req, res) => {
 
 /**
  * POST /api/events
- * Neues Event erstellen
+ * Legt ein neues Event in der Datenbank an.
+ * Pflichtfelder: title, longTitle, city. Alle anderen Felder sind optional.
+ * Wenn ein Startdatum mitgegeben wird, wird direkt der erste Konferenztermin miterstellt.
  */
 export const createEvent = async (req, res) => {
   try {
@@ -178,7 +182,9 @@ export const createEvent = async (req, res) => {
 
 /**
  * PUT /api/events/:id
- * Event aktualisieren
+ * Aktualisiert die Stammdaten eines bestehenden Events.
+ * Datumswerte werden in JS Date-Objekte umgewandelt, Zahlen geparst.
+ * Wenn ein Datum übergeben wird, wird der zugehörige Konferenztermin per upsert angelegt oder aktualisiert.
  */
 export const updateEvent = async (req, res) => {
   try {
@@ -247,7 +253,8 @@ export const updateEvent = async (req, res) => {
 
 /**
  * POST /api/events/:eventId/conferences
- * Neue Konferenz für ein Event erstellen
+ * Fügt einem bestehenden Event einen neuen Konferenztermin hinzu.
+ * Pflichtfeld: date (Startdatum). End- und Anmeldedatum sind optional.
  */
 export const createConference = async (req, res) => {
   try {
@@ -281,7 +288,8 @@ export const createConference = async (req, res) => {
 
 /**
  * PUT /api/events/:eventId/conferences/:conferenceId
- * Konferenz aktualisieren
+ * Aktualisiert Start-, End- und Anmeldedatum eines bestehenden Konferenztermins.
+ * Prüft vorab ob der Termin zum angegebenen Event gehört.
  */
 export const updateConference = async (req, res) => {
   try {
@@ -317,7 +325,8 @@ export const updateConference = async (req, res) => {
 
 /**
  * DELETE /api/events/:eventId/conferences/:conferenceId
- * Konferenz löschen
+ * Löscht einen einzelnen Konferenztermin. Das Event selbst bleibt erhalten.
+ * Gibt 404 zurück wenn der Termin nicht zum angegebenen Event gehört.
  */
 export const deleteConference = async (req, res) => {
   try {
@@ -340,7 +349,7 @@ export const deleteConference = async (req, res) => {
 
 /**
  * DELETE /api/events/:id
- * Event löschen
+ * Löscht ein Event vollständig (inkl. aller zugehörigen Konferenzdaten via Prisma Cascade).
  */
 export const deleteEvent = async (req, res) => {
   try {
@@ -370,7 +379,9 @@ export const deleteEvent = async (req, res) => {
 
 /**
  * POST /api/events/:id/upload-image
- * Event-Bild zu Supabase Storage hochladen
+ * Lädt ein Logo-Bild zu Supabase Storage hoch und speichert die öffentliche URL am Event.
+ * Falls bereits ein Logo vorhanden ist, wird das alte Bild vorab aus Supabase gelöscht.
+ * Akzeptiert Bilddateien via multipart/form-data (Feld: "image", max. 10 MB).
  */
 export const uploadEventImage = async (req, res) => {
   try {

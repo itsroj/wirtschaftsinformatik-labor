@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
 
+// Vue-App erstellen und Pinia (State Management) + Router registrieren
 const app = createApp(App)
 
 const pinia = createPinia()
@@ -12,6 +13,10 @@ app.use(router)
 
 app.mount('#app')
 
+// Nach jeder Routen-Navigation:
+// - Enthält die neue Route einen Hash-Anker (#abschnitt): bis zu 20 Versuche im 50ms-Intervall
+//   scrollen, bis das Element im DOM verfügbar ist (nötig weil Seiten asynchron rendern).
+// - Keine Hash-Navigation: Seite smooth nach oben scrollen.
 router.afterEach(async (to) => {
   await nextTick()
 

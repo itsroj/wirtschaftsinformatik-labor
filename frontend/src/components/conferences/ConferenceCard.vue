@@ -140,6 +140,7 @@ const props = defineProps({
   event: Object
 })
 
+// Zeigt den Beschreibungsbereich nur an, wenn mindestens ein Beschreibungsfeld befüllt ist
 const hasDescription = computed(() => !!(props.event?.description_de || props.event?.description_en || props.event?.description))
 
 // Gibt die Beschreibung in der aktuellen Sprache zurück.
@@ -152,6 +153,7 @@ const localizedDescription = computed(() => {
   return props.event?.description || ''
 })
 
+// Wählt den aktuell nächsten (neuesten) Konferenztermin zur Anzeige in der Karte
 const latestConference = computed(() => {
   if (props.event?.conferences && props.event.conferences.length > 0) {
     const sorted = [...props.event.conferences].sort((a, b) =>
@@ -191,16 +193,19 @@ const visibleConferences = computed(() => {
     .sort((a, b) => new Date(a.date) - new Date(b.date))
 })
 
+// Klappt die Karte auf bzw. zu
 const toggleCard = () => {
   isOpen.value = !isOpen.value
 }
 
+// Gibt ein Datum als lokalisierten String zurück oder Leerstring wenn kein Datum vorhanden
 const formatDateOrNull = (dateString) => {
   if (!dateString) return ''
   const locale = languageStore.currentLanguage === 'en' ? 'en-GB' : 'de-DE'
   return new Date(dateString).toLocaleDateString(locale)
 }
 
+// Zeigt einen Konferenzzeitraum als 'DD.MM.YYYY – DD.MM.YYYY' an
 const formatConfDate = (conf) => {
   const start = formatDateOrNull(conf.date)
   const end = formatDateOrNull(conf.endDate)

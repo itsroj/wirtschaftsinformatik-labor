@@ -1,5 +1,11 @@
 import jwt from 'jsonwebtoken';
 
+/**
+ * Middleware: prüft ob die eingehende Anfrage ein gültiges JWT enthält.
+ * Liest den Token aus dem Authorization-Header (Format: "Bearer <token>").
+ * Bei gültigem Token: hängt userId und email an das req-Objekt an und gibt die Anfrage frei.
+ * Bei fehlendem oder ungültigem Token: bricht mit 401/403 ab.
+ */
 export const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN

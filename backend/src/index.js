@@ -16,6 +16,8 @@ const prisma = new PrismaClient();
 
 
 // MIDDLEWARE
+// CORS erlaubt Anfragen vom Frontend (Vite Dev-Server auf Port 5173/5174)
+// express.json() parst eingehende JSON-Request-Bodies automatisch
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:5174'],
   credentials: true
@@ -23,7 +25,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Request-Logging Middleware
+// Jede eingehende Anfrage wird mit Timestamp, HTTP-Methode und Pfad geloggt
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
@@ -32,7 +34,7 @@ app.use((req, res, next) => {
 
 
 
-// HEALTH CHECK
+// Einfacher Statusendpunkt – zeigt an ob der Server erreichbar ist
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
@@ -57,7 +59,8 @@ app.use('/api/auth', authRoutes);
 
 // ERROR HANDLING
 
-// Global Error Handler
+// Fängt alle unbehandelten Fehler ab und gibt eine strukturierte JSON-Antwort zurück
+// Wird von Express aufgerufen wenn next(err) in einem Route-Handler aufgerufen wird
 app.use((err, req, res, next) => {
   console.error('Fehler:', err);
   res.status(err.status || 500).json({
@@ -68,7 +71,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 Handler
+// Greift wenn keine Route dem Pfad entspricht – gibt 404 mit Pfad- und Methoden-Info zurück
 app.use((req, res) => {
   res.status(404).json({
     error: 'Route nicht gefunden',

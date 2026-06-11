@@ -1,3 +1,7 @@
+/**
+ * Formatiert ein ISO-Datumsstring als lesbares Datum in der übergebenen Sprache.
+ * Beispiel: '2025-03-15' → '15. März 2025' (DE) / '15 March 2025' (EN)
+ */
 export function formatEventDate(dateString, lang = 'de') {
   if (!dateString) return ''
 

@@ -69,6 +69,7 @@ const routes = [
   }
 ]
 
+// scrollBehavior auf false: eigene Scroll-Logik in main.js übernimmt das Scrollen
 const router = createRouter({
   history: createWebHistory(),
   routes,
@@ -77,6 +78,8 @@ const router = createRouter({
   }
 })
 
+// Nach jeder Navigation: Seitentitel und Meta-Description aus den Route-Metadaten setzen.
+// Falls kein description-Tag existiert, wird er dynamisch erstellt.
 router.afterEach((to) => {
   document.title = to.meta.title || 'DMUN'
 
