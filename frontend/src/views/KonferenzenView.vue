@@ -119,6 +119,20 @@ const setSort = ({ key, direction }) => {
   }
 }
 
+const viewMode = ref('calendar')
+
+const listRef = ref(null)
+const topSectionRef = ref(null)
+const showScrollButton = ref(true)
+let observer = null
+
+const scrollToList = () => {
+  listRef.value?.$el?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  })
+}
+
 onMounted(async () => {
   // Events vom Backend laden; URL-Parameter für Suche und Highlight danach auswerten
   await eventsStore.fetchEvents()
@@ -133,46 +147,17 @@ onMounted(async () => {
     const id = Number(route.query.highlight)
     eventsStore.setSelectedEvent(id, { scroll: true })
   }
-})
 
-
-
-/* SEARCH */
-
-const viewMode = ref('calendar')
-
-const listRef = ref(null)
-
-const topSectionRef = ref(null)
-
-const showScrollButton = ref(true)
-
-let observer = null
-
-
-const scrollToList = () => {
-  listRef.value?.$el?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'start'
-  })
-}
-
-onMounted(() => {
-
-  if (!topSectionRef.value) return
-
-  observer = new IntersectionObserver(
-    ([entry]) => {
-
-      // sichtbar solange top-section sichtbar ist
-      showScrollButton.value = entry.isIntersecting
-    },
-    {
-      threshold: 0.15
-    }
-  )
-
-  observer.observe(topSectionRef.value)
+  // IntersectionObserver für den Scroll-Button (ausblenden wenn Liste sichtbar)
+  if (topSectionRef.value) {
+    observer = new IntersectionObserver(
+      ([entry]) => {
+        showScrollButton.value = entry.isIntersecting
+      },
+      { threshold: 0.15 }
+    )
+    observer.observe(topSectionRef.value)
+  }
 })
 
 onUnmounted(() => {

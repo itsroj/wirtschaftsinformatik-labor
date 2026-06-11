@@ -58,7 +58,7 @@ async function login() {
 
     if (!response.ok) {
       // Fehlermeldung vom Backend direkt anzeigen, sonst Fallback
-      error.value = data.message || 'E-Mail oder Passwort falsch.'
+      error.value = data.error || 'E-Mail oder Passwort falsch.'
       return
     }
 

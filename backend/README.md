@@ -1,14 +1,16 @@
 # DMUN Backend
 
-Backend für die DMUN Model United Nations Plattform.
+REST API für die DMUN Model United Nations Plattform.  
+Stellt alle Konferenz- und Eventdaten bereit und sichert den Admin-Bereich mit JWT-Authentifizierung ab.
 
 ## Technologie-Stack
 
-- **Runtime**: Node.js 18+
-- **Framework**: Express.js
-- **Datenbank**: PostgreSQL
-- **ORM**: Prisma
-- **Auth**: JWT (JSON Web Tokens)
+- **Laufzeitumgebung**: Node.js 20+
+- **Framework**: Express.js 4
+- **Datenbank**: PostgreSQL 15
+- **ORM**: Prisma 5
+- **Authentifizierung**: JWT (jsonwebtoken) + bcryptjs für Passwort-Hashing
+- **Datei-Upload**: Multer + Supabase Storage (Logos)
 - **Container**: Docker + Docker Compose
 
 ## Setup
@@ -20,32 +22,39 @@ cd backend
 npm install
 ```
 
-### 2. Environment-Variablen erstellen
+### 2. Umgebungsvariablen erstellen
 
 ```bash
 cp .env.example .env
 ```
 
-Bearbeite `.env` mit deinen lokalen Einstellungen:
+Pflege diese Werte in `.env`:
 
 ```env
-DATABASE_URL="postgresql://postgres@localhost:5432/dmun_db"
+DATABASE_URL="postgresql://dmun_user:dmun_password@localhost:5432/dmun_db"
+DIRECT_URL="postgresql://dmun_user:dmun_password@localhost:5432/dmun_db"
 PORT=5000
 NODE_ENV=development
-JWT_SECRET=your_jwt_secret_key_change_this_in_production
+JWT_SECRET=change_me_in_production
 FRONTEND_URL=http://localhost:5173
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
 ### 3. Datenbank initialisieren
 
-Mit Prisma:
-
 ```bash
+# Prisma Client generieren
 npm run prisma:generate
+
+# Schema auf Datenbank übertragen (Entwicklung)
 npm run prisma:push
+
+# Oder: Migration ausführen (Produktion)
+npm run prisma:migrate
 ```
 
-### 4. Test-Daten einfügen (Optional)
+### 4. Admin-Account anlegen (einmalig)
 
 ```bash
 npm run seed
@@ -53,24 +62,24 @@ npm run seed
 
 ### 5. Backend starten
 
-Entwicklung (mit hot-reload):
 ```bash
+# Entwicklung (mit automatischem Neustart)
 npm run dev
-```
 
-Production:
-```bash
+# Produktion
 npm start
 ```
+
+Läuft auf: `http://localhost:5000`
 
 ## Mit Docker starten
 
 ```bash
-# Beide Services (Backend + PostgreSQL) starten
+# Alle Services starten (postgres, backend, frontend, admin)
 docker-compose up -d
 
 # Logs ansehen
-docker-compose logs -f
+docker-compose logs -f backend
 
 # Herunterfahren
 docker-compose down
@@ -78,126 +87,95 @@ docker-compose down
 
 ## API Endpoints
 
-### Public Routes
+### Öffentliche Routen (kein Login erforderlich)
 
-- `GET /api/events` - Alle Events abrufen
-- `GET /api/events/:id` - Event Details abrufen
-- `GET /api/health` - Health Check
+| Methode | Route | Beschreibung |
+|---|---|---|
+| `GET` | `/api/health` | Health Check |
+| `GET` | `/api/events` | Alle Events mit Konferenzterminen |
+| `GET` | `/api/events/:id` | Einzelnes Event |
+| `GET` | `/api/events/check-title?title=...` | Prüft ob Kurzname bereits vergeben ist |
 
-### Auth Routes
+### Auth-Routen
 
-- `POST /api/auth/login` - Admin Login
-- `POST /api/auth/logout` - Admin Logout
-- `GET /api/auth/me` - Aktuellen Admin abrufen (geschützt)
+| Methode | Route | Beschreibung |
+|---|---|---|
+| `POST` | `/api/auth/login` | Admin-Login, gibt JWT zurück |
+| `POST` | `/api/auth/logout` | Abmeldung (client-seitig) |
+| `GET` | `/api/auth/me` | Daten des eingeloggten Admins (geschützt) |
+| `PUT` | `/api/auth/update` | E-Mail oder Passwort ändern (geschützt) |
 
-### Protected Routes (Admin only)
+### Geschützte Routen (JWT erforderlich)
 
-- `POST /api/events` - Neues Event erstellen
-- `PUT /api/events/:id` - Event aktualisieren
-- `DELETE /api/events/:id` - Event löschen
+| Methode | Route | Beschreibung |
+|---|---|---|
+| `POST` | `/api/events` | Neues Event anlegen |
+| `PUT` | `/api/events/:id` | Event bearbeiten |
+| `DELETE` | `/api/events/:id` | Event löschen |
+| `POST` | `/api/events/:id/upload-image` | Logo hochladen (Supabase Storage) |
+| `POST` | `/api/events/:id/conferences` | Konferenztermin hinzufügen |
+| `PUT` | `/api/events/:id/conferences/:confId` | Konferenztermin bearbeiten |
+| `DELETE` | `/api/events/:id/conferences/:confId` | Konferenztermin löschen |
 
-## Beispiel API Requests
-
-### Login
-
-```bash
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "admin@dmun.de",
-    "password": "password123"
-  }'
-```
-
-Antwort:
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": 1,
-    "email": "admin@dmun.de",
-    "name": "Admin User"
-  }
-}
-```
-
-### Event abrufen
-
-```bash
-curl http://localhost:5000/api/events \
-  -H "Accept: application/json"
-```
-
-### Neues Event erstellen (mit Token)
-
-```bash
-curl -X POST http://localhost:5000/api/events \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
-  -d '{
-    "title": "DMUN 2026",
-    "description": "Die größte MUN in Deutschland",
-    "location": "Berlin",
-    "startDate": "2026-05-15",
-    "endDate": "2026-05-17",
-    "language": "de"
-  }'
-```
-
-## Struktur
+## Projektstruktur
 
 ```
 backend/
 ├── src/
-│   ├── index.js              # Entry Point
-│   ├── controllers/          # Business Logic
-│   │   ├── eventController.js
-│   │   └── authController.js
-│   ├── routes/               # Route Definitionen
-│   │   ├── events.js
-│   │   └── auth.js
-│   ├── middleware/           # Custom Middleware
-│   │   └── auth.js
-│   ├── models/               # (optional) zusätzliche Models
-│   └── config/               # Konfiguration
+│   ├── index.js                  # Einstiegspunkt, CORS, Middleware, Routes
+│   ├── controllers/
+│   │   ├── eventController.js    # CRUD für Events + Konferenztermine + Logo-Upload
+│   │   └── authController.js     # Login, Logout, Admin-Verwaltung
+│   ├── routes/
+│   │   ├── events.js             # Event- und Konferenz-Routen
+│   │   └── auth.js               # Auth-Routen
+│   └── middleware/
+│       └── auth.js               # JWT-Verifikations-Middleware
 ├── prisma/
-│   └── schema.prisma         # Datenbank-Schema
-├── package.json
+│   ├── schema.prisma             # Datenbankschema (Event, Conference, Admin)
+│   ├── seed.js                   # Initial-Daten (Admin-Account)
+│   └── migrations/               # SQL-Migrationsdateien
+├── .env.example                  # Vorlage für Umgebungsvariablen
 ├── Dockerfile
-├── docker-compose.yml
-├── .env.example
 └── README.md
 ```
 
-## Entwicklung
+## Datenmodell (vereinfacht)
 
-### Datenbank-Migration (nach Schema-Änderung)
+```
+Event
+├── id, title, longTitle, city
+├── description_de, description_en
+├── participants, firstConference, language, type
+├── website, instagramLink, facebookLink, logo
+└── conferences[] → Conference (date, endDate, applicationDate)
+
+Admin
+└── id, email, password (bcrypt-gehashed)
+```
+
+## Entwicklungs-Hilfsbefehle
 
 ```bash
+# Prisma Studio (DB-GUI im Browser)
+npm run prisma:studio
+# → http://localhost:5555
+
+# Schema auf DB übertragen (ohne Migration)
+npm run prisma:push
+
+# Neue Migration erstellen
 npm run prisma:migrate
 ```
 
-### Prisma Studio (GUI für Datenbank)
-
-```bash
-npm run prisma:studio
-```
-
-Öffnet Prisma Studio unter http://localhost:5555
-
 ## Sicherheit
 
-✅ **Implementiert**:
-- JWT Authentication
-- Passwort-Hashing mit bcrypt
-- Input-Validierung
-- CORS Protection
-- Environment-Variablen für Secrets
-- SQL-Injection Protection (via Prisma ORM)
-
-## Nächste Schritte
-
-- [ ] Error Handling erweitern
+- JWT-Authentifizierung für alle Admin-Routen
+- Passwort-Hashing mit bcryptjs
+- SQL-Injection-Schutz durch Prisma ORM
+- CORS auf erlaubte Origins beschränkt
+- Sensible Konfiguration ausschließlich über `.env`-Variablen
+- Datei-Upload mit Größen- und MIME-Typ-Validierung (max. 10 MB, nur Bilder)
 - [ ] Input Validation mit express-validator
 - [ ] Unit Tests schreiben
 - [ ] Rate Limiting hinzufügen

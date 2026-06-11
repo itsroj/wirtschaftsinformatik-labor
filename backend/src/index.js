@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { PrismaClient } from '@prisma/client';
 
 // Event Routes (deine Implementierung)
 import eventRoutes from './routes/events.js';
@@ -11,7 +10,6 @@ import authRoutes from './routes/auth.js';
 dotenv.config();
 
 const app = express();
-const prisma = new PrismaClient();
 
 
 
@@ -59,6 +57,15 @@ app.use('/api/auth', authRoutes);
 
 // ERROR HANDLING
 
+// Greift wenn keine Route dem Pfad entspricht – gibt 404 mit Pfad- und Methoden-Info zurück
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Route nicht gefunden',
+    path: req.path,
+    method: req.method
+  });
+});
+
 // Fängt alle unbehandelten Fehler ab und gibt eine strukturierte JSON-Antwort zurück
 // Wird von Express aufgerufen wenn next(err) in einem Route-Handler aufgerufen wird
 app.use((err, req, res, next) => {
@@ -68,15 +75,6 @@ app.use((err, req, res, next) => {
       message: err.message || 'Interner Serverfehler',
       status: err.status || 500
     }
-  });
-});
-
-// Greift wenn keine Route dem Pfad entspricht – gibt 404 mit Pfad- und Methoden-Info zurück
-app.use((req, res) => {
-  res.status(404).json({
-    error: 'Route nicht gefunden',
-    path: req.path,
-    method: req.method
   });
 });
 

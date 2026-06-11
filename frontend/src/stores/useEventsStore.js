@@ -13,6 +13,7 @@ export const useEventsStore = defineStore('events', {
     showPastEvents: false,
 
     selectedEventId: null,
+    selectedEventLocked: false,
     scrollRequestId: 0,
     highlightRequestId: 0
   }),
@@ -109,8 +110,12 @@ export const useEventsStore = defineStore('events', {
     async fetchEvents() {
       this.loading = true
       try {
-        const res = await fetch('http://localhost:5000/api/events')
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+        const res = await fetch(`${apiUrl}/api/events`)
+        if (!res.ok) throw new Error(`Server-Fehler: ${res.status}`)
         this.events = await res.json()
+      } catch (err) {
+        console.error('Fehler beim Laden der Events:', err.message)
       } finally {
         this.loading = false
       }

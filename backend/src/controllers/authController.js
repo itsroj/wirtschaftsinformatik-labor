@@ -103,6 +103,11 @@ export const updateAdmin = async (req, res) => {
     const updateData = {};
 
     if (email) {
+      // Einfache E-Mail-Format-Validierung
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Ungültiges E-Mail-Format.' });
+      }
       updateData.email = email;
     }
 
@@ -112,6 +117,11 @@ export const updateAdmin = async (req, res) => {
         return res.status(401).json({ error: 'Aktuelles Passwort ist falsch' });
       }
       updateData.password = await bcrypt.hash(newPassword, 10);
+    }
+
+    // Kein Feld zum Aktualisieren übergeben
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ error: 'Keine Änderungen angegeben.' });
     }
 
     const updatedUser = await prisma.admin.update({

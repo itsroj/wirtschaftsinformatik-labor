@@ -1,33 +1,75 @@
-# mun-admin
+# DMUN Admin
 
-This template should help get you started developing with Vue 3 in Vite.
+Geschützter Administrationsbereich der DMUN Model United Nations Plattform.  
+Ermöglicht das Anlegen, Bearbeiten und Löschen von MUN-Konferenzen.
 
-## Recommended IDE Setup
+## Technologie-Stack
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- **Framework:** Vue 3 (`<script setup>` Composition API)
+- **Build-Tool:** Vite
+- **State Management:** Pinia
+- **Routing:** Vue Router (History Mode)
+- **Authentifizierung:** JWT (im localStorage)
 
-## Recommended Browser Setup
+## Seiten / Routen
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+| Route | Seite | Beschreibung |
+|---|---|---|
+| `/login` | Login | E-Mail + Passwort, gibt JWT zurück |
+| `/dashboard` | Dashboard | Konferenzübersicht, Suche, Tabelle, Löschen |
+| `/konferenzen/neu` | Neue Konferenz | Formular zum Anlegen |
+| `/konferenzen/bearbeiten/:id` | Konferenz bearbeiten | Formular mit vorausgefüllten Daten |
+| `/einstellungen` | Einstellungen | E-Mail und Passwort ändern |
 
-## Customize configuration
+Alle Routen außer `/login` sind durch einen Router-Guard geschützt (JWT-Validierung).
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## Features
 
-## Project Setup
+- **Dashboard** mit Konferenz-Tabelle, Suchfilter, Sortierung, Status-Badges und Lösch-Dialog
+- **Konferenzformular** (Stammdaten): Titel, Stadt, Beschreibung (DE/EN), Teilnehmerzahl, Links, Logo-Upload
+- **Konferenzdaten (Termine)**: Termine direkt im Formular hinzufügen, bearbeiten, löschen
+- **Logo-Upload**: Dateiauswahl mit Größenprüfung (max. 5 MB), Vorschau, Upload zu Supabase Storage
+- **Einstellungen**: E-Mail-Adresse und Passwort des Admin-Accounts ändern
+- **Duplikat-Schutz**: Echtzeit-Prüfung ob ein Kurzname bereits vergeben ist (500 ms Debounce)
 
-```sh
-npm install
+## Projektstruktur
+
+```
+mun-admin/src/
+├── App.vue                   # Root-Komponente, globale Styles
+├── main.js                   # App-Einstiegspunkt
+├── router/
+│   └── index.js              # Routen, isTokenValid(), beforeEach Guard
+└── views/
+    ├── LoginView.vue          # Anmeldeformular
+    ├── DashboardView.vue      # Konferenzübersicht
+    ├── KonferenzView.vue      # Erstellen / Bearbeiten
+    └── EinstellungenView.vue  # Admin-Konto verwalten
 ```
 
-### Compile and Hot-Reload for Development
+## Setup
 
-```sh
+```bash
+cd mun-admin
+npm install
+npm run dev
+```
+
+Läuft auf: `http://localhost:5174`
+
+### Umgebungsvariablen
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+## Build für Produktion
+
+```bash
+npm run build
+```
+
+Ausgabe im `dist/`-Ordner. Wird in Produktion via nginx (Docker) auf Port 5174 ausgeliefert.
 npm run dev
 ```
 

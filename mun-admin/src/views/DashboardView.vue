@@ -82,7 +82,9 @@ function getStatus(k) {
   const now = heute()
   const { date, endDate } = getDateForStatus(k)
   const start = new Date(date)
-  const end = new Date(endDate)
+  // Fallback auf Startdatum wenn kein Enddatum vorhanden (verhindert Invalid Date)
+  const end = endDate ? new Date(endDate) : new Date(date)
+  end.setHours(23, 59, 59, 999)
   if (now >= start && now <= end) return 'aktiv'
   if (start > now) return 'ausstehend'
   return 'vergangen'
@@ -120,13 +122,7 @@ function getLatestConferenceDate(event) {
 
 // Berechnete Anzahl aktiver bzw. ausstehender Konferenzen für die Stat-Cards
 const aktiveKonferenzen = computed(() =>
-  konferenzen.value.filter(k => {
-    const now = heute()
-    const { date, endDate } = getDateForStatus(k)
-    const start = new Date(date)
-    const end = new Date(endDate)
-    return now >= start && now <= end
-  }).length
+  konferenzen.value.filter(k => getStatus(k) === 'aktiv').length
 )
 
 const ausstehendKonferenzen = computed(() =>

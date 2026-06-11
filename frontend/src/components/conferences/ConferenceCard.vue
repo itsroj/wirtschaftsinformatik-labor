@@ -8,7 +8,7 @@
       <!-- LOGO -->
       <div class="logo-wrapper">
 
-        <img :src="props.event.logo" :alt="props.event.title">
+        <img v-if="props.event.logo" :src="props.event.logo" :alt="props.event.title">
 
       </div>
 

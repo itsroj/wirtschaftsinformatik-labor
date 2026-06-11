@@ -27,7 +27,8 @@ async function main() {
       data: {
         title: 'MUNoH',
         longTitle: 'Model United Nations of Hamburg',
-        description: 'Model United Nations of Hamburg (MUNOH) ist eine der größten MUN-Konferenzen in Deutschland.',
+        description_de: 'Model United Nations of Hamburg (MUNOH) ist eine der größten MUN-Konferenzen in Deutschland.',
+        description_en: 'Model United Nations of Hamburg (MUNOH) is one of the largest MUN conferences in Germany.',
         city: 'Hamburg',
         date: new Date('2026-09-23'),
         endDate: new Date('2026-09-27'),
@@ -43,7 +44,8 @@ async function main() {
       data: {
         title: 'DMUN',
         longTitle: 'German Model United Nations',
-        description: 'Die größte MUN-Konferenz in Deutschland.',
+        description_de: 'Die größte MUN-Konferenz in Deutschland.',
+        description_en: 'The largest MUN conference in Germany.',
         city: 'Berlin',
         date: new Date('2026-05-15'),
         endDate: new Date('2026-05-17'),
@@ -59,8 +61,9 @@ async function main() {
       data: {
         title: 'MUNM',
         longTitle: 'Model United Nations Munich',
-        description: 'MUN-Konferenz in München mit internationaler Teilnahme.',
-        city: 'Munich',
+        description_de: 'MUN-Konferenz in München mit internationaler Teilnahme.',
+        description_en: 'MUN conference in Munich with international participation.',
+        city: 'München',
         date: new Date('2026-11-20'),
         endDate: new Date('2026-11-22'),
         applicationDate: new Date('2026-10-01'),
