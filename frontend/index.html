@@ -18,6 +18,13 @@
     <meta property="og:url" content="https://www.model-un.de/" />
 
     <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Dark mode: class sofort setzen, bevor Vue lädt (verhindert Flash) -->
+    <script>
+      if (localStorage.getItem('appTheme') === 'dark') {
+        document.documentElement.classList.add('dark')
+      }
+    </script>
   </head>
 
   <body>
