@@ -1,9 +1,6 @@
 <template>
 
-  <section
-    class="block"
-    :id="id"
-  >
+  <section class="block" :id="id">
 
     <div class="content">
 
@@ -11,12 +8,8 @@
 
       <div class="text">
 
-        <div
-          v-for="(t, i) in text"
-          :key="i"
-          v-html="t"
-          class="text-item"
-        ></div>
+        <div v-for="(t, i) in text" :key="i" v-html="t" class="text-item"
+          :class="{ 'is-link': t.includes('link-card'), 'is-text': !t.includes('link-card') }"></div>
 
       </div>
 
@@ -24,26 +17,17 @@
 
     <div class="image" :class="{ reverse }">
 
-        <!-- SINGLE IMAGE -->
-        <img
-            v-if="images.length === 1"
-            :src="images[0]"
-            alt="Block Image"
-        />
+      <!-- SINGLE IMAGE -->
+      <img v-if="images.length === 1" :src="images[0]" alt="Block Image" />
 
-        <!-- GALLERY -->
-        <div v-else class="gallery">
+      <!-- GALLERY -->
+      <div v-else class="gallery">
 
-            <img
-            v-for="(img, i) in images"
-            :key="i"
-            :src="img"
-            alt="Gallery Image"
-            />
+        <img v-for="(img, i) in images" :key="i" :src="img" alt="Gallery Image" />
+
+      </div>
 
     </div>
-
-</div>
   </section>
 
 </template>
@@ -63,7 +47,6 @@ defineProps({
 </script>
 
 <style scoped>
-
 .block {
   display: flex;
   justify-content: space-between;
@@ -71,12 +54,12 @@ defineProps({
 
   gap: 60px;
 
-  background: rgba(255,255,255,0.94);
+  background: rgba(255, 255, 255, 0.94);
   border-radius: 28px;
 
   padding: 60px;
 
-  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
 }
 
 .content {
@@ -91,7 +74,7 @@ h2 {
 .text {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
 
   line-height: 1.6;
   color: #2d2d2d;
@@ -106,7 +89,7 @@ h2 {
   width: 100%;
   border-radius: 16px;
   object-fit: cover;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
 }
 
 /* reverse layout */
@@ -126,13 +109,17 @@ h2 {
   border-radius: 16px;
   object-fit: cover;
 
-  box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
 }
 
 .text-item {
-  margin-bottom: 18px;
   line-height: 1.6;
   color: #2d2d2d;
+}
+
+/* Spacing between first block (links) and second block (text) */
+.text-item.is-link+.text-item.is-text {
+  margin-top: 28px;
 }
 
 /* 👇 wichtig: deep selector */
@@ -190,5 +177,4 @@ h2 {
     width: 100%;
   }
 }
-
 </style>

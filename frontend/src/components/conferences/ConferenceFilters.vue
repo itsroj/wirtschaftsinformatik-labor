@@ -88,12 +88,26 @@
 
       <div class="filter-group">
 
-        <button @click="$emit('toggle-language', 'english')" :class="{ active: selectedLanguages.includes('english') }">
+        <button @click="$emit('toggle-language', 'en')" :class="{ active: selectedLanguages.includes('en') }">
           {{ languageStore.t('konferenzen.filters.english') }}
         </button>
 
-        <button @click="$emit('toggle-language', 'german')" :class="{ active: selectedLanguages.includes('german') }">
+        <button @click="$emit('toggle-language', 'de')" :class="{ active: selectedLanguages.includes('de') }">
           {{ languageStore.t('konferenzen.filters.german') }}
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="section">
+
+      <h3>{{ languageStore.t('konferenzen.filters.pastEvents') }}</h3>
+
+      <div class="filter-group">
+
+        <button @click="$emit('toggle-past-events')" :class="{ active: showPastEvents }">
+          {{ languageStore.t('konferenzen.filters.showPastEvents') }}
         </button>
 
       </div>
@@ -132,7 +146,8 @@ const props = defineProps({
   selectedTypes: Array,
   selectedLanguages: Array,
   sortConfig: Object,
-  viewMode: String
+  viewMode: String,
+  showPastEvents: Boolean
 })
 
 defineEmits([
@@ -140,7 +155,8 @@ defineEmits([
   'toggle-type',
   'toggle-language',
   'sort',
-  'change-view'
+  'change-view',
+  'toggle-past-events'
 ])
 
 const isActiveSort = (key, direction) => {

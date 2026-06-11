@@ -5,6 +5,7 @@ import WasIstMunView from '@/views/WasIstMunView.vue'
 import KonferenzenView from '@/views/KonferenzenView.vue'
 import TeilnahmeView from '@/views/TeilnahmeView.vue'
 import ServiceView from '@/views/ServiceView.vue'
+import NotFoundView from '@/views/NotFoundView.vue'
 
 const routes = [
   {
@@ -54,6 +55,16 @@ const routes = [
     meta: {
       title: 'DMUN | Service',
       description: 'Kontakt, Impressum und Datenschutz von DMUN.'
+    }
+  },
+
+  {
+    // Alle anderen Pfade → 404-Seite
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: NotFoundView,
+    meta: {
+      title: 'DMUN | Seite nicht gefunden'
     }
   }
 ]

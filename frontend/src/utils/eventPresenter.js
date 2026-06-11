@@ -1,7 +1,9 @@
-export function formatEventDate(dateString) {
+export function formatEventDate(dateString, lang = 'de') {
   if (!dateString) return ''
 
-  return new Date(dateString).toLocaleDateString('de-DE', {
+  const locale = lang === 'en' ? 'en-GB' : 'de-DE'
+
+  return new Date(dateString).toLocaleDateString(locale, {
     day: '2-digit',
     month: 'long',
     year: 'numeric'

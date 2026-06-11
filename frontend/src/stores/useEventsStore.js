@@ -8,6 +8,7 @@ export const useEventsStore = defineStore('events', {
     selectedTypes: [],
     selectedLanguages: [],
     search: '',
+    showPastEvents: false,
 
     selectedEventId: null,
     scrollRequestId: 0,
@@ -18,7 +19,57 @@ export const useEventsStore = defineStore('events', {
     filteredEvents: (state) => {
       const search = (state.search || '').toLowerCase()
 
+      // Normalisiert alle bekannten DB-Werte auf einen kanonischen Wert
+      const normalizeType = (type) => {
+        if (!type) return ''
+        const t = type.toLowerCase()
+        if (t === 'pupil' || t === 'schueler') return 'pupil'
+        if (t === 'student' || t === 'studenten') return 'student'
+        if (t === 'minimun' || t === 'mini-mun') return 'mini-mun'
+        return t
+      }
+
+      // Normalisiert Sprach-Werte auf kanonische Form
+      const normalizeLanguage = (lang) => {
+        if (!lang) return ''
+        const l = lang.toLowerCase()
+        if (l === 'english') return 'en'
+        if (l === 'german' || l === 'deutsch') return 'de'
+        return l
+      }
+
       return state.events.filter(event => {
+
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        // Ermittle für jede Conference ob sie in der Vergangenheit liegt
+        const conferences = event.conferences && event.conferences.length > 0
+          ? event.conferences
+          : [{
+              date: event.date,
+              endDate: event.endDate,
+              applicationDate: event.applicationDate
+            }]
+
+        const isConferencePast = (conf) => {
+          const endStr = conf.endDate || conf.date
+          if (!endStr) return false
+          const end = new Date(endStr)
+          end.setHours(23, 59, 59, 999)
+          return end < today
+        }
+
+        const allPast = conferences.every(isConferencePast)
+        const hasFuture = conferences.some(c => !isConferencePast(c))
+
+        if (state.showPastEvents) {
+          // Zeige NUR Events, bei denen ALLE Konferenzen in der Vergangenheit liegen
+          if (!allPast) return false
+        } else {
+          // Zeige NUR Events mit mindestens einer zukünftigen/laufenden Konferenz
+          if (!hasFuture) return false
+        }
 
         const matchesSearch =
           !search ||
@@ -26,11 +77,14 @@ export const useEventsStore = defineStore('events', {
 
         const matchesType =
           state.selectedTypes.length === 0 ||
-          state.selectedTypes.includes(event.type)
+          state.selectedTypes.includes(normalizeType(event.type))
 
+        // Bei Sprachfilter: 'both' passt immer zu de UND en
+        const eventLang = normalizeLanguage(event.language)
         const matchesLanguage =
           state.selectedLanguages.length === 0 ||
-          state.selectedLanguages.includes(event.language)
+          state.selectedLanguages.includes(eventLang) ||
+          eventLang === 'both'
 
         return matchesSearch && matchesType && matchesLanguage
       })

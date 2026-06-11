@@ -44,7 +44,7 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
   const isLoggedIn = localStorage.getItem('admin_token')
 
   // Eingeloggter User muss nicht zur Login-Seite
@@ -56,9 +56,7 @@ router.beforeEach((to, from, next) => {
   // TODO (Backlog): Token nur auf Vorhandensein geprüft, nicht auf Gültigkeit.
   // Saubere Lösung: GET /api/auth/verify gegen Backend, bei 401 Token löschen + redirect.
   if (to.meta.requiresAuth && !isLoggedIn) {
-    next('/login')
-  } else {
-    next()
+    return '/login'
   }
 })
 

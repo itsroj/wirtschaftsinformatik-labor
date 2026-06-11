@@ -1,67 +1,53 @@
 <template>
   <section class="map-wrapper">
 
-    <!-- Header -->
+    <!-- Optionaler Header – aktuell ausgeblendet -->
     <div class="map-header">
       <!-- <h2>Interaktive MUN-Karte</h2>
       <p>Alle Konferenzen in Deutschland</p> -->
     </div>
 
-    <!-- Map Container -->
-    <div
-      class="map-container"
-      :class="{ small: props.size === 'small' }"
-    >
+    <!--
+      map-container ist "position: relative", damit die Pins und Sidebar
+      mit "position: absolute" relativ zur Karte positioniert werden können.
+      Die CSS-Klasse "small" wird hinzugefügt, wenn size="small" übergeben wird.
+    -->
+    <div class="map-container" :class="{ small: props.size === 'small' }">
 
-      <!-- SVG Map -->
-      <img
-        src="@/assets/images/germany.svg"
-        class="map"
-        alt="Deutschland Karte"
-      />
+      <!-- Das Kartenbild als Hintergrund -->
+      <img src="@/assets/images/germany.svg" class="map" alt="Deutschland Karte" />
 
-      <!-- Event Pins -->
-      <EventMarker
-        v-for="event in props.events"
-        :key="event.id"
-        :event="event"
-        :isMobile="isMobile"
+      <!--
+        Für jedes Event in der Liste wird ein EventMarker-Pin auf der Karte gerendert.
+        :key hilft Vue, die Elemente effizient zu verwalten.
+        Wenn ein Pin angeklickt wird, feuert er das "select"-Event → handleSelect()
+      -->
+      <EventMarker v-for="event in props.events" :key="event.id" :event="event" :isMobile="isMobile"
+        @select="handleSelect" />
 
-        @select="handleSelect"
-      />
+      <!--
+        Backdrop (nur Desktop): unsichtbare Fläche über der gesamten Karte.
+        Wenn der Nutzer außerhalb der Sidebar klickt, schließt sich diese.
+      -->
+      <div v-if="selectedEvent && !isMobile" class="backdrop" @click="handleOutsideClick"></div>
 
-        <!-- BACKDROP -->
-      <!-- BACKDROP (nur Desktop) -->
-      <div
-        v-if="selectedEvent && !isMobile"
-        class="backdrop"
-        @click="handleOutsideClick"
-      ></div>
-
-      <div
-        v-if="selectedEvent && !isMobile"
-        class="sidebar-wrapper"
-        @click.stop
-      >
-        <EventSidebar
-          :selected-event="selectedEvent"
-          @goToList="scrollToList"
-        />
+      <!--
+        Sidebar (nur Desktop): erscheint, wenn ein Event ausgewählt ist UND
+        die Position berechnet wurde. Position wird dynamisch per :style gesetzt.
+        @click.stop verhindert, dass ein Klick IN der Sidebar den Backdrop auslöst.
+      -->
+      <div v-if="selectedEvent && sidebarPosition && !isMobile" class="sidebar-wrapper"
+        :style="{ left: sidebarPosition.x, top: sidebarPosition.y }" @click.stop>
+        <EventSidebar :selected-event="selectedEvent" @goToList="scrollToList" />
       </div>
 
-      <EventMobileSheet
-        v-if="selectedEvent && isMobile"
-        :event="selectedEvent"
-        @close="store.clearSelectedEvent()"
-        @goToList="handleMobileGoToList"
-      />
-
-            <!-- Verbindungslinie -->
-      <div
-        v-if="selectedEvent && !isMobile"
-        class="connection-line"
-        :style="lineStyle"
-      ></div>
+      <!--
+        Mobile Sheet: Auf kleinen Bildschirmen wird statt der Sidebar
+        ein Sheet von unten eingeblendet (wie eine App-Schublade).
+        @close → Event schließen, @goToList → zur Konferenz-Liste scrollen
+      -->
+      <EventMobileSheet v-if="selectedEvent && isMobile" :event="selectedEvent" @close="store.clearSelectedEvent()"
+        @goToList="handleMobileGoToList" />
 
     </div>
 
@@ -70,11 +56,16 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import EventMarker from './EventMarker.vue'
 import EventSidebar from './EventSidebar.vue'
 import EventMobileSheet from './EventMobileSheet.vue'
 import { useEventsStore } from '@/stores/useEventsStore'
+import { getEventPosition } from '@/utils/cityCoordinates'
 
+// Props, die von der Elternkomponente übergeben werden:
+// - events: Liste aller Events, die auf der Karte angezeigt werden sollen
+// - size: "large" (Standard) oder "small" für die Kartengröße
 const props = defineProps({
   events: {
     type: Array,
@@ -86,57 +77,85 @@ const props = defineProps({
   }
 })
 
+// Pinia-Store: verwaltet zentral das aktuell ausgewählte Event
 const store = useEventsStore()
+const router = useRouter()
+const route = useRoute()
 
+// Das aktuell ausgewählte Event – wird aus dem Store geholt (reaktiv)
+const selectedEvent = computed(() => store.selectedEvent)
+
+// Position der Sidebar auf der Karte (x = links, y = oben)
+// null = Sidebar wird nicht angezeigt
+const sidebarPosition = ref(null)
+
+// true wenn Bildschirmbreite ≤ 900px (Mobilansicht)
+const isMobile = ref(false)
+
+// Wird aufgerufen, wenn der Nutzer neben die Sidebar klickt (Backdrop-Klick)
 const handleOutsideClick = () => {
+  sidebarPosition.value = null
   store.clearSelectedEvent()
 }
 
+// Navigiert zur Konferenz-Karte in der Liste.
+// Wenn wir bereits auf der Konferenzen-Seite sind → direkt scrollen.
+// Wenn wir auf einer anderen Seite sind (z.B. Homepage) → zu /konferenzen
+// navigieren und ?highlight=id als Query-Parameter mitgeben.
+// KonferenzenView liest diesen Parameter nach dem Event-Laden aus und scrollt.
 const scrollToList = () => {
   const id = store.selectedEventId
   if (!id) return
 
-  document.getElementById(`event-${id}`)
-    ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  if (route.name === 'konferenzen') {
+    // Bereits auf der Konferenzen-Seite: scrollRequestId erhöhen → Watcher reagiert
+    store.setSelectedEvent(id, { scroll: true })
+  } else {
+    // Andere Seite (z.B. Homepage): mit highlight-Parameter navigieren
+    router.push({ name: 'konferenzen', query: { highlight: id } })
+  }
 }
 
-const selectedEvent = computed(() => store.selectedEvent)
-
-
-const isMobile = ref(false)
-
-
+// Prüft beim Laden und bei jedem Resize, ob wir im Mobilmodus sind
 const checkScreenSize = () => {
   isMobile.value = window.innerWidth <= 900
 }
 
+// Wird aufgerufen, wenn ein Pin auf der Karte angeklickt wird.
+// 1. Berechnet die Sidebar-Position aus dem Stadtname
+// 2. Speichert das ausgewählte Event im Store
+const handleSelect = (data) => {
+  // data kann direkt ein Event-Objekt sein oder { event: ... } enthalten
+  const event = data.event || data
 
-onMounted(() => {
+  if (event && event.city) {
+    // getEventPosition gibt CSS-Werte zurück, z.B. { left: "45%", top: "30%" }
+    const posStyle = getEventPosition(event.city)
+    sidebarPosition.value = {
+      x: posStyle.left,
+      y: `calc(${posStyle.top} + 50px)` // etwas nach unten versetzt
+    }
+  }
 
-  checkScreenSize()
-
-  window.addEventListener(
-    'resize',
-    checkScreenSize
-  )
-})
-
-onUnmounted(() => {
-
-  window.removeEventListener(
-    'resize',
-    checkScreenSize
-  )
-})
-
-const handleSelect = (event) => {
+  // Event im Store speichern → selectedEvent computed wird automatisch aktualisiert
   store.setSelectedEvent(event.id)
 }
 
+// Mobile: Zur Liste scrollen und dann das Sheet schließen
 const handleMobileGoToList = () => {
   scrollToList()
   store.clearSelectedEvent()
 }
+
+onMounted(() => {
+  checkScreenSize()
+  window.addEventListener('resize', checkScreenSize)
+})
+
+onUnmounted(() => {
+  // Event-Listener aufräumen, damit kein Memory-Leak entsteht
+  window.removeEventListener('resize', checkScreenSize)
+})
 </script>
 
 <style>
@@ -159,7 +178,7 @@ const handleMobileGoToList = () => {
 }
 
 .map-header p {
-  color: rgba(255,255,255,0.9);
+  color: rgba(255, 255, 255, 0.9);
   margin-top: 12px;
 }
 
@@ -220,52 +239,50 @@ const handleMobileGoToList = () => {
   left: 50%;
   width: 30px;
   height: 30px;
-  background: rgba(15,59,102,0.3);
+  background: rgba(15, 59, 102, 0.3);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   animation: pulse 1.8s infinite;
 }
 
 @keyframes pulse {
-  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
-  100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 0;
+  }
 }
 
-/* Sidebar ganz oben */
-.sidebar {
+/* Sidebar Wrapper - dynamische Positionierung */
+.sidebar-wrapper {
   position: absolute;
-
-  width: 200px;
-
-  background: linear-gradient(
-  to bottom,
-  rgba(255,255,255,0.96),
-  rgba(255,255,255,0.88)
-  );
   z-index: 40;
+  transform: translateX(-50%);
+  max-width: 90%;
+}
 
-/*  backdrop-filter: blur(4px); */
-
-  padding: 28px;
-
-  border-radius: 26px;
-
+/* Sidebar - verbesserte Optik */
+.sidebar {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.98),
+      rgba(255, 255, 255, 0.92));
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 32px;
+  min-width: 300px;
   box-shadow:
-    0 25px 60px rgba(0,0,0,0.12);
-
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 0 1px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   z-index: 20;
-
   will-change: transform;
-
-  transform:
-    translateY(-50%)
-    translateZ(0);
-
-  animation:
-    sidebarFade 0.35s ease;
-
+  transform: translateZ(0);
+  animation: sidebarFade 0.35s ease;
   transition: opacity 0.2s ease, transform 0.2s ease;
-
   backface-visibility: hidden;
 }
 
@@ -275,11 +292,9 @@ const handleMobileGoToList = () => {
   height: 2px;
 
   background:
-    linear-gradient(
-      to right,
+    linear-gradient(to right,
       rgba(194, 199, 205, 0.9),
-      rgba(15,59,102,0.15)
-    );
+      rgba(15, 59, 102, 0.15));
 
   z-index: 15;
 
@@ -314,17 +329,13 @@ const handleMobileGoToList = () => {
   from {
     opacity: 0;
     transform:
-      translateY(-50%)
-      translateX(30px)
-      translateZ(0);
+      translateY(-50%) translateX(30px) translateZ(0);
   }
 
   to {
     opacity: 1;
     transform:
-      translateY(-50%)
-      translateX(0)
-      translateZ(0);
+      translateY(-50%) translateX(0) translateZ(0);
   }
 }
 
@@ -339,5 +350,4 @@ const handleMobileGoToList = () => {
     opacity: 1;
   }
 }
-
 </style>

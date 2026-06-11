@@ -1,14 +1,16 @@
 <template>
-    <div
-      class="marker"
-      :style="positionStyle"
-      @click.stop="handleClick"
-    >
+  <!--
+    EventMarker: Ein einzelner klickbarer Pin auf der Deutschlandkarte.
+    Wird von DeutschlandMap.vue für jedes Event mit v-for gerendert.
+    - Die Position wird automatisch aus dem Stadtnamen berechnet
+    - @click.stop verhindert, dass der Klick zum Backdrop durchläuft
+  -->
+  <div class="marker" :style="positionStyle" @click.stop="handleClick">
 
-    <!-- Punkt -->
+    <!-- Der sichtbare Punkt des Pins -->
     <div class="dot"></div>
 
-    <!-- Puls Animation -->
+    <!-- Animierter Puls-Ring um den Punkt -->
     <div class="pulse"></div>
 
   </div>
@@ -18,6 +20,8 @@
 import { computed } from 'vue'
 import { getEventPosition } from '@/utils/cityCoordinates'
 
+// Props: Das Event-Objekt mit allen Daten (Pflichtfeld)
+// isMobile wird übergeben, hat aber aktuell keinen eigenen Effekt im Marker selbst
 const props = defineProps({
   event: {
     type: Object,
@@ -29,15 +33,17 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['hover', 'select'])
+// "select" wird nach oben an DeutschlandMap.vue gesendet, wenn der Pin geklickt wird
+const emit = defineEmits(['select'])
 
-/**
- * Position automatisch aus Stadt-Namen berechnen
- */
+// Berechnet die CSS-Position (left/top in %) aus dem Stadtnamen des Events.
+// getEventPosition schaut in einer Koordinaten-Tabelle nach und rechnet
+// die geografischen Koordinaten in Prozentwerte um.
 const positionStyle = computed(() => {
   return getEventPosition(props.event.city)
 })
 
+// Wenn der Pin angeklickt wird, senden wir das gesamte Event-Objekt nach oben
 const handleClick = () => {
   emit('select', props.event)
 }

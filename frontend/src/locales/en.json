@@ -1,4 +1,9 @@
 {
+  "notFound": {
+    "title": "Page not found",
+    "message": "The page you are looking for does not exist or has been moved.",
+    "button": "Back to Home"
+  },
   "navbar": {
     "home": "Home",
     "wasIstMun": "What is MUN?",
@@ -27,8 +32,8 @@
     "title": "Conferences in Germany",
     "search": "Search",
     "searchPlaceholder": "Search events...",
-    "scrollToList": "Event List",
-    "filters": {
+    "scrollToList": "Event List",    "noResults": "No conferences found",
+    "noResultsHint": "Try different filters or clear your search.",    "filters": {
       "search": "Search",
       "sorting": "Sorting",
       "targetGroup": "Target Group",
@@ -42,13 +47,30 @@
       "students": "Students",
       "miniMun": "Mini MUNs",
       "calendar": "Calendar",
-      "map": "Map"
+      "map": "Map",
+      "pastEvents": "Time Period",
+      "showPastEvents": "Show past events"
     },
     "card": {
       "firstConference": "First Conference",
       "applicationDeadline": "Application Deadline",
       "website": "Website",
-      "participants": "Participants"
+      "participants": "Participants",
+      "collapse": "Collapse",
+      "expandHint": "More details",
+      "language": {
+        "de": "German",
+        "en": "English",
+        "both": "German & English"
+      },
+      "type": {
+        "pupil": "Pupils",
+        "schueler": "Pupils",
+        "student": "Students",
+        "studenten": "Students",
+        "minimun": "Mini MUN",
+        "mini-mun": "Mini MUN"
+      }
     },
     "calendar": {
       "legend": {
@@ -70,8 +92,33 @@
   "teilnahme": {
     "title": "How can you participate?",
     "block1Title": "Information on Participation",
+    "block1": [
+      "Participation in a Model United Nations (MUN) conference is fundamentally open to all interested students and pupils - regardless of field of study or previous experience in international politics. Many conferences explicitly welcome beginners and offer preparatory materials or introductory sessions to facilitate entry.",
+      "As a rule, no special prior knowledge is required to participate. However, it is helpful to have an interest in political, social and international issues and a willingness to engage with the position of an assigned country. Since many MUN conferences are internationally oriented, debates often take place in English. Good English language skills are therefore advantageous, especially for discussions, speeches and negotiations.",
+      "The duration of MUN conferences varies depending on the event. Many conferences last between two and five days and often take place on weekends or during semester breaks. In addition to official sessions, the program often includes workshops, social events or networking opportunities.",
+      "Most events charge a participation fee. This often covers organizational costs, conference materials, catering or special events. Travel and accommodation costs may also apply. Some conferences offer discounted accommodation, hotel partnerships, or accommodation in youth hostels. University groups and sponsoring organizations sometimes provide financial support to participants.",
+      "Preparation for a MUN conference typically involves researching the assigned country and the respective discussion topic. Many universities and student MUN initiatives organize joint preparation meetings or training for this purpose."
+    ],
     "block2Title": "Participation in International MUNs",
+    "block2": [
+      "Participation in international Model United Nations conferences is possible both as an individual and as a member of a group.",
+      "An overview of international conferences is provided, for example, by:",
+      "<div class=\"link-card\"><a href=\"https://www.mun-europe.com/\" target=\"_blank\" rel=\"noopener noreferrer\">European Model United Nations Network</a></div>",
+      "<div class=\"link-card\"><a href=\"https://unausa.org/events/\" target=\"_blank\" rel=\"noopener noreferrer\">United Nations Association of USA</a></div>",
+      "<div class=\"link-card\"><a href=\"https://en.wikipedia.org/wiki/Model_United_Nations\" target=\"_blank\" rel=\"noopener noreferrer\">Wikipedia</a></div>",
+      "<div class=\"link-card\"><a href=\"https://wfuna.org/program/globalmodel/\" target=\"_blank\" rel=\"noopener noreferrer\">Global Model United Nations</a></div>",
+      "You can also participate as part of a delegation with the following groups at international conferences:",
+      "Inter-regional groups:",
+      "<div class=\"link-card\"><a href=\"https://www.sicherheitspolitik.de/hochschulgruppen\" target=\"_blank\" rel=\"noopener noreferrer\">Bundesverband Sicherheitspolitik an Hochschulen (BSH)</a></div>",
+      "<div class=\"link-card\"><a href=\"https://www.jgw-ev.de\" target=\"_blank\" rel=\"noopener noreferrer\">Jugendbildung in Gesellschaft und Wissenschaft e.V.</a></div>",
+      "<div class=\"link-card\"><a href=\"https://www.sdw.org\" target=\"_blank\" rel=\"noopener noreferrer\">Stiftung der Deutschen Wirtschaft (sdw)</a></div>"
+    ],
     "block3Title": "Mini-MUNs for Pupils",
+    "block3": [
+      "Mini-MUNs bring world politics into the classroom. Instead of regular lessons, pupils become active and become young diplomats for a day. Mini-MUNs are usually offered in schools for classes, courses or an entire grade level and last from two school hours to a whole project day.",
+      "The German Society for the United Nations (DGVN) has launched the project <a class=\"inline-link\" href=\"https://dgvn.de/aktivitaeten/un-im-klassenzimmer\" target=\"_blank\" rel=\"noopener noreferrer\">\"UN in the Classroom\"</a> in cooperation with the Young UN Network (JUNON). Through two different modules, the topic of the United Nations is brought \"into the classroom\" by students.",
+      "Previously, the Model United Nations working group of the <a class=\"inline-link\" href=\"https://junges-uno-netzwerk.de/\" target=\"_blank\" rel=\"noopener noreferrer\">Young UN Network Germany e.V.</a> created a comprehensive <a class=\"inline-link\" href=\"/download/MiniMUNs.zip\" target=\"_blank\" rel=\"noopener noreferrer\">toolbox for mini UN simulations in schools</a> in 2008. This toolbox contains all the materials an UN group needs to conduct a mini UN simulation at a school, in particular two guides and 16 appendices (handbooks, presentations, schedules, etc.)."
+    ],
     "steps": {
       "step1": "Choose an event",
       "step2": "Register",
@@ -85,13 +132,48 @@
     "pupils": "Pupils",
     "miniMuns": "Mini MUNs",
     "participate": "Participate",
+    "infos": "Participation Info",
+    "international": "International MUNs",
+    "miniMunsLabel": "Mini MUNs",
+    "service": "Service",
     "aboutUs": "About Us",
     "contact": "Contact",
-    "imprint": "Imprint"
+    "imprint": "Imprint",
+    "dataProtection": "Privacy Policy"
   },
   "infoCard": {
     "title": "Model United Nations?",
     "description": "Model United Nations (MUN) is a simulation game in which pupils and students take on the role of diplomats..."
+  },
+  "infoCardButton": {
+    "learnMore": "Learn More"
+  },
+  "munIntro": {
+    "title": "What does \"Model United Nations\" mean?",
+    "para1": "Model United Nations (MUN) conferences are simulation games in which participants take on the role of delegates at the United Nations. In simulated bodies such as the Security Council or the General Assembly, delegates debate global political issues, negotiate compromises, and adopt resolutions.",
+    "para2": "Each participant represents a country whose position they have studied before the conference. The personal opinion does not count, but rather the declared goal is to represent the official position of the country being represented as realistically as possible.",
+    "para3": "Work in the committees consists on the one hand of formal debates based on rules of procedure that are based on the actual regulations of the United Nations and the UN Charter, and on the other hand of informal working phases in which negotiation takes place and in which drafts of resolutions are developed together.",
+    "para4": "In the process, participants not only learn about the workings of international politics, but also train their rhetorical skills and can practice themselves in negotiation situations.",
+    "para5": "MUNs exist all over the world in many languages and for different age groups. In Germany there are a number of large conferences, usually held annually, for pupils and students whose official working language is usually German or English.",
+    "para6": "Moreover, there are many groups in Germany that regularly participate together as a delegation in international MUN conferences.",
+    "para7": "Each conference has its own special features – but they all share the goal of bringing the work of the United Nations closer to participants, strengthening interest and understanding for foreign cultures, and providing an exciting, enriching experience."
+  },
+  "munInfoLinks": {
+    "title": "Further Information",
+    "wikipedia": "Article \"Model United Nations\" on Wikipedia",
+    "dmunGallery": "MUN Gallery of the \"Deutsche MUN e.V.\" Association",
+    "dmunGalleryDescription": "– with photos and videos from several pupil MUNs",
+    "jungesUnoNetzwerk": "Junges UNO-Netzwerk Deutschland e.V.",
+    "jungesUnoNetzwerkDescription": "– an association within which the German MUNs collaborate among other things"
+  },
+  "munCTA": {
+    "findConferences": "Find Conferences",
+    "participation": "Participate"
+  },
+  "map": {
+    "participants": "Participants",
+    "goToConference": "Go to Conference",
+    "selectEvent": "Select an event on the map"
   },
   "common": {
     "close": "Close",
