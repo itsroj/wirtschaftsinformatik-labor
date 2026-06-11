@@ -604,19 +604,10 @@ async function deleteConference(confId) {
           </div>
         </div>
 
-        <div class="form-actions">
-          <button type="button" class="cancel" @click="reset" :disabled="loading">Zurücksetzen</button>
-          <button type="submit" :disabled="loading || titleWarning">
-            {{ loading ? 'Wird gespeichert...' : (istBearbeiten ? 'Änderungen speichern' : 'Konferenz speichern') }}
-          </button>
-        </div>
+        <div class="form-divider"></div>
 
-      </form>
-
-      <!-- KONFERENZDATEN (Termine) -->
-      <section class="conferences-section">
         <div class="section-header">
-          <h2>Konferenzdaten</h2>
+          <h3 class="section-title">Konferenzdaten</h3>
           <button type="button" class="add-conf-btn" @click="showNewConf = true" v-if="!showNewConf">
             + Neuen Termin hinzufügen
           </button>
@@ -625,7 +616,7 @@ async function deleteConference(confId) {
         <div v-if="confSuccess" class="success conf-msg">{{ confSuccess }}</div>
         <div v-if="confError" class="error conf-msg">{{ confError }}</div>
 
-        <div class="conference-list">
+        <div class="conference-list" style="max-height: 420px; overflow-y: auto;">
 
           <!-- Eingabe-Zeile für neuen Termin -->
           <div v-if="showNewConf" class="conference-row new-row">
@@ -699,7 +690,17 @@ async function deleteConference(confId) {
           </div>
 
         </div>
-      </section>
+
+        <div class="form-divider"></div>
+
+        <div class="form-actions">
+          <button type="button" class="cancel" @click="reset" :disabled="loading">Zurücksetzen</button>
+          <button type="submit" :disabled="loading || titleWarning">
+            {{ loading ? 'Wird gespeichert...' : (istBearbeiten ? 'Änderungen speichern' : 'Konferenz speichern') }}
+          </button>
+        </div>
+
+      </form>
 
     </main>
   </div>
