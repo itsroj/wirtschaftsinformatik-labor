@@ -1,17 +1,18 @@
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: dmun_postgres
-    environment:
-      POSTGRES_USER: ${DB_USER:-munuser}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-munpassword}
-      POSTGRES_DB: ${DB_NAME:-mundb}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - dmun_network
+  # Auskommentiert: Verwenden wir Supabase als Cloud-Datenbank statt lokaler PostgreSQL
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: dmun_postgres
+  #   environment:
+  #     POSTGRES_USER: ${DB_USER:-munuser}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-munpassword}
+  #     POSTGRES_DB: ${DB_NAME:-mundb}
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - dmun_network
 
   backend:
     build: ./backend
@@ -23,8 +24,6 @@ services:
       - 8.8.4.4
     ports:
       - "5000:5000"
-    depends_on:
-      - postgres
     networks:
       - dmun_network
 
@@ -53,7 +52,8 @@ services:
       - dmun_network
 
 volumes:
-  postgres_data:
+  # Auskommentiert: postgres_data nicht mehr nötig (Supabase-Nutzung)
+  # postgres_data:
 
 networks:
   dmun_network:
