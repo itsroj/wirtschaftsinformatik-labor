@@ -16,7 +16,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 // API-Basis-URL aus Umgebungsvariable, Fallback für lokale Entwicklung
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API_URL = import.meta.env.VITE_API_URL || ''
 
 const router = useRouter()
 const route = useRoute()

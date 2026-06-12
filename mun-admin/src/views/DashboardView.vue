@@ -11,7 +11,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 // API-Basis-URL aus Umgebungsvariable, Fallback für lokale Entwicklung
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API_URL = import.meta.env.VITE_API_URL || ''
 
 const router = useRouter()
 
@@ -334,7 +334,10 @@ function logout() {
 </template>
 
 <style scoped>
-.dashboard { display: flex; min-height: 100vh; }
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+}
 
 .sidebar {
   width: 240px;
@@ -345,8 +348,19 @@ function logout() {
   flex-direction: column;
   gap: 2rem;
 }
-.sidebar h2 { margin: 0; font-size: 1.4rem; color: #66bdf5; }
-nav { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.sidebar h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #66bdf5;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 nav a {
   color: #cbd5e1;
   text-decoration: none;
@@ -354,8 +368,17 @@ nav a {
   border-radius: 8px;
   cursor: pointer;
 }
-nav a:hover, nav a.active { background: #ffffff15; color: white; }
-nav a.active { color: #66bdf5; }
+
+nav a:hover,
+nav a.active {
+  background: #ffffff15;
+  color: white;
+}
+
+nav a.active {
+  color: #66bdf5;
+}
+
 .logout {
   margin-top: auto;
   padding: 0.75rem;
@@ -366,7 +389,11 @@ nav a.active { color: #66bdf5; }
   cursor: pointer;
 }
 
-.content { flex: 1; padding: 2.5rem; background: #f0f2f5; }
+.content {
+  flex: 1;
+  padding: 2.5rem;
+  background: #f0f2f5;
+}
 
 .topbar {
   display: flex;
@@ -374,8 +401,16 @@ nav a.active { color: #66bdf5; }
   align-items: center;
   margin-bottom: 2rem;
 }
-.topbar h1 { margin: 0 0 0.25rem; color: #0f3b66; }
-.topbar p { margin: 0; color: #666; }
+
+.topbar h1 {
+  margin: 0 0 0.25rem;
+  color: #0f3b66;
+}
+
+.topbar p {
+  margin: 0;
+  color: #666;
+}
 
 .btn-primary {
   padding: 0.75rem 1.5rem;
@@ -386,7 +421,10 @@ nav a.active { color: #66bdf5; }
   font-size: 1rem;
   cursor: pointer;
 }
-.btn-primary:hover { background: #092a4a; }
+
+.btn-primary:hover {
+  background: #092a4a;
+}
 
 .stats {
   display: grid;
@@ -394,6 +432,7 @@ nav a.active { color: #66bdf5; }
   gap: 1.25rem;
   margin-bottom: 2rem;
 }
+
 .stat-card {
   background: white;
   border-radius: 12px;
@@ -401,21 +440,38 @@ nav a.active { color: #66bdf5; }
   display: flex;
   align-items: center;
   gap: 1rem;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
-.stat-card .icon { font-size: 2rem; }
-.stat-card div { display: flex; flex-direction: column; }
-.number { font-size: 1.8rem; font-weight: bold; color: #0f3b66; }
-.label { font-size: 0.85rem; color: #666; }
+
+.stat-card .icon {
+  font-size: 2rem;
+}
+
+.stat-card div {
+  display: flex;
+  flex-direction: column;
+}
+
+.number {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #0f3b66;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #666;
+}
 
 .table-card {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   max-height: 600px;
   overflow-y: auto;
 }
+
 .table-header {
   display: flex;
   justify-content: space-between;
@@ -423,7 +479,13 @@ nav a.active { color: #66bdf5; }
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid #f0f0f0;
 }
-.table-header h2 { margin: 0; font-size: 1.1rem; color: #0f3b66; }
+
+.table-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #0f3b66;
+}
+
 .search {
   padding: 0.5rem 1rem;
   border: 1px solid #ddd;
@@ -431,7 +493,10 @@ nav a.active { color: #66bdf5; }
   font-size: 0.9rem;
   outline: none;
 }
-.search:focus { border-color: #2677b5; }
+
+.search:focus {
+  border-color: #2677b5;
+}
 
 .loading {
   padding: 2rem;
@@ -449,8 +514,15 @@ nav a.active { color: #66bdf5; }
   font-size: 0.9rem;
 }
 
-table { width: 100%; border-collapse: collapse; }
-thead { background: #f8f9fa; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #f8f9fa;
+}
+
 th {
   text-align: left;
   padding: 0.75rem 1.5rem;
@@ -458,12 +530,20 @@ th {
   color: #666;
   font-weight: 600;
 }
+
 th.sortable {
   cursor: pointer;
   user-select: none;
 }
-th.sortable:hover { color: #0f3b66; }
-.sort-icon { margin-left: 0.25rem; }
+
+th.sortable:hover {
+  color: #0f3b66;
+}
+
+.sort-icon {
+  margin-left: 0.25rem;
+}
+
 td {
   padding: 1rem 1.5rem;
   border-top: 1px solid #f0f0f0;
@@ -484,9 +564,21 @@ td {
   font-size: 0.8rem;
   font-weight: 600;
 }
-.badge.aktiv { background: #dcfce7; color: #16a34a; }
-.badge.ausstehend { background: #fef9c3; color: #ca8a04; }
-.badge.vergangen { background: #f1f5f9; color: #94a3b8; }
+
+.badge.aktiv {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.badge.ausstehend {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+.badge.vergangen {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
 
 .btn-edit {
   padding: 0.35rem 0.75rem;
@@ -498,6 +590,7 @@ td {
   cursor: pointer;
   margin-right: 0.5rem;
 }
+
 .btn-delete {
   padding: 0.35rem 0.75rem;
   background: #fee2e2;
@@ -511,26 +604,37 @@ td {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;
 }
+
 .modal {
   background: white;
   border-radius: 12px;
   padding: 2rem;
   width: 400px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
-.modal h3 { margin: 0 0 0.5rem; color: #0f3b66; }
-.modal p { margin: 0 0 1.5rem; color: #666; }
+
+.modal h3 {
+  margin: 0 0 0.5rem;
+  color: #0f3b66;
+}
+
+.modal p {
+  margin: 0 0 1.5rem;
+  color: #666;
+}
+
 .modal-actions {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
 }
+
 .cancel {
   padding: 0.75rem 1.5rem;
   background: white;
@@ -540,6 +644,7 @@ td {
   font-size: 1rem;
   cursor: pointer;
 }
+
 .btn-delete-confirm {
   padding: 0.75rem 1.5rem;
   background: #dc2626;
@@ -549,7 +654,10 @@ td {
   font-size: 1rem;
   cursor: pointer;
 }
-.btn-delete-confirm:hover { background: #b91c1c; }
+
+.btn-delete-confirm:hover {
+  background: #b91c1c;
+}
 
 .success-toast {
   position: fixed;
@@ -559,7 +667,7 @@ td {
   color: white;
   padding: 1rem 1.5rem;
   border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   font-size: 0.95rem;
   z-index: 200;
 }

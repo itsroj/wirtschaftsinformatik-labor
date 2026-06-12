@@ -13,7 +13,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 // API-Basis-URL aus Umgebungsvariable, Fallback für lokale Entwicklung
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API_URL = import.meta.env.VITE_API_URL || ''
 
 const router = useRouter()
 
@@ -84,25 +84,13 @@ async function login() {
       <!-- Fehlermeldung (Client-Validierung oder Backend-Fehler) -->
       <div v-if="error" class="error">{{ error }}</div>
 
-      <input
-        v-model="email"
-        type="email"
-        placeholder="E-Mail"
-        autocomplete="email"
-        :disabled="loading"
-        @keyup.enter="login"
-      />
+      <input v-model="email" type="email" placeholder="E-Mail" autocomplete="email" :disabled="loading"
+        @keyup.enter="login" />
 
       <!-- Passwort-Feld mit Sichtbarkeits-Toggle -->
       <div class="password-wrapper">
-        <input
-          v-model="password"
-          :type="showPassword ? 'text' : 'password'"
-          placeholder="Passwort"
-          autocomplete="current-password"
-          :disabled="loading"
-          @keyup.enter="login"
-        />
+        <input v-model="password" :type="showPassword ? 'text' : 'password'" placeholder="Passwort"
+          autocomplete="current-password" :disabled="loading" @keyup.enter="login" />
         <button type="button" class="toggle-pw" @click="showPassword = !showPassword" tabindex="-1">
           {{ showPassword ? '◉' : '○' }}
         </button>
@@ -123,25 +111,29 @@ async function login() {
   justify-content: center;
   background: radial-gradient(circle at top, #66bdf5 0%, #3c95d1 45%, #2677b5 100%);
 }
+
 .login-card {
   background: white;
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   width: 360px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
+
 h1 {
   margin: 0;
   font-size: 1.8rem;
   color: #0f3b66;
 }
+
 p {
   margin: 0;
   color: #666;
 }
+
 input {
   padding: 0.75rem 1rem;
   border: 1px solid #ddd;
@@ -151,21 +143,26 @@ input {
   width: 100%;
   box-sizing: border-box;
 }
+
 input:focus {
   border-color: #2677b5;
 }
+
 input:disabled {
   background: #f9f9f9;
   color: #aaa;
 }
+
 .password-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
+
 .password-wrapper input {
   padding-right: 3rem;
 }
+
 .toggle-pw {
   position: absolute;
   right: 0.75rem;
@@ -176,6 +173,7 @@ input:disabled {
   padding: 0;
   color: #666;
 }
+
 button {
   padding: 0.75rem;
   background: #0f3b66;
@@ -185,13 +183,16 @@ button {
   font-size: 1rem;
   cursor: pointer;
 }
+
 button:hover:not(:disabled) {
   background: #092a4a;
 }
+
 button:disabled {
   background: #66bdf5;
   cursor: not-allowed;
 }
+
 .error {
   background: #fee2e2;
   color: #dc2626;

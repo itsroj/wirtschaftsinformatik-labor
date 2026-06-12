@@ -110,7 +110,7 @@ export const useEventsStore = defineStore('events', {
     async fetchEvents() {
       this.loading = true
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+        const apiUrl = import.meta.env.VITE_API_URL || ''
         const res = await fetch(`${apiUrl}/api/events`)
         if (!res.ok) throw new Error(`Server-Fehler: ${res.status}`)
         this.events = await res.json()

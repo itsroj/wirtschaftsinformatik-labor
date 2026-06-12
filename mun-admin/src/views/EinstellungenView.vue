@@ -12,7 +12,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 // API-Basis-URL aus Umgebungsvariable, Fallback für lokale Entwicklung
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API_URL = import.meta.env.VITE_API_URL || ''
 
 const router = useRouter()
 
@@ -179,12 +179,7 @@ function logout() {
         <div v-if="emailError" class="error">{{ emailError }}</div>
         <div class="form-group">
           <label>Neue E-Mail</label>
-          <input
-            v-model="newEmail"
-            type="email"
-            placeholder="neue@email.de"
-            autocomplete="email"
-          />
+          <input v-model="newEmail" type="email" placeholder="neue@email.de" autocomplete="email" />
         </div>
         <button type="button" @click="saveEmail" :disabled="emailLoading">
           {{ emailLoading ? 'Wird gespeichert...' : 'E-Mail speichern' }}
@@ -200,12 +195,8 @@ function logout() {
         <div class="form-group">
           <label>Aktuelles Passwort</label>
           <div class="pw-wrapper">
-            <input
-              v-model="currentPassword"
-              :type="showCurrent ? 'text' : 'password'"
-              placeholder="Aktuelles Passwort"
-              autocomplete="current-password"
-            />
+            <input v-model="currentPassword" :type="showCurrent ? 'text' : 'password'" placeholder="Aktuelles Passwort"
+              autocomplete="current-password" />
             <button type="button" class="toggle-pw" @click="showCurrent = !showCurrent" tabindex="-1">
               {{ showCurrent ? '◉' : '○' }}
             </button>
@@ -216,12 +207,8 @@ function logout() {
         <div class="form-group">
           <label>Neues Passwort <span class="hint">(min. 8 Zeichen)</span></label>
           <div class="pw-wrapper">
-            <input
-              v-model="newPassword"
-              :type="showNew ? 'text' : 'password'"
-              placeholder="Neues Passwort"
-              autocomplete="new-password"
-            />
+            <input v-model="newPassword" :type="showNew ? 'text' : 'password'" placeholder="Neues Passwort"
+              autocomplete="new-password" />
             <button type="button" class="toggle-pw" @click="showNew = !showNew" tabindex="-1">
               {{ showNew ? '◉' : '○' }}
             </button>
@@ -231,12 +218,8 @@ function logout() {
         <div class="form-group">
           <label>Neues Passwort bestätigen</label>
           <div class="pw-wrapper">
-            <input
-              v-model="confirmPassword"
-              :type="showConfirm ? 'text' : 'password'"
-              placeholder="Passwort wiederholen"
-              autocomplete="new-password"
-            />
+            <input v-model="confirmPassword" :type="showConfirm ? 'text' : 'password'"
+              placeholder="Passwort wiederholen" autocomplete="new-password" />
             <button type="button" class="toggle-pw" @click="showConfirm = !showConfirm" tabindex="-1">
               {{ showConfirm ? '◉' : '○' }}
             </button>
@@ -253,7 +236,11 @@ function logout() {
 </template>
 
 <style scoped>
-.dashboard { display: flex; min-height: 100vh; }
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+}
+
 .sidebar {
   width: 240px;
   background: #0f3b66;
@@ -263,8 +250,19 @@ function logout() {
   flex-direction: column;
   gap: 2rem;
 }
-.sidebar h2 { margin: 0; font-size: 1.4rem; color: #66bdf5; }
-nav { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.sidebar h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #66bdf5;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 nav a {
   color: #cbd5e1;
   text-decoration: none;
@@ -272,8 +270,17 @@ nav a {
   border-radius: 8px;
   cursor: pointer;
 }
-nav a:hover, nav a.active { background: #ffffff15; color: white; }
-nav a.active { color: #66bdf5; }
+
+nav a:hover,
+nav a.active {
+  background: #ffffff15;
+  color: white;
+}
+
+nav a.active {
+  color: #66bdf5;
+}
+
 .logout {
   margin-top: auto;
   padding: 0.75rem;
@@ -283,34 +290,71 @@ nav a.active { color: #66bdf5; }
   border-radius: 8px;
   cursor: pointer;
 }
-.content { flex: 1; padding: 2.5rem; background: #f0f2f5; }
-h1 { margin: 0 0 0.5rem; color: #0f3b66; }
-h2 { margin: 0 0 1rem; color: #0f3b66; font-size: 1.1rem; }
-p { color: #666; margin: 0 0 2rem; }
+
+.content {
+  flex: 1;
+  padding: 2.5rem;
+  background: #f0f2f5;
+}
+
+h1 {
+  margin: 0 0 0.5rem;
+  color: #0f3b66;
+}
+
+h2 {
+  margin: 0 0 1rem;
+  color: #0f3b66;
+  font-size: 1.1rem;
+}
+
+p {
+  color: #666;
+  margin: 0 0 2rem;
+}
+
 .section {
   background: white;
   padding: 1.5rem 2rem;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   max-width: 500px;
   margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
-.form-group { display: flex; flex-direction: column; gap: 0.4rem; }
-label { font-size: 0.9rem; font-weight: 600; color: #374151; }
-.hint { font-weight: 400; color: #999; font-size: 0.85rem; }
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.hint {
+  font-weight: 400;
+  color: #999;
+  font-size: 0.85rem;
+}
+
 .pw-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
+
 .pw-wrapper input {
   width: 100%;
   padding-right: 3rem;
   box-sizing: border-box;
 }
+
 .toggle-pw {
   position: absolute;
   right: 0.75rem;
@@ -321,6 +365,7 @@ label { font-size: 0.9rem; font-weight: 600; color: #374151; }
   padding: 0;
   color: #666;
 }
+
 input {
   padding: 0.75rem 1rem;
   border: 1px solid #ddd;
@@ -330,7 +375,11 @@ input {
   width: 100%;
   box-sizing: border-box;
 }
-input:focus { border-color: #2677b5; }
+
+input:focus {
+  border-color: #2677b5;
+}
+
 button {
   padding: 0.75rem 1.5rem;
   background: #0f3b66;
@@ -341,8 +390,16 @@ button {
   cursor: pointer;
   align-self: flex-start;
 }
-button:hover:not(:disabled) { background: #092a4a; }
-button:disabled { background: #66bdf5; cursor: not-allowed; }
+
+button:hover:not(:disabled) {
+  background: #092a4a;
+}
+
+button:disabled {
+  background: #66bdf5;
+  cursor: not-allowed;
+}
+
 .success {
   background: #dcfce7;
   color: #16a34a;
@@ -350,6 +407,7 @@ button:disabled { background: #66bdf5; cursor: not-allowed; }
   border-radius: 8px;
   font-size: 0.9rem;
 }
+
 .error {
   background: #fee2e2;
   color: #dc2626;

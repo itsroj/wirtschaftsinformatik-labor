@@ -22,8 +22,8 @@ services:
     dns:
       - 8.8.8.8
       - 8.8.4.4
-    ports:
-      - "5000:5000"
+    expose:
+      - "5000"  # Nur intern im Docker Network erreichbar – nicht öffentlich
     networks:
       - dmun_network
 
@@ -50,10 +50,6 @@ services:
       - backend
     networks:
       - dmun_network
-
-volumes:
-  # Auskommentiert: postgres_data nicht mehr nötig (Supabase-Nutzung)
-  # postgres_data:
 
 networks:
   dmun_network:
